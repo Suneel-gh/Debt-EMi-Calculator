@@ -1,112 +1,361 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-    <!-- PWA & Standalone App Meta Tags -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#090d16">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#090d16">
-  <link rel="manifest" href="manifest.json">
+  <meta name="apple-mobile-web-app-title" content="DebtTracker">
+  <title>Debt & EMI Executive Manager</title>
+  
+  <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/5501/5501375.png">
-  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/5501/5501375.png">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            app: {
+              bg: '#090d16',
+              card: '#121827',
+              border: '#1e293b',
+              accent: '#6366f1',
+              accentDark: '#4f46e5',
+              success: '#10b981',
+              danger: '#f43f5e',
+              warning: '#f59e0b',
+              surface: '#182234'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Chart.js & FontAwesome -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    * { -webkit-tap-highlight-color: transparent; user-select: none; }
+    input, textarea, select { user-select: auto; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #090d16;
+      color: #f1f5f9;
+      overscroll-behavior-y: contain;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .glass-card {
+      background: linear-gradient(145deg, rgba(24, 34, 52, 0.85) 0%, rgba(18, 24, 39, 0.95) 100%);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+    .active-nav { color: #818cf8 !important; }
+    .safe-bottom { padding-bottom: max(1.2rem, env(safe-area-inset-bottom)); }
+    .safe-top { padding-top: max(0.8rem, env(safe-area-inset-top)); }
+  </style>
 
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW reg fail:', err));
+        navigator.serviceWorker.register('sw.js', { scope: './' }).catch(err => console.log(err));
       });
     }
   </script>
-  
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#17365d">
-<title>Debt & EMI</title>
-<style>
-:root{--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#6b7280;--primary:#17365d;--accent:#2f80ed;--green:#27ae60;--orange:#f2994a;--red:#eb5757;--line:#e6eaf0}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--text)}
-.app{max-width:1100px;margin:auto;min-height:100vh}.top{background:linear-gradient(135deg,#17365d,#275b91);color:white;padding:22px 18px 18px;border-radius:0 0 24px 24px}.top h1{margin:0;font-size:24px}.top p{margin:6px 0 0;opacity:.8;font-size:13px}
-nav{display:flex;gap:8px;overflow:auto;padding:12px 12px 4px;position:sticky;top:0;background:var(--bg);z-index:5}nav button{border:0;background:var(--card);padding:10px 14px;border-radius:20px;white-space:nowrap;color:var(--muted);font-weight:600}nav button.active{background:var(--primary);color:white}
-main{padding:10px 14px 90px}.view{display:none}.view.active{display:block}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px;box-shadow:0 4px 18px #17365d0d}.kpi small{color:var(--muted);display:block}.kpi strong{font-size:21px;display:block;margin-top:7px}.section{margin-top:16px}.section h2{font-size:16px;margin:0 0 10px}.row{display:flex;justify-content:space-between;align-items:center;gap:12px}.item{padding:13px 0;border-bottom:1px solid var(--line)}.item:last-child{border:0}.name{font-weight:700}.sub{font-size:12px;color:var(--muted);margin-top:3px}.money{font-weight:800}.bar{height:8px;background:#edf1f6;border-radius:8px;overflow:hidden;margin-top:9px}.bar i{display:block;height:100%;background:var(--accent);border-radius:8px}.badge{font-size:11px;padding:4px 8px;border-radius:12px;background:#eef4ff;color:#245ca8}.badge.green{background:#e9f8ef;color:#187a3e}.badge.orange{background:#fff3e8;color:#b85c10}.form{display:grid;gap:10px}.form input,.form select{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;background:white;font-size:15px}.btn{border:0;background:var(--primary);color:white;padding:12px 15px;border-radius:12px;font-weight:700}.btn.secondary{background:#edf3fa;color:var(--primary)}.btn.danger{background:#feecec;color:#a92d2d}.actions{display:flex;gap:8px;flex-wrap:wrap}.chart{width:100%;height:190px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:10px}.chart svg{width:100%;height:100%}.hint{font-size:12px;color:var(--muted);line-height:1.5}.empty{padding:30px;text-align:center;color:var(--muted)}@media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}.kpi strong{font-size:18px}}@media(min-width:900px){main{padding-left:24px;padding-right:24px}.top{padding-left:28px;padding-right:28px}}
-</style>
 </head>
-<body>
-<div class="app">
-<header class="top"><h1>Debt & EMI</h1><p>Monthly commitments, progress and payoff predictions</p></header>
-<nav id="nav">
-<button data-v="dashboard" class="active">Dashboard</button><button data-v="update">Monthly Update</button><button data-v="trends">Trends</button><button data-v="predict">Predictions</button><button data-v="manage">Manage</button>
-</nav>
-<main>
-<section id="dashboard" class="view active"></section>
-<section id="update" class="view"></section>
-<section id="trends" class="view"></section>
-<section id="predict" class="view"></section>
-<section id="manage" class="view"></section>
-</main>
-</div>
-<script>
-const seed=[
-["Home Loan","Home Loan",3000000,35000,2950000,35000,.085,"Normal"],
-["Personal Loan","Personal Loan",5300000,45000,5250000,45000,.12,"High"],
-["Car Loan","Vehicle",2000000,30000,1850000,30000,.09,"Normal"],
-["Phone EMI","Electronics",50000,5000,40000,5000,0,"Low"],
-["Washing Machine","Appliance",25000,4000,17000,4000,0,"Low"],
-["TV EMI","Electronics",45000,5000,35000,5000,0,"Low"],
-["Credit Card","Credit Card",95000,10000,75000,10000,.18,"High"]
-];
-let data=JSON.parse(localStorage.getItem("debtData")||"null")||{months:["Aug-26","Sep-26","Oct-26"],items:seed.map(x=>({name:x[0],cat:x[1],original:x[2],emi:x[3],balance:x[4],prev:x[5],rate:x[6],priority:x[7],history:[x[2],x[4],x[4]]}))};
-function save(){localStorage.setItem("debtData",JSON.stringify(data))}
-const money=n=>"₹"+Math.round(n||0).toLocaleString("en-IN");
-function latest(){return data.items.filter(x=>x.balance>0)}
-function reduction(x){return Math.max(0,(x.prev||x.balance)-x.balance)}
-function payoff(x){let h=x.history||[];let vals=h.slice(1).map((v,i)=>Math.max(0,(h[i]||v)-v)).filter(v=>v>0);let avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:x.emi||0;return avg?Math.ceil(x.balance/avg):null}
-function finish(x){let m=payoff(x);if(!m)return "Need more history";let d=new Date();d.setMonth(d.getMonth()+m);return d.toLocaleString("en-IN",{month:"short",year:"numeric"})}
-function nav(){document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));document.getElementById(b.dataset.v).classList.add("active");render()})}
-function dashboard(){
-let a=latest(), total=a.reduce((s,x)=>s+x.balance,0), emi=a.reduce((s,x)=>s+x.emi,0), red=a.reduce((s,x)=>s+reduction(x),0);
-let top=[...a].sort((x,y)=>y.balance-x.balance).slice(0,5);
-return `<div class="grid">
-<div class="card kpi"><small>Total outstanding</small><strong>${money(total)}</strong></div>
-<div class="card kpi"><small>Monthly EMI</small><strong>${money(emi)}</strong></div>
-<div class="card kpi"><small>Reduced this month</small><strong>${money(red)}</strong></div>
-<div class="card kpi"><small>Active commitments</small><strong>${a.length}</strong></div></div>
-<div class="section card"><div class="row"><h2>Where your money sits</h2><span class="badge">${data.months.at(-1)||""}</span></div>
-${top.map(x=>`<div class="item"><div class="row"><div><div class="name">${x.name}</div><div class="sub">${x.cat} · EMI ${money(x.emi)}</div></div><div class="money">${money(x.balance)}</div></div><div class="bar"><i style="width:${Math.min(100,Math.max(4,(x.balance/x.original)*100))}%"></i></div></div>`).join("")}</div>
-<div class="section card"><h2>Next focus</h2><div class="row"><div><div class="name">${[...a].sort((x,y)=>(y.balance/Math.max(1,reduction(y)))-(x.balance/Math.max(1,reduction(x))))[0]?.name||"—"}</div><div class="sub">Large balance relative to recent reduction; interest and priority should also be considered.</div></div><span class="badge orange">Review</span></div></div>`;
-}
-function update(){
-return `<div class="card"><h2>Monthly update</h2><p class="hint">Enter the latest outstanding balance. The app calculates the reduction and keeps the history automatically.</p>
-<div class="form"><input id="month" value="${data.months.at(-1)||""}" placeholder="Month e.g. Nov-26">
-${data.items.map((x,i)=>`<div class="item"><div class="row"><div><div class="name">${x.name}</div><div class="sub">Previous ${money(x.balance)}</div></div><input data-i="${i}" class="bal" type="number" value="${x.balance}" style="max-width:150px"></div></div>`).join("")}
-<button class="btn" id="saveMonth">Save monthly update</button></div></div>`;
-}
-function trends(){
-let vals=data.items.map(x=>({n:x.name, h:x.history||[]})); let all=[];
-for(let i=0;i<Math.max(...vals.map(x=>x.h.length));i++) all.push(vals.reduce((s,x)=>s+(x.h[i]||0),0));
-let max=Math.max(...all,1), pts=all.map((v,i)=>`${(i/(Math.max(all.length-1,1)))*100},${175-(v/max)*150}`).join(" ");
-return `<div class="section"><h2>Overall outstanding trend</h2><div class="chart"><svg viewBox="0 0 100 190" preserveAspectRatio="none"><polyline fill="none" stroke="#2f80ed" stroke-width="2" points="${pts}"/></svg></div></div>
-<div class="section card"><h2>Metric-wise trend</h2>${vals.map(x=>`<div class="item"><div class="row"><span class="name">${x.n}</span><span>${money(x.h.at(-1)||0)}</span></div><div class="sub">${x.h.map((v,i)=>`${data.months[i]||"Month "+(i+1)}: ${money(v)}`).join(" · ")}</div></div>`).join("")}</div>
-<div class="section card"><h2>Category-wise current outstanding</h2>${Object.entries(latest().reduce((o,x)=>(o[x.cat]=(o[x.cat]||0)+x.balance,o),{})).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="item"><div class="row"><span class="name">${k}</span><span class="money">${money(v)}</span></div></div>`).join("")}</div>`;
-}
-function predict(){
-let a=latest().map(x=>({...x,m:payoff(x)})).sort((x,y)=>(x.m||999)-(y.m||999));
-return `<div class="card"><h2>Payoff predictions</h2><p class="hint">Forecast uses each commitment's observed monthly balance reduction. More monthly history makes this more reliable.</p>${a.map(x=>`<div class="item"><div class="row"><div><div class="name">${x.name}</div><div class="sub">Balance ${money(x.balance)} · Average reduction ${money(x.m?x.balance/x.m:0)}/mo</div></div><span class="badge ${x.m&&x.m<=3?"green":""}">${x.m?finish(x):"Need history"}</span></div>
-<div class="sub">${x.m&&x.m<=3?"FINISH SOON — this commitment may release its EMI shortly.":x.priority==="High"?"HIGH PRIORITY — review after mandatory payments.":"Continue monthly tracking."}</div></div>`).join("")}</div>
-<div class="section card"><h2>Cash-flow opportunities</h2>${a.filter(x=>x.m&&x.m<=6).map(x=>`<div class="item"><div class="row"><span><b>${x.name}</b> may finish around ${finish(x)}</span><span class="money">+${money(x.emi)}/mo</span></div></div>`).join("")||'<div class="empty">No commitment is currently projected to finish within 6 months.</div>'}</div>`;
-}
-function manage(){
-return `<div class="card"><h2>Add commitment</h2><div class="form">
-<input id="n" placeholder="Name e.g. Laptop EMI"><select id="c"><option>Electronics</option><option>Home Loan</option><option>Personal Loan</option><option>Vehicle</option><option>Appliance</option><option>Credit Card</option><option>Other</option></select>
-<input id="o" type="number" placeholder="Original amount"><input id="e" type="number" placeholder="Monthly EMI"><input id="b" type="number" placeholder="Current outstanding"><input id="r" type="number" step=".01" placeholder="Interest rate %"><select id="p"><option>Low</option><option>Normal</option><option>High</option></select><button class="btn" id="add">Add commitment</button></div></div>
-<div class="section card"><h2>Current commitments</h2>${data.items.map((x,i)=>`<div class="item"><div class="row"><div><div class="name">${x.name}</div><div class="sub">${x.cat} · ${money(x.balance)}</div></div><button class="btn danger" data-del="${i}">Remove</button></div></div>`).join("")}</div>`;
-}
-function bind(){
-document.getElementById("saveMonth")?.addEventListener("click",()=>{let m=document.getElementById("month").value.trim();if(!m)return; if(!data.months.includes(m))data.months.push(m);document.querySelectorAll(".bal").forEach(el=>{let x=data.items[+el.dataset.i];x.prev=x.balance;x.balance=+el.value||0;x.history=x.history||[];x.history.push(x.balance)});save();render();alert("Monthly update saved.")});
-document.getElementById("add")?.addEventListener("click",()=>{let n=document.getElementById("n").value.trim();let b=+document.getElementById("b").value||0;if(!n||!b)return alert("Enter at least a name and outstanding balance.");data.items.push({name:n,cat:document.getElementById("c").value,original:+document.getElementById("o").value||b,emi:+document.getElementById("e").value||0,balance:b,prev:b,rate:(+document.getElementById("r").value||0)/100,priority:document.getElementById("p").value,history:[b]});save();render()});
-document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{data.items.splice(+b.dataset.del,1);save();render()});
-}
-function render(){dashboardEl.innerHTML=dashboard();updateEl.innerHTML=update();trendsEl.innerHTML=trends();predictEl.innerHTML=predict();manageEl.innerHTML=manage();bind()}
-const dashboardEl=document.getElementById("dashboard"),updateEl=document.getElementById("update"),trendsEl=document.getElementById("trends"),predictEl=document.getElementById("predict"),manageEl=document.getElementById("manage");nav();render();
-</script>
-</body>
-</html>
+<body class="bg-app-bg text-slate-100 min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white pb-28">
+
+  <!-- ================= AUTH VIEW (LOGIN / SIGNUP) ================= -->
+  <section id="authSection" class="fixed inset-0 z-50 bg-app-bg flex flex-col justify-center items-center px-4">
+    <div class="w-full max-w-sm glass-card p-6 rounded-3xl border border-slate-800 shadow-2xl relative">
+      <div class="flex justify-center mb-4">
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center text-white text-2xl shadow-lg shadow-indigo-500/30">
+          <i class="fa-solid fa-wallet"></i>
+        </div>
+      </div>
+      <h2 id="authTitle" class="text-xl font-bold text-center text-white">Welcome Back</h2>
+      <p id="authSubtitle" class="text-xs text-slate-400 text-center mt-1">Sign in to sync your debt & financial roadmap</p>
+
+      <form id="authForm" onsubmit="handleAuthSubmit(event)" class="mt-6 space-y-3.5">
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-400 mb-1">Email Address</label>
+          <input type="email" id="authEmail" required placeholder="user@domain.com" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-400 mb-1">Password</label>
+          <input type="password" id="authPassword" required placeholder="••••••••" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+        </div>
+
+        <button type="submit" id="authSubmitBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl text-xs transition active:scale-98 shadow-md shadow-indigo-600/30 mt-2">
+          Sign In
+        </button>
+      </form>
+
+      <div class="mt-4 pt-4 border-t border-slate-800 flex flex-col gap-2.5 text-center">
+        <button onclick="toggleAuthMode()" id="authSwitchBtn" class="text-xs text-indigo-400 hover:underline">
+          Don't have an account? Create one
+        </button>
+        <button onclick="continueAsGuest()" class="text-xs text-slate-500 hover:text-slate-300 transition">
+          Skip for now (Guest Mode) →
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= APP HEADER ================= -->
+  <header class="sticky top-0 z-30 bg-app-bg/90 backdrop-blur-md border-b border-app-border/80 px-4 py-3 safe-top">
+    <div class="max-w-md mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center text-white font-bold text-sm">
+          <i class="fa-solid fa-scale-balanced"></i>
+        </div>
+        <div>
+          <h1 class="text-sm font-bold tracking-tight text-white flex items-center gap-1.5">
+            Debt & EMI Manager
+            <span id="userBadge" class="text-[10px] font-semibold bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded-full border border-indigo-500/30">User</span>
+          </h1>
+          <p id="userEmailDisplay" class="text-[11px] text-slate-400 truncate max-w-[180px]">Personal Portfolio</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-2">
+        <button onclick="openCategoryModal()" class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white transition active:scale-95" title="Categories">
+          <i class="fa-solid fa-tag text-xs"></i>
+        </button>
+        <button onclick="switchScreen('settingsScreen')" class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white transition active:scale-95" title="Settings">
+          <i class="fa-solid fa-gear text-xs"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= MAIN VIEWPORT CONTAINER ================= -->
+  <main class="max-w-md mx-auto w-full px-4 pt-4 flex-1">
+
+    <!-- SCREEN 1: DASHBOARD -->
+    <section id="dashboardScreen" class="app-screen space-y-4">
+      <div class="glass-card rounded-3xl p-5 shadow-xl relative overflow-hidden">
+        <div class="flex justify-between items-center mb-1">
+          <span class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Total Outstanding Debt</span>
+          <span id="dashMonthBadge" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/25">Oct 2026</span>
+        </div>
+        
+        <div class="flex items-baseline gap-2 mt-1">
+          <span id="kpiTotalDebt" class="text-3xl font-extrabold text-white tracking-tight">₹0</span>
+        </div>
+        
+        <div id="kpiReductionRow" class="flex items-center gap-1.5 mt-2 text-xs font-medium text-emerald-400">
+          <i class="fa-solid fa-circle-arrow-down text-xs"></i>
+          <span id="kpiReductionText">₹0 reduced vs previous month</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-slate-700/60">
+          <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 uppercase font-semibold block">Monthly EMI Outflow</span>
+            <span id="kpiTotalEmi" class="text-lg font-bold text-slate-100 mt-0.5 block">₹0</span>
+            <span class="text-[10px] text-slate-500">Committed cash / mo</span>
+          </div>
+          <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 uppercase font-semibold block">Active Loans</span>
+            <span id="kpiActiveCount" class="text-lg font-bold text-indigo-400 mt-0.5 block">0 Loans</span>
+            <span id="kpiAvgRate" class="text-[10px] text-slate-500">Avg 0% APR</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Categories Pills -->
+      <div class="space-y-1.5">
+        <div class="flex items-center justify-between text-xs text-slate-400 px-1 font-medium">
+          <span>Categories</span>
+          <button onclick="openCategoryModal()" class="text-indigo-400 text-[11px] hover:underline flex items-center gap-1">
+            <i class="fa-solid fa-plus text-[9px]"></i> Add More
+          </button>
+        </div>
+        <div id="categoryPillBar" class="flex gap-2 overflow-x-auto no-scrollbar py-1"></div>
+      </div>
+
+      <!-- Liabilities List -->
+      <div class="space-y-2.5">
+        <div class="flex justify-between items-center px-1">
+          <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Your Commitments</h2>
+          <span id="activeListCount" class="text-[11px] font-semibold text-slate-500">0 Items</span>
+        </div>
+        <div id="liabilitiesListContainer" class="space-y-2.5"></div>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: INPUT & HISTORY LOG -->
+    <section id="entryScreen" class="app-screen hidden space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 id="formTitle" class="text-base font-bold text-white">Log Commitment</h2>
+          <p class="text-xs text-slate-400">Add or edit monthly liability status</p>
+        </div>
+        <button id="cancelEditBtn" onclick="resetFormToNew()" class="hidden text-xs bg-rose-500/20 text-rose-300 border border-rose-500/30 px-2.5 py-1 rounded-xl">
+          Cancel Edit
+        </button>
+      </div>
+
+      <!-- Input Form Card -->
+      <div class="glass-card rounded-3xl p-5 border border-slate-800">
+        <form id="entryForm" onsubmit="handleFormSubmission(event)" class="space-y-3.5">
+          <input type="hidden" id="editEntryId" value="">
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-400 mb-1">Month *</label>
+              <input type="month" id="fMonth" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-indigo-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-400 mb-1">Priority</label>
+              <select id="fPriority" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-indigo-500 focus:outline-none">
+                <option value="High">🔥 High</option>
+                <option value="Normal" selected>🔹 Normal</option>
+                <option value="Low">🌱 Low</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-400 mb-1">Commitment / Loan Name *</label>
+            <input type="text" id="fMetric" placeholder="e.g. Gold Loan Instance 1, Car Loan" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <label class="block text-[11px] font-semibold text-slate-400">Category *</label>
+                <button type="button" onclick="openCategoryModal()" class="text-[10px] text-indigo-400 font-semibold">+ New</button>
+              </div>
+              <select id="fCategory" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:border-indigo-500 focus:outline-none"></select>
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-400 mb-1">Interest Rate (% p.a.)</label>
+              <input type="number" id="fRate" step="0.05" min="0" max="100" placeholder="e.g. 8.5" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-400 mb-1">Remaining Balance (₹) *</label>
+              <input type="number" id="fBalance" step="any" min="0" placeholder="250000" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-400 mb-1">Monthly EMI (₹) *</label>
+              <input type="number" id="fEmi" step="any" min="0" placeholder="8500" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-400 mb-1">Notes / Identifier</label>
+            <input type="text" id="fNotes" placeholder="e.g. Tenor ends 2028" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+          </div>
+
+          <button type="submit" id="formSubmitBtn" class="w-full bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-600 text-white font-semibold py-3 rounded-2xl text-xs tracking-wide transition shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 active:scale-98">
+            <i class="fa-solid fa-floppy-disk text-xs"></i> Save Commitment
+          </button>
+        </form>
+      </div>
+
+      <!-- Historical Record Table with Edit, Duplicate & Delete -->
+      <div class="glass-card rounded-3xl p-4 border border-slate-800 space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-bold text-white uppercase tracking-wider">Entries History</h3>
+          <span id="logCounter" class="text-[11px] text-slate-400 font-medium">0 records</span>
+        </div>
+
+        <div class="flex gap-2">
+          <div class="relative flex-1">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
+            <input type="text" id="logSearch" oninput="renderHistoryTable()" placeholder="Search loans..." class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white focus:outline-none">
+          </div>
+          <select id="logCategoryFilter" onchange="renderHistoryTable()" class="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none">
+            <option value="ALL">All Categories</option>
+          </select>
+        </div>
+
+        <div id="historyTableContainer" class="space-y-2 max-h-72 overflow-y-auto no-scrollbar pt-1"></div>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: TRENDS & ANALYTICS -->
+    <section id="trendsScreen" class="app-screen hidden space-y-4">
+      <div class="flex items-center justify-between px-1">
+        <div>
+          <h2 class="text-base font-bold text-white">Debt Analytics</h2>
+          <p class="text-xs text-slate-400">Historical performance & breakdown</p>
+        </div>
+        <select id="trendsCategorySelect" onchange="renderCharts()" class="bg-slate-800 border border-slate-700 text-slate-300 text-xs rounded-xl px-2.5 py-1.5 outline-none">
+          <option value="ALL">All Categories</option>
+        </select>
+      </div>
+
+      <div class="glass-card rounded-3xl p-4 border border-slate-800">
+        <span class="text-xs font-bold text-slate-200 block mb-2">Total Outstanding Trajectory</span>
+        <div class="h-52 relative"><canvas id="debtTrendChart"></canvas></div>
+      </div>
+
+      <div class="glass-card rounded-3xl p-4 border border-slate-800">
+        <span class="text-xs font-bold text-slate-200 block mb-2">Monthly EMI Cash Flow</span>
+        <div class="h-48 relative"><canvas id="emiTrendChart"></canvas></div>
+      </div>
+
+      <div class="glass-card rounded-3xl p-4 border border-slate-800">
+        <span class="text-xs font-bold text-slate-200 block mb-2">Category Exposure Share</span>
+        <div class="h-56 relative flex items-center justify-center"><canvas id="categoryDoughnutChart"></canvas></div>
+      </div>
+    </section>
+
+    <!-- SCREEN 4: PREDICTIONS & FORECASTS -->
+    <section id="plannerScreen" class="app-screen hidden space-y-4">
+      
+      <!-- 6-MONTH & 1-YEAR STRATEGIC INTERVAL FORECASTS -->
+      <div class="space-y-2.5">
+        <div class="flex items-center justify-between px-1">
+          <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-chart-line text-indigo-400"></i> Milestone Forecasts
+          </h2>
+          <span class="text-[10px] text-slate-500">Automated Amortization</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <!-- 6-Month Card -->
+          <div class="glass-card rounded-3xl p-4 border border-indigo-500/30 relative overflow-hidden">
+            <div class="flex justify-between items-center text-[11px] font-semibold text-indigo-300">
+              <span>Next 6 Months</span>
+              <span id="forecastDate6M" class="text-[10px] bg-indigo-500/20 px-1.5 py-0.5 rounded text-indigo-200">--</span>
+            </div>
+            <div class="mt-2">
+              <span class="text-[10px] uppercase text-slate-400 block font-medium">Est. Outstanding</span>
+              <span id="forecastDebt6M" class="text-lg font-extrabold text-white block mt-0.5">₹0</span>
+              <span id="forecastDrop6M" class="text-[10px] text-emerald-400 font-semibold block mt-0.5">↓ 0% drop</span>
+            </div>
+            <div class="mt-3 pt-2 border-t border-slate-800/80 flex justify-between items-center text-[10px]">
+              <span class="text-slate-400">Monthly EMI:</span>
+              <span id="forecastEmi6M" class="font-bold text-slate-200">₹0</span>
+            </div>
+          </div>
+
+          <!-- 1-Year Card -->
+          <div class="glass-card rounded-3xl p-4 border border-cyan-500/30 relative overflow-hidden">
+            <div class="flex justify-between items-center text-[11px] font-semibold text-cyan-300">
+              <span>Next 1 Year</span>
+              <span id="forecastDate1Y" class="text-[10px] bg-cyan-500/20 px-1.5 py-0.5 rounded text-cyan-200">--</span>
+            </div>
+            <div class="mt-2">
+              <span class="text-[10px] uppercase text-slate-400 block font-medium">Est. Outstanding</span>
+              <span id="forecastDebt1Y" class="text-lg font-extrabold text-white block mt-0.5">₹0</span>
+              <span id="forecastDrop1Y" class="text-[10px] text-emerald-400 font-semibold block mt-0.5">↓ 0% drop</span>
+          
