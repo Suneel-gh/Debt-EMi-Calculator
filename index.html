@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="DebtTracker">
-  <title>Debt & EMI Executive Manager</title>
+  <title>Debt & EMI Manager</title>
   
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/5501/5501375.png">
@@ -64,6 +64,23 @@
     .active-nav { color: #818cf8 !important; }
     .safe-bottom { padding-bottom: max(1.2rem, env(safe-area-inset-bottom)); }
     .safe-top { padding-top: max(0.8rem, env(safe-area-inset-top)); }
+
+    /* Pure CSS Tab Switching - 100% Reliable on Any Touchscreen */
+    #auth-toggle-signup:checked ~ .form-signin { display: none !important; }
+    #auth-toggle-signup:checked ~ .form-signup { display: block !important; }
+    #auth-toggle-signin:checked ~ .form-signin { display: block !important; }
+    #auth-toggle-signin:checked ~ .form-signup { display: none !important; }
+
+    #auth-toggle-signin:checked ~ .tab-switch-box #label-tab-signin {
+      background-color: #4f46e5;
+      color: #ffffff;
+      font-weight: 700;
+    }
+    #auth-toggle-signup:checked ~ .tab-switch-box #label-tab-signup {
+      background-color: #4f46e5;
+      color: #ffffff;
+      font-weight: 700;
+    }
   </style>
 
   <script>
@@ -76,48 +93,84 @@
 </head>
 <body class="bg-app-bg text-slate-100 min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white pb-28">
 
-  <!-- ================= AUTH VIEW (LOGIN / SIGNUP) ================= -->
+  <!-- ================= BULLETPROOF AUTH MODAL ================= -->
   <section id="authSection" class="fixed inset-0 z-50 bg-app-bg/98 backdrop-blur-xl flex flex-col justify-center items-center px-4 overflow-y-auto">
     <div class="w-full max-w-sm glass-card p-6 rounded-3xl border border-slate-700/80 shadow-2xl relative my-auto">
+      
+      <!-- Brand Icon -->
       <div class="flex justify-center mb-3">
-        <div class="w-13 h-13 p-3 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center text-white text-2xl shadow-lg shadow-indigo-500/30">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center text-white text-xl shadow-lg shadow-indigo-500/30">
           <i class="fa-solid fa-wallet"></i>
         </div>
       </div>
-      
-      <!-- Tactile Segmented Tabs for Sign In vs Sign Up -->
-      <div class="bg-slate-900/90 p-1 rounded-2xl flex border border-slate-800 mb-5">
-        <button type="button" id="tabSignIn" onclick="setAuthTab('login')" class="flex-1 py-2 text-xs font-bold rounded-xl transition text-white bg-indigo-600 shadow-sm cursor-pointer active:scale-95">
+
+      <!-- Pure CSS Radio Controllers (Hidden) -->
+      <input type="radio" name="auth_tab" id="auth-toggle-signin" class="hidden" checked>
+      <input type="radio" name="auth_tab" id="auth-toggle-signup" class="hidden">
+
+      <!-- Segmented Tab Bar (Hardware Touch Label Supported) -->
+      <div class="tab-switch-box bg-slate-900/90 p-1 rounded-2xl flex border border-slate-800 mb-5">
+        <label for="auth-toggle-signin" id="label-tab-signin" class="flex-1 py-2 text-xs text-center rounded-xl transition cursor-pointer text-slate-300">
           Sign In
-        </button>
-        <button type="button" id="tabSignUp" onclick="setAuthTab('signup')" class="flex-1 py-2 text-xs font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer active:scale-95">
+        </label>
+        <label for="auth-toggle-signup" id="label-tab-signup" class="flex-1 py-2 text-xs text-center rounded-xl transition cursor-pointer text-slate-300">
           Sign Up
-        </button>
+        </label>
       </div>
 
-      <h2 id="authTitle" class="text-base font-bold text-center text-white">Welcome Back</h2>
-      <p id="authSubtitle" class="text-xs text-slate-400 text-center mt-0.5">Sign in to sync your debt & financial roadmap</p>
+      <!-- 1. SIGN IN FORM -->
+      <form id="signInForm" onsubmit="handleSignInSubmit(event)" class="form-signin space-y-3.5">
+        <div>
+          <h2 class="text-base font-bold text-center text-white">Welcome Back</h2>
+          <p class="text-xs text-slate-400 text-center mt-0.5">Enter your email and password to continue</p>
+        </div>
 
-      <form id="authForm" onsubmit="handleAuthSubmit(event)" class="mt-5 space-y-3.5">
         <div>
           <label class="block text-[11px] font-semibold text-slate-300 mb-1">Email Address</label>
-          <input type="email" id="authEmail" required placeholder="name@example.com" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+          <input type="email" id="loginEmail" required placeholder="name@example.com" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
         </div>
         <div>
           <label class="block text-[11px] font-semibold text-slate-300 mb-1">Password</label>
-          <input type="password" id="authPassword" required placeholder="••••••••" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+          <input type="password" id="loginPassword" required placeholder="••••••••" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
         </div>
 
-        <button type="submit" id="authSubmitBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl text-xs transition active:scale-98 shadow-md shadow-indigo-600/30 cursor-pointer">
+        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl text-xs transition active:scale-98 shadow-md shadow-indigo-600/30 cursor-pointer mt-2">
           Sign In
         </button>
       </form>
 
+      <!-- 2. SIGN UP FORM -->
+      <form id="signUpForm" onsubmit="handleSignUpSubmit(event)" class="form-signup hidden space-y-3.5">
+        <div>
+          <h2 class="text-base font-bold text-center text-white">Create New Account</h2>
+          <p class="text-xs text-slate-400 text-center mt-0.5">Get your personal multi-device debt portfolio</p>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-300 mb-1">Full Name</label>
+          <input type="text" id="regName" required placeholder="e.g. Suneel Kumar" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-300 mb-1">Email Address</label>
+          <input type="email" id="regEmail" required placeholder="name@example.com" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-300 mb-1">Create Password</label>
+          <input type="password" id="regPassword" required placeholder="••••••••" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+        </div>
+
+        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl text-xs transition active:scale-98 shadow-md shadow-indigo-600/30 cursor-pointer mt-2">
+          Create Account
+        </button>
+      </form>
+
+      <!-- Quick Guest Access -->
       <div class="mt-4 pt-4 border-t border-slate-800 text-center">
         <button type="button" onclick="continueAsGuest()" class="w-full py-2.5 px-3 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700 text-xs font-semibold text-slate-300 hover:text-white transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-95">
           <i class="fa-solid fa-user-clock text-indigo-400"></i> Continue in Guest / Demo Mode
         </button>
       </div>
+
     </div>
   </section>
 
@@ -164,84 +217,5 @@
         </div>
         
         <div id="kpiReductionRow" class="flex items-center gap-1.5 mt-2 text-xs font-medium text-emerald-400">
-          <i class="fa-solid fa-circle-arrow-down text-xs"></i>
-          <span id="kpiReductionText">₹0 reduced vs previous month</span>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-slate-700/60">
-          <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
-            <span class="text-[10px] text-slate-400 uppercase font-semibold block">Monthly EMI Outflow</span>
-            <span id="kpiTotalEmi" class="text-lg font-bold text-slate-100 mt-0.5 block">₹0</span>
-            <span class="text-[10px] text-slate-500">Committed cash / mo</span>
-          </div>
-          <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
-            <span class="text-[10px] text-slate-400 uppercase font-semibold block">Active Loans</span>
-            <span id="kpiActiveCount" class="text-lg font-bold text-indigo-400 mt-0.5 block">0 Loans</span>
-            <span id="kpiAvgRate" class="text-[10px] text-slate-500">Avg 0% APR</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Categories Horizontal Pills -->
-      <div class="space-y-1.5">
-        <div class="flex items-center justify-between text-xs text-slate-400 px-1 font-medium">
-          <span>Categories</span>
-          <button type="button" onclick="openCategoryModal()" class="text-indigo-400 text-[11px] hover:underline flex items-center gap-1 cursor-pointer">
-            <i class="fa-solid fa-plus text-[9px]"></i> Add More
-          </button>
-        </div>
-        <div id="categoryPillBar" class="flex gap-2 overflow-x-auto no-scrollbar py-1"></div>
-      </div>
-
-      <!-- Commitments List -->
-      <div class="space-y-2.5">
-        <div class="flex justify-between items-center px-1">
-          <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Your Commitments</h2>
-          <span id="activeListCount" class="text-[11px] font-semibold text-slate-500">0 Items</span>
-        </div>
-        <div id="liabilitiesListContainer" class="space-y-2.5"></div>
-      </div>
-    </section>
-
-    <!-- SCREEN 2: INPUT & HISTORY LOG -->
-    <section id="entryScreen" class="app-screen hidden space-y-4">
-      <div class="flex items-center justify-between">
-        <div>
-          <h2 id="formTitle" class="text-base font-bold text-white">Log Commitment</h2>
-          <p class="text-xs text-slate-400">Add, edit, or clone monthly liabilities</p>
-        </div>
-        <button type="button" id="cancelEditBtn" onclick="resetFormToNew()" class="hidden text-xs bg-rose-500/20 text-rose-300 border border-rose-500/30 px-2.5 py-1 rounded-xl cursor-pointer">
-          Cancel Edit
-        </button>
-      </div>
-
-      <!-- Input Form Card -->
-      <div class="glass-card rounded-3xl p-5 border border-slate-800">
-        <form id="entryForm" onsubmit="handleFormSubmission(event)" class="space-y-3.5">
-          <input type="hidden" id="editEntryId" value="">
-
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="block text-[11px] font-semibold text-slate-400 mb-1">Month *</label>
-              <input type="month" id="fMonth" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-indigo-500 focus:outline-none">
-            </div>
-            <div>
-              <label class="block text-[11px] font-semibold text-slate-400 mb-1">Priority</label>
-              <select id="fPriority" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-indigo-500 focus:outline-none">
-                <option value="High">🔥 High</option>
-                <option value="Normal" selected>🔹 Normal</option>
-                <option value="Low">🌱 Low</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-[11px] font-semibold text-slate-400 mb-1">Commitment / Loan Name *</label>
-            <input type="text" id="fMetric" placeholder="e.g. Gold Loan Instance 1, Car Loan" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
-          </div>
-
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <div class="flex justify-between items-center mb-1">
-                <label class="block text-[11px] font-semibold text-slate
-                  
+          <i class
+            
