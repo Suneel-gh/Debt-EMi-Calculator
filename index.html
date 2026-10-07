@@ -245,5 +245,1096 @@
             <input type="text" id="logSearch" oninput="renderHistoryTable()" placeholder="Search loans..." class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white focus:outline-none">
           </div>
           <select id="logCategoryFilter" onchange="renderHistoryTable()" class="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none">
-            <option value="ALL">All Categories</
-              
+            <option value="ALL">All Categories</option>
+          </select>
+        </div>
+
+        <div id="historyTableContainer" class="space-y-2 max-h-72 overflow-y-auto no-scrollbar pt-1"></div>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: ANALYTICS & TRENDS -->
+    <section id="trendsScreen" class="app-screen hidden space-y-4">
+      <div class="flex items-center justify-between px-1">
+        <div>
+          <h2 class="text-base font-bold text-white">Debt Analytics</h2>
+          <p class="text-xs text-slate-400">Historical performance & breakdown</p>
+        </div>
+        <select id="trendsCategorySelect" onchange="renderCharts()" class="bg-slate-800 border border-slate-700 text-slate-300 text-xs rounded-xl px-2.5 py-1.5 outline-none">
+          <option value="ALL">All Categories</option>
+        </select>
+      </div>
+
+      <div class="glass-card rounded-3xl p-4 border border-slate-800">
+        <span class="text-xs font-bold text-slate-200 block mb-2">Total Outstanding Trajectory</span>
+        <div class="h-52 relative"><canvas id="debtTrendChart"></canvas></div>
+      </div>
+
+      <div class="glass-card rounded-3xl p-4 border border-slate-800">
+        <span class="text-xs font-bold text-slate-200 block mb-2">Monthly EMI Cash Flow</span>
+        <div class="h-48 relative"><canvas id="emiTrendChart"></canvas></div>
+      </div>
+
+      <div class="glass-card rounded-3xl p-4 border border-slate-800">
+        <span class="text-xs font-bold text-slate-200 block mb-2">Category Exposure Share</span>
+        <div class="h-56 relative flex items-center justify-center"><canvas id="categoryDoughnutChart"></canvas></div>
+      </div>
+    </section>
+
+    <!-- SCREEN 4: PREDICTIONS & 5-MONTH / 1-YEAR FORECASTS -->
+    <section id="plannerScreen" class="app-screen hidden space-y-4">
+      
+      <!-- 6-Month & 1-Year Strategic Milestones -->
+      <div class="space-y-2.5">
+        <div class="flex items-center justify-between px-1">
+          <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-chart-line text-indigo-400"></i> Milestone Forecasts
+          </h2>
+          <span class="text-[10px] text-slate-500">Automated Amortization</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <!-- 6-Month Card -->
+          <div class="glass-card rounded-3xl p-4 border border-indigo-500/30 relative overflow-hidden">
+            <div class="flex justify-between items-center text-[11px] font-semibold text-indigo-300">
+              <span>Next 6 Months</span>
+              <span id="forecastDate6M" class="text-[10px] bg-indigo-500/20 px-1.5 py-0.5 rounded text-indigo-200">--</span>
+            </div>
+            <div class="mt-2">
+              <span class="text-[10px] uppercase text-slate-400 block font-medium">Est. Outstanding</span>
+              <span id="forecastDebt6M" class="text-lg font-extrabold text-white block mt-0.5">₹0</span>
+              <span id="forecastDrop6M" class="text-[10px] text-emerald-400 font-semibold block mt-0.5">↓ 0% drop</span>
+            </div>
+            <div class="mt-3 pt-2 border-t border-slate-800/80 flex justify-between items-center text-[10px]">
+              <span class="text-slate-400">Monthly EMI:</span>
+              <span id="forecastEmi6M" class="font-bold text-slate-200">₹0</span>
+            </div>
+          </div>
+
+          <!-- 1-Year Card -->
+          <div class="glass-card rounded-3xl p-4 border border-cyan-500/30 relative overflow-hidden">
+            <div class="flex justify-between items-center text-[11px] font-semibold text-cyan-300">
+              <span>Next 1 Year</span>
+              <span id="forecastDate1Y" class="text-[10px] bg-cyan-500/20 px-1.5 py-0.5 rounded text-cyan-200">--</span>
+            </div>
+            <div class="mt-2">
+              <span class="text-[10px] uppercase text-slate-400 block font-medium">Est. Outstanding</span>
+              <span id="forecastDebt1Y" class="text-lg font-extrabold text-white block mt-0.5">₹0</span>
+              <span id="forecastDrop1Y" class="text-[10px] text-emerald-400 font-semibold block mt-0.5">↓ 0% drop</span>
+            </div>
+            <div class="mt-3 pt-2 border-t border-slate-800/80 flex justify-between items-center text-[10px]">
+              <span class="text-slate-400">Monthly EMI:</span>
+              <span id="forecastEmi1Y" class="font-bold text-slate-200">₹0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Next 5 Months Trajectory Table -->
+      <div class="glass-card rounded-3xl p-4 border border-slate-800 space-y-3">
+        <div>
+          <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-calendar-days text-indigo-400"></i> Next 5 Months Trajectory
+          </h3>
+          <p class="text-[11px] text-slate-400">Month-by-month scheduled principal burn</p>
+        </div>
+
+        <div class="overflow-x-auto no-scrollbar">
+          <table class="w-full text-left text-xs text-slate-300">
+            <thead class="bg-slate-900/80 text-[10px] uppercase font-semibold text-slate-400 border-b border-slate-800">
+              <tr>
+                <th class="py-2 px-2.5">Month</th>
+                <th class="py-2 px-2.5 text-right">Projected Balance</th>
+                <th class="py-2 px-2.5 text-right">Committed EMI</th>
+                <th class="py-2 px-2.5 text-center">Active</th>
+              </tr>
+            </thead>
+            <tbody id="forecast5MonthsTbody" class="divide-y divide-slate-800/60 font-medium"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Prepayment Simulator -->
+      <div class="glass-card rounded-3xl p-5 border border-slate-800 space-y-3">
+        <div class="flex justify-between items-center">
+          <div>
+            <span class="text-xs font-bold text-white flex items-center gap-1.5">
+              <i class="fa-solid fa-sliders text-indigo-400"></i> Prepayment Simulator
+            </span>
+            <p class="text-[11px] text-slate-400">Impact of paying extra every month</p>
+          </div>
+          <span id="simulatorExtraBadge" class="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-lg">+₹5,000 /mo</span>
+        </div>
+
+        <input type="range" id="simulatorSlider" min="0" max="50000" step="1000" value="5000" oninput="updateSimulator(this.value)" class="w-full accent-indigo-500 cursor-pointer">
+
+        <div class="grid grid-cols-2 gap-3 pt-2">
+          <div class="bg-slate-900/80 p-3 rounded-2xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 font-semibold uppercase">Months Saved</span>
+            <span id="simMonthsSaved" class="text-base font-extrabold text-emerald-400 mt-0.5 block">--</span>
+          </div>
+          <div class="bg-slate-900/80 p-3 rounded-2xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 font-semibold uppercase">Debt-Free Date</span>
+            <span id="simNewFinishDate" class="text-base font-extrabold text-indigo-300 mt-0.5 block">--</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Per-Loan Avalanche List -->
+      <div class="space-y-2.5">
+        <div class="flex justify-between items-center px-1">
+          <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Per-Loan Avalanche Priority</h3>
+          <span class="text-[10px] text-indigo-400">Ranked by APR</span>
+        </div>
+        <div id="plannerListContainer" class="space-y-2.5"></div>
+      </div>
+    </section>
+
+    <!-- SCREEN 5: SETTINGS & ACCOUNT -->
+    <section id="settingsScreen" class="app-screen hidden space-y-4">
+      <div class="px-1">
+        <h2 class="text-base font-bold text-white">App Settings</h2>
+        <p class="text-xs text-slate-400">Profile, backup & preferences</p>
+      </div>
+
+      <!-- Account / Profile Card -->
+      <div class="glass-card rounded-3xl p-5 border border-slate-800 space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-indigo-600/30 text-indigo-300 flex items-center justify-center font-bold text-sm border border-indigo-500/30">
+              <i class="fa-solid fa-user"></i>
+            </div>
+            <div>
+              <span class="text-xs font-bold text-white block" id="settingsUserName">Personal Profile</span>
+              <span class="text-[11px] text-slate-400 block" id="settingsUserEmail">Local Storage Enabled</span>
+            </div>
+          </div>
+          <button type="button" onclick="openAuthModal()" class="text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl transition active:scale-95 cursor-pointer">
+            Switch User
+          </button>
+        </div>
+      </div>
+
+      <!-- Categories Manager -->
+      <div class="glass-card rounded-3xl p-4 border border-slate-800 space-y-2">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <i class="fa-solid fa-tags text-indigo-400 text-sm"></i>
+            <div>
+              <h3 class="text-xs font-bold text-white">Manage Categories</h3>
+              <p class="text-[11px] text-slate-400">Current: <span id="settingsCatCount">9</span> categories active</p>
+            </div>
+          </div>
+          <button type="button" onclick="openCategoryModal()" class="text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-xl transition active:scale-95 cursor-pointer">
+            Manage
+          </button>
+        </div>
+      </div>
+
+      <!-- Export & Backup -->
+      <div class="glass-card rounded-3xl p-5 border border-slate-800 space-y-3">
+        <h3 class="text-xs font-bold text-white uppercase tracking-wider">Data Export & Backup</h3>
+        <div class="grid grid-cols-2 gap-2.5">
+          <button type="button" onclick="exportToCSV()" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 font-semibold p-3 rounded-2xl text-xs flex flex-col items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer">
+            <i class="fa-solid fa-file-excel text-base"></i>
+            <span>Export CSV</span>
+          </button>
+          <button type="button" onclick="exportJSONBackup()" class="bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-400 border border-indigo-500/30 font-semibold p-3 rounded-2xl text-xs flex flex-col items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer">
+            <i class="fa-solid fa-cloud-arrow-down text-base"></i>
+            <span>Backup JSON</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Reset Demo Data -->
+      <div class="p-4 rounded-3xl border border-rose-500/20 bg-rose-500/5 space-y-2">
+        <h3 class="text-xs font-bold text-rose-400">Reset Application</h3>
+        <p class="text-[11px] text-slate-400 leading-relaxed">
+          Restore default demo spreadsheet records (Home Loan, Personal Loan, Vehicle Loan, Gold Loan).
+        </p>
+        <button type="button" onclick="resetDataPrompt()" class="w-full text-xs font-semibold bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 py-2.5 rounded-xl transition active:scale-98 cursor-pointer">
+          Reset to Demo Dataset
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= FLOATING ACTION BUTTON (+ NEW LOAN) ================= -->
+  <div class="fixed bottom-20 right-4 z-40 max-w-md mx-auto">
+    <button type="button" onclick="openQuickNewEntry()" class="w-13 h-13 rounded-2xl bg-gradient-to-tr from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-600 text-white shadow-xl shadow-indigo-600/40 border border-indigo-400/30 flex items-center justify-center text-xl transition-transform active:scale-90 cursor-pointer" title="Add Loan Entry">
+      <i class="fa-solid fa-plus"></i>
+    </button>
+  </div>
+
+  <!-- ================= BOTTOM NAVIGATION BAR ================= -->
+  <nav class="fixed bottom-0 left-0 right-0 z-40 bg-app-card/95 backdrop-blur-lg border-t border-app-border safe-bottom">
+    <div class="max-w-md mx-auto flex items-center justify-around py-2 px-1">
+      <button type="button" onclick="switchScreen('dashboardScreen')" id="nav-dashboardScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 active-nav transition flex-1 py-1 cursor-pointer">
+        <i class="fa-solid fa-gauge-high text-base"></i>
+        <span class="text-[10px] font-semibold">Summary</span>
+      </button>
+
+      <button type="button" onclick="switchScreen('entryScreen')" id="nav-entryScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
+        <i class="fa-solid fa-pen-to-square text-base"></i>
+        <span class="text-[10px] font-semibold">Input</span>
+      </button>
+
+      <button type="button" onclick="switchScreen('trendsScreen')" id="nav-trendsScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
+        <i class="fa-solid fa-chart-line text-base"></i>
+        <span class="text-[10px] font-semibold">Trends</span>
+      </button>
+
+      <button type="button" onclick="switchScreen('plannerScreen')" id="nav-plannerScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
+        <i class="fa-solid fa-bullseye text-base"></i>
+        <span class="text-[10px] font-semibold">Payoff</span>
+      </button>
+
+      <button type="button" onclick="switchScreen('settingsScreen')" id="nav-settingsScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
+        <i class="fa-solid fa-sliders text-base"></i>
+        <span class="text-[10px] font-semibold">Settings</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ================= MODAL: CATEGORIES ================= -->
+  <div id="categoryModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="glass-card bg-app-card w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 border border-slate-700/80 space-y-4 max-h-[85vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <div>
+          <h3 class="text-sm font-bold text-white">Manage Categories</h3>
+          <p class="text-[11px] text-slate-400">Add custom categories for loan tracking</p>
+        </div>
+        <button type="button" onclick="closeCategoryModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center hover:text-white cursor-pointer">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleNewCategory(event)" class="flex gap-2">
+        <input type="text" id="newCatInput" placeholder="e.g. Loan against FD" required class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+        <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-4 py-2 rounded-xl transition flex items-center gap-1 cursor-pointer">
+          <i class="fa-solid fa-plus"></i> Add
+        </button>
+      </form>
+
+      <div>
+        <span class="text-[10px] uppercase font-bold text-slate-400 block mb-2">Active Categories (<span id="catModalCount">0</span>)</span>
+        <div id="categoryBadgeContainer" class="flex flex-wrap gap-2 max-h-48 overflow-y-auto no-scrollbar p-1"></div>
+      </div>
+
+      <div class="pt-2 border-t border-slate-800 flex justify-end">
+        <button type="button" onclick="closeCategoryModal()" class="bg-slate-800 text-slate-300 text-xs font-semibold px-4 py-2 rounded-xl cursor-pointer">
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: OPTIONAL USER LOGIN / SIGNUP ================= -->
+  <div id="authModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="w-full max-w-sm glass-card p-6 rounded-3xl border border-slate-700 shadow-2xl relative">
+      <div class="flex justify-between items-center mb-3">
+        <h3 class="text-sm font-bold text-white">Switch Profile</h3>
+        <button type="button" onclick="closeAuthModal()" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center hover:text-white">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-300 mb-1">Your Name / Email</label>
+          <input type="text" id="customUserIdentifier" placeholder="e.g. Suneel Kumar" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none">
+        </div>
+        <button type="button" onclick="saveProfileIdentifier()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl text-xs transition">
+          Save Profile
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 bg-slate-900/95 border border-slate-700 text-white text-xs px-4 py-2.5 rounded-2xl shadow-2xl hidden z-50 flex items-center gap-2">
+    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+    <span id="toastMsg">Action completed</span>
+  </div>
+
+  <!-- ================= APPLICATION SCRIPT ================= -->
+  <script>
+    const DEFAULT_CATEGORIES = [
+      "Gold loan", "Vehicle loan", "Personal loan", "Home loan",
+      "Electronics", "Furniture", "Gadgets", "Credit card", "Others"
+    ];
+
+    const DEFAULT_DATA = [
+      { id: 1, month: '2026-08', metric: 'Home Loan', category: 'Home loan', balance: 3000000, emi: 35000, rate: 8.5, priority: 'Normal', notes: 'Asset' },
+      { id: 2, month: '2026-09', metric: 'Home Loan', category: 'Home loan', balance: 2950000, emi: 35000, rate: 8.5, priority: 'Normal', notes: 'Asset' },
+      { id: 3, month: '2026-08', metric: 'Personal Loan', category: 'Personal loan', balance: 5300000, emi: 45000, rate: 12.0, priority: 'High', notes: 'Priority Avalanche' },
+      { id: 4, month: '2026-09', metric: 'Personal Loan', category: 'Personal loan', balance: 5250000, emi: 45000, rate: 12.0, priority: 'High', notes: 'Priority Avalanche' },
+      { id: 5, month: '2026-08', metric: 'Car Loan', category: 'Vehicle loan', balance: 2000000, emi: 30000, rate: 9.0, priority: 'Normal', notes: '' },
+      { id: 6, month: '2026-09', metric: 'Car Loan', category: 'Vehicle loan', balance: 1850000, emi: 30000, rate: 9.0, priority: 'Normal', notes: '' },
+      { id: 7, month: '2026-08', metric: 'Gold Loan (Instance 1)', category: 'Gold loan', balance: 350000, emi: 8000, rate: 7.5, priority: 'Normal', notes: 'Jewellery pledged' },
+      { id: 8, month: '2026-09', metric: 'Gold Loan (Instance 1)', category: 'Gold loan', balance: 342000, emi: 8000, rate: 7.5, priority: 'Normal', notes: 'Jewellery pledged' },
+      { id: 9, month: '2026-09', metric: 'Gold Loan (Instance 2)', category: 'Gold loan', balance: 200000, emi: 5000, rate: 7.5, priority: 'Normal', notes: 'Short term tranche' },
+      { id: 10, month: '2026-08', metric: 'iPhone 15 EMI', category: 'Gadgets', balance: 65000, emi: 6500, rate: 0.0, priority: 'Low', notes: 'No cost EMI' },
+      { id: 11, month: '2026-09', metric: 'iPhone 15 EMI', category: 'Gadgets', balance: 58500, emi: 6500, rate: 0.0, priority: 'Low', notes: 'No cost EMI' }
+    ];
+
+    let currentUserName = localStorage.getItem('debt_user_name') || 'Personal Portfolio';
+    let categories = JSON.parse(localStorage.getItem('app_debt_categories')) || DEFAULT_CATEGORIES;
+    let debtRecords = JSON.parse(localStorage.getItem('app_debt_records')) || DEFAULT_DATA;
+    let activeDashboardCategory = 'ALL';
+
+    let debtChart = null, emiChart = null, doughnutChart = null;
+
+    function formatINR(val) {
+      if (val === undefined || val === null || isNaN(val)) return '₹0';
+      return new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        maximumFractionDigits: 0
+      }).format(val);
+    }
+
+    function notify(text) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').innerText = text;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 2600);
+    }
+
+    function saveToStorage() {
+      localStorage.setItem('app_debt_categories', JSON.stringify(categories));
+      localStorage.setItem('app_debt_records', JSON.stringify(debtRecords));
+      localStorage.setItem('debt_user_name', currentUserName);
+    }
+
+    function openAuthModal() {
+      document.getElementById('customUserIdentifier').value = currentUserName;
+      document.getElementById('authModal').classList.remove('hidden');
+    }
+
+    function closeAuthModal() {
+      document.getElementById('authModal').classList.add('hidden');
+    }
+
+    function saveProfileIdentifier() {
+      const val = document.getElementById('customUserIdentifier').value.trim();
+      if (val) {
+        currentUserName = val;
+        saveToStorage();
+        document.getElementById('userEmailDisplay').innerText = currentUserName;
+        document.getElementById('settingsUserName').innerText = currentUserName;
+        closeAuthModal();
+        notify(`Profile updated: ${currentUserName}`);
+      }
+    }
+
+    // ================= NAVIGATION =================
+    function switchScreen(screenId) {
+      document.querySelectorAll('.app-screen').forEach(el => el.classList.add('hidden'));
+      const target = document.getElementById(screenId);
+      if (target) target.classList.remove('hidden');
+
+      document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active-nav'));
+      const activeNavBtn = document.getElementById('nav-' + screenId);
+      if (activeNavBtn) activeNavBtn.classList.add('active-nav');
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (screenId === 'dashboardScreen') renderDashboard();
+      if (screenId === 'entryScreen') renderHistoryTable();
+      if (screenId === 'trendsScreen') renderCharts();
+      if (screenId === 'plannerScreen') renderPredictionsView();
+    }
+
+    function openQuickNewEntry() {
+      resetFormToNew();
+      switchScreen('entryScreen');
+      document.getElementById('fMetric').focus();
+    }
+
+    // ================= CATEGORY MANAGEMENT =================
+    function populateCategoryElements() {
+      const fCat = document.getElementById('fCategory');
+      const cur = fCat.value;
+      fCat.innerHTML = '';
+      categories.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.textContent = c;
+        fCat.appendChild(opt);
+      });
+      if (cur && categories.includes(cur)) fCat.value = cur;
+
+      ['logCategoryFilter', 'trendsCategorySelect'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const val = el.value;
+        el.innerHTML = '<option value="ALL">All Categories</option>';
+        categories.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c;
+          opt.textContent = c;
+          el.appendChild(opt);
+        });
+        if (val && (val === 'ALL' || categories.includes(val))) el.value = val;
+      });
+
+      renderCategoryPills();
+      renderCategoryBadges();
+      document.getElementById('settingsCatCount').innerText = categories.length;
+    }
+
+    function renderCategoryPills() {
+      const container = document.getElementById('categoryPillBar');
+      container.innerHTML = '';
+
+      const allBtn = document.createElement('button');
+      allBtn.type = "button";
+      allBtn.className = `px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition cursor-pointer active:scale-95 ${
+        activeDashboardCategory === 'ALL' 
+          ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30' 
+          : 'bg-slate-800 text-slate-400 hover:text-white border border-slate-700/60'
+      }`;
+      allBtn.innerText = 'All';
+      allBtn.onclick = () => {
+        activeDashboardCategory = 'ALL';
+        renderCategoryPills();
+        renderDashboard();
+      };
+      container.appendChild(allBtn);
+
+      categories.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.type = "button";
+        const isActive = activeDashboardCategory === cat;
+        btn.className = `px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition cursor-pointer active:scale-95 ${
+          isActive 
+            ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30' 
+            : 'bg-slate-800 text-slate-400 hover:text-white border border-slate-700/60'
+        }`;
+        btn.innerText = cat;
+        btn.onclick = () => {
+          activeDashboardCategory = cat;
+          renderCategoryPills();
+          renderDashboard();
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    function renderCategoryBadges() {
+      const container = document.getElementById('categoryBadgeContainer');
+      container.innerHTML = '';
+      document.getElementById('catModalCount').innerText = categories.length;
+
+      categories.forEach(cat => {
+        const isCore = DEFAULT_CATEGORIES.includes(cat);
+        const badge = document.createElement('div');
+        badge.className = "flex items-center gap-1.5 bg-slate-900 border border-slate-700 px-2.5 py-1 rounded-xl text-xs text-slate-300 font-medium";
+        badge.innerHTML = `
+          <span>${cat}</span>
+          ${!isCore ? `<button type="button" onclick="deleteCustomCategory('${cat}')" class="text-rose-400 hover:text-rose-300 ml-1 cursor-pointer"><i class="fa-solid fa-xmark text-[10px]"></i></button>` : ''}
+        `;
+        container.appendChild(badge);
+      });
+    }
+
+    function openCategoryModal() {
+      document.getElementById('categoryModal').classList.remove('hidden');
+      document.getElementById('newCatInput').focus();
+    }
+    function closeCategoryModal() {
+      document.getElementById('categoryModal').classList.add('hidden');
+    }
+    function handleNewCategory(e) {
+      e.preventDefault();
+      const input = document.getElementById('newCatInput');
+      const val = input.value.trim();
+      if (!val) return;
+      if (categories.some(c => c.toLowerCase() === val.toLowerCase())) {
+        notify("Category already exists!");
+        return;
+      }
+      categories.push(val);
+      saveToStorage();
+      populateCategoryElements();
+      input.value = '';
+      notify(`Added "${val}"`);
+    }
+    function deleteCustomCategory(name) {
+      if (confirm(`Remove custom category "${name}"?`)) {
+        categories = categories.filter(c => c !== name);
+        if (activeDashboardCategory === name) activeDashboardCategory = 'ALL';
+        saveToStorage();
+        populateCategoryElements();
+        renderDashboard();
+        notify(`Removed "${name}"`);
+      }
+    }
+
+    // ================= DASHBOARD RENDERING =================
+    function getLatestDataset(cat = 'ALL') {
+      const source = (cat === 'ALL') ? debtRecords : debtRecords.filter(d => d.category === cat);
+      if (source.length === 0) return { latestMonth: 'N/A', latestItems: [], prevItems: [] };
+
+      const months = [...new Set(source.map(d => d.month))].sort();
+      const latestMonth = months[months.length - 1];
+      const prevMonth = months.length > 1 ? months[months.length - 2] : null;
+
+      const latestItems = source.filter(d => d.month === latestMonth);
+      const prevItems = prevMonth ? source.filter(d => d.month === prevMonth) : [];
+      return { latestMonth, latestItems, prevItems };
+    }
+
+    function renderDashboard() {
+      const { latestMonth, latestItems, prevItems } = getLatestDataset(activeDashboardCategory);
+      document.getElementById('dashMonthBadge').innerText = latestMonth !== 'N/A' ? latestMonth : '--';
+
+      if (latestItems.length === 0) {
+        document.getElementById('kpiTotalDebt').innerText = '₹0';
+        document.getElementById('kpiTotalEmi').innerText = '₹0';
+        document.getElementById('kpiActiveCount').innerText = '0 Loans';
+        document.getElementById('kpiReductionText').innerText = 'No records for this category';
+        document.getElementById('activeListCount').innerText = '0 Items';
+        document.getElementById('liabilitiesListContainer').innerHTML = `
+          <div class="glass-card rounded-2xl p-6 text-center text-slate-500 text-xs">
+            No active commitments found. Tap <b>+</b> to add your first loan.
+          </div>
+        `;
+        return;
+      }
+
+      const totalBalance = latestItems.reduce((acc, c) => acc + c.balance, 0);
+      const totalEmi = latestItems.reduce((acc, c) => acc + c.emi, 0);
+      const prevTotal = prevItems.reduce((acc, c) => acc + c.balance, 0);
+
+      document.getElementById('kpiTotalDebt').innerText = formatINR(totalBalance);
+      document.getElementById('kpiTotalEmi').innerText = formatINR(totalEmi);
+      document.getElementById('kpiActiveCount').innerText = `${latestItems.length} Loans`;
+      document.getElementById('activeListCount').innerText = `${latestItems.length} Active`;
+
+      if (prevTotal > 0) {
+        const diff = prevTotal - totalBalance;
+        const pct = ((diff / prevTotal) * 100).toFixed(1);
+        if (diff >= 0) {
+          document.getElementById('kpiReductionRow').className = "flex items-center gap-1.5 mt-2 text-xs font-semibold text-emerald-400";
+          document.getElementById('kpiReductionRow').innerHTML = `<i class="fa-solid fa-circle-arrow-down text-xs"></i> <span>${formatINR(diff)} reduced vs last month (${pct}%)</span>`;
+        } else {
+          document.getElementById('kpiReductionRow').className = "flex items-center gap-1.5 mt-2 text-xs font-semibold text-rose-400";
+          document.getElementById('kpiReductionRow').innerHTML = `<i class="fa-solid fa-circle-arrow-up text-xs"></i> <span>${formatINR(Math.abs(diff))} balance increase</span>`;
+        }
+      } else {
+        document.getElementById('kpiReductionRow').className = "flex items-center gap-1.5 mt-2 text-xs font-medium text-slate-400";
+        document.getElementById('kpiReductionRow').innerHTML = `<i class="fa-solid fa-clock text-xs"></i> <span>Initial benchmark month</span>`;
+      }
+
+      const avgRate = latestItems.reduce((acc, c) => acc + (c.rate || 0), 0) / latestItems.length;
+      document.getElementById('kpiAvgRate').innerText = `Avg ${avgRate.toFixed(1)}% APR`;
+
+      const container = document.getElementById('liabilitiesListContainer');
+      container.innerHTML = '';
+
+      const sorted = [...latestItems].sort((a, b) => b.balance - a.balance);
+      sorted.forEach(item => {
+        const prev = prevItems.find(p => p.metric.toLowerCase() === item.metric.toLowerCase());
+        let deltaHtml = '';
+        if (prev) {
+          const delta = prev.balance - item.balance;
+          if (delta > 0) deltaHtml = `<span class="text-[10px] text-emerald-400 font-semibold bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">↓ ${formatINR(delta)}</span>`;
+          else if (delta < 0) deltaHtml = `<span class="text-[10px] text-rose-400 font-semibold bg-rose-500/10 px-1.5 py-0.5 rounded border border-rose-500/20">↑ ${formatINR(Math.abs(delta))}</span>`;
+        }
+
+        const card = document.createElement('div');
+        card.className = "glass-card rounded-2xl p-4 border border-slate-800 hover:border-slate-700 transition";
+        card.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs font-bold text-white tracking-tight">${item.metric}</span>
+                <span class="text-[9px] uppercase font-semibold px-1.5 py-0.5 rounded border ${item.priority === 'High' ? 'bg-rose-500/15 text-rose-300 border-rose-500/30' : 'bg-slate-800 text-slate-400 border-slate-700'}">${item.priority}</span>
+              </div>
+              <span class="text-[11px] text-slate-400 font-medium">${item.category} • ${item.rate ? item.rate + '% APR' : '0%'}</span>
+            </div>
+            <div class="text-right">
+              <span class="text-sm font-extrabold text-white block">${formatINR(item.balance)}</span>
+              ${deltaHtml}
+            </div>
+          </div>
+
+          <div class="mt-3 pt-2.5 border-t border-slate-800/80 flex justify-between items-center text-[11px]">
+            <span class="text-slate-400">Monthly EMI: <b class="text-slate-200 font-semibold">${formatINR(item.emi)}</b></span>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="duplicateEntry(${item.id})" class="text-cyan-400 hover:text-cyan-300 p-1 font-semibold flex items-center gap-1 text-[11px] cursor-pointer" title="Duplicate loan">
+                <i class="fa-regular fa-copy"></i> Duplicate
+              </button>
+              <button type="button" onclick="editEntry(${item.id})" class="text-indigo-400 hover:text-indigo-300 p-1 font-semibold flex items-center gap-1 text-[11px] cursor-pointer" title="Edit loan">
+                <i class="fa-solid fa-pen-to-square"></i> Edit
+              </button>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // ================= FORM, EDIT & DUPLICATE =================
+    function handleFormSubmission(e) {
+      e.preventDefault();
+      const editId = document.getElementById('editEntryId').value;
+      const m = document.getElementById('fMonth').value;
+      const metric = document.getElementById('fMetric').value.trim();
+      const cat = document.getElementById('fCategory').value;
+      const bal = parseFloat(document.getElementById('fBalance').value) || 0;
+      const emi = parseFloat(document.getElementById('fEmi').value) || 0;
+      const rate = parseFloat(document.getElementById('fRate').value) || 0;
+      const priority = document.getElementById('fPriority').value;
+      const notes = document.getElementById('fNotes').value.trim();
+
+      if (editId) {
+        const idx = debtRecords.findIndex(r => r.id == editId);
+        if (idx !== -1) {
+          debtRecords[idx] = { ...debtRecords[idx], month: m, metric, category: cat, balance: bal, emi, rate, priority, notes };
+          notify(`Updated "${metric}"`);
+        }
+      } else {
+        const newRecord = { id: Date.now(), month: m, metric, category: cat, balance: bal, emi, rate, priority, notes };
+        debtRecords.push(newRecord);
+        notify(`Added "${metric}"`);
+      }
+
+      saveToStorage();
+      resetFormToNew();
+      renderHistoryTable();
+      renderDashboard();
+    }
+
+    function editEntry(id) {
+      const item = debtRecords.find(r => r.id == id);
+      if (!item) return;
+
+      switchScreen('entryScreen');
+      document.getElementById('editEntryId').value = item.id;
+      document.getElementById('fMonth').value = item.month;
+      document.getElementById('fMetric').value = item.metric;
+      document.getElementById('fCategory').value = item.category;
+      document.getElementById('fBalance').value = item.balance;
+      document.getElementById('fEmi').value = item.emi;
+      document.getElementById('fRate').value = item.rate || '';
+      document.getElementById('fPriority').value = item.priority || 'Normal';
+      document.getElementById('fNotes').value = item.notes || '';
+
+      document.getElementById('formTitle').innerText = `Edit: ${item.metric}`;
+      document.getElementById('formSubmitBtn').innerHTML = `<i class="fa-solid fa-check text-xs"></i> Update Entry`;
+      document.getElementById('cancelEditBtn').classList.remove('hidden');
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function duplicateEntry(id) {
+      const item = debtRecords.find(r => r.id == id);
+      if (!item) return;
+
+      switchScreen('entryScreen');
+      document.getElementById('editEntryId').value = '';
+      document.getElementById('fMonth').value = item.month;
+      document.getElementById('fMetric').value = `${item.metric} (Copy)`;
+      document.getElementById('fCategory').value = item.category;
+      document.getElementById('fBalance').value = item.balance;
+      document.getElementById('fEmi').value = item.emi;
+      document.getElementById('fRate').value = item.rate || '';
+      document.getElementById('fPriority').value = item.priority || 'Normal';
+      document.getElementById('fNotes').value = item.notes || '';
+
+      document.getElementById('formTitle').innerText = `Duplicate Commitment`;
+      document.getElementById('formSubmitBtn').innerHTML = `<i class="fa-solid fa-copy text-xs"></i> Save Cloned Commitment`;
+      document.getElementById('cancelEditBtn').classList.remove('hidden');
+
+      notify(`Cloned ${item.metric}. Edit values and save!`);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.getElementById('fMetric').focus();
+    }
+
+    function resetFormToNew() {
+      document.getElementById('editEntryId').value = '';
+      document.getElementById('entryForm').reset();
+      document.getElementById('fMonth').value = new Date().toISOString().slice(0, 7);
+      document.getElementById('formTitle').innerText = 'Log Commitment';
+      document.getElementById('formSubmitBtn').innerHTML = `<i class="fa-solid fa-floppy-disk text-xs"></i> Save Commitment`;
+      document.getElementById('cancelEditBtn').classList.add('hidden');
+    }
+
+    function deleteEntry(id) {
+      if (confirm("Are you sure you want to delete this entry?")) {
+        debtRecords = debtRecords.filter(r => r.id != id);
+        saveToStorage();
+        renderHistoryTable();
+        renderDashboard();
+        notify("Entry deleted.");
+      }
+    }
+
+    function renderHistoryTable() {
+      const container = document.getElementById('historyTableContainer');
+      container.innerHTML = '';
+
+      const search = document.getElementById('logSearch').value.toLowerCase();
+      const filterCat = document.getElementById('logCategoryFilter').value;
+
+      let filtered = debtRecords.filter(r => {
+        const matchesCat = (filterCat === 'ALL' || r.category === filterCat);
+        const matchesSearch = !search || r.metric.toLowerCase().includes(search) || r.category.toLowerCase().includes(search) || r.month.includes(search);
+        return matchesCat && matchesSearch;
+      });
+
+      filtered.sort((a, b) => b.month.localeCompare(a.month) || a.metric.localeCompare(b.metric));
+      document.getElementById('logCounter').innerText = `${filtered.length} entries`;
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="text-xs text-slate-500 text-center py-4">No records found.</div>';
+        return;
+      }
+
+      filtered.forEach(row => {
+        const itemEl = document.createElement('div');
+        itemEl.className = "p-3 rounded-2xl bg-slate-900/80 border border-slate-800 flex justify-between items-center text-xs";
+        itemEl.innerHTML = `
+          <div>
+            <div class="flex items-center gap-1.5">
+              <span class="font-bold text-white">${row.metric}</span>
+              <span class="text-[10px] text-slate-400">(${row.month})</span>
+            </div>
+            <span class="text-[10px] text-slate-400">${row.category} • EMI: ${formatINR(row.emi)} • ${row.rate ? row.rate + '%' : '0%'}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="font-extrabold text-slate-200 mr-1">${formatINR(row.balance)}</span>
+            <button type="button" onclick="duplicateEntry(${row.id})" class="text-cyan-400 hover:text-cyan-300 p-1.5 cursor-pointer" title="Duplicate">
+              <i class="fa-regular fa-copy"></i>
+            </button>
+            <button type="button" onclick="editEntry(${row.id})" class="text-indigo-400 hover:text-indigo-300 p-1.5 cursor-pointer" title="Edit">
+              <i class="fa-solid fa-pen-to-square"></i>
+            </button>
+            <button type="button" onclick="deleteEntry(${row.id})" class="text-slate-500 hover:text-rose-400 p-1.5 cursor-pointer" title="Delete">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
+        `;
+        container.appendChild(itemEl);
+      });
+    }
+
+    // ================= ANALYTICS CHARTS =================
+    function renderCharts() {
+      const cat = document.getElementById('trendsCategorySelect').value;
+      const source = (cat === 'ALL') ? debtRecords : debtRecords.filter(d => d.category === cat);
+      const months = [...new Set(source.map(d => d.month))].sort();
+      const balances = [], emis = [];
+
+      months.forEach(m => {
+        const mItems = source.filter(d => d.month === m);
+        balances.push(mItems.reduce((acc, c) => acc + c.balance, 0));
+        emis.push(mItems.reduce((acc, c) => acc + c.emi, 0));
+      });
+
+      if (debtChart) debtChart.destroy();
+      const ctx1 = document.getElementById('debtTrendChart').getContext('2d');
+      debtChart = new Chart(ctx1, {
+        type: 'line',
+        data: {
+          labels: months,
+          datasets: [{
+            data: balances,
+            borderColor: '#f43f5e',
+            backgroundColor: 'rgba(244, 63, 94, 0.1)',
+            fill: true,
+            tension: 0.35,
+            borderWidth: 2,
+            pointRadius: 3
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 } } },
+            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 }, callback: (v) => '₹' + (v >= 100000 ? (v/100000).toFixed(1) + 'L' : (v/1000).toFixed(0) + 'k') } }
+          }
+        }
+      });
+
+      if (emiChart) emiChart.destroy();
+      const ctx2 = document.getElementById('emiTrendChart').getContext('2d');
+      emiChart = new Chart(ctx2, {
+        type: 'bar',
+        data: {
+          labels: months,
+          datasets: [{ data: emis, backgroundColor: '#6366f1', borderRadius: 6 }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } },
+            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 }, callback: (v) => '₹' + (v/1000).toFixed(0) + 'k' } }
+          }
+        }
+      });
+
+      const { latestItems } = getLatestDataset('ALL');
+      const catMap = {};
+      latestItems.forEach(i => catMap[i.category] = (catMap[i.category] || 0) + i.balance);
+
+      if (doughnutChart) doughnutChart.destroy();
+      const ctx3 = document.getElementById('categoryDoughnutChart').getContext('2d');
+      doughnutChart = new Chart(ctx3, {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(catMap),
+          datasets: [{
+            data: Object.values(catMap),
+            backgroundColor: ['#6366f1', '#06b6d4', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#f43f5e', '#3b82f6', '#64748b'],
+            borderWidth: 2, borderColor: '#090d16'
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, color: '#94a3b8', font: { size: 10 } } } }
+        }
+      });
+    }
+
+    // ================= 5-MONTH & 1-YEAR TRAJECTORIES =================
+    function simulateTrajectory(monthsCount) {
+      const { latestMonth, latestItems } = getLatestDataset('ALL');
+      if (latestItems.length === 0) return [];
+
+      let simulatedItems = latestItems.map(item => ({
+        metric: item.metric,
+        category: item.category,
+        balance: item.balance,
+        emi: item.emi,
+        rate: item.rate || 0
+      }));
+
+      const baseDate = new Date((latestMonth !== 'N/A' ? latestMonth : new Date().toISOString().slice(0,7)) + '-01');
+      const results = [];
+
+      for (let m = 1; m <= monthsCount; m++) {
+        const forecastDate = new Date(baseDate);
+        forecastDate.setMonth(forecastDate.getMonth() + m);
+        const monthLabel = forecastDate.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
+
+        let monthTotalBalance = 0;
+        let monthTotalEmi = 0;
+        let activeCount = 0;
+
+        simulatedItems.forEach(loan => {
+          if (loan.balance > 0) {
+            const monthlyInterest = (loan.balance * (loan.rate / 100)) / 12;
+            const principalPayment = Math.min(loan.balance, Math.max(0, loan.emi - monthlyInterest));
+            loan.balance = Math.max(0, loan.balance - principalPayment);
+
+            if (loan.balance > 0) {
+              monthTotalBalance += loan.balance;
+              monthTotalEmi += loan.emi;
+              activeCount++;
+            }
+          }
+        });
+
+        results.push({
+          month: monthLabel,
+          totalOutstanding: monthTotalBalance,
+          totalEmi: monthTotalEmi,
+          activeLoans: activeCount
+        });
+      }
+
+      return results;
+    }
+
+    function renderPredictionsView() {
+      const { latestItems } = getLatestDataset('ALL');
+      const currentBalance = latestItems.reduce((sum, item) => sum + item.balance, 0);
+
+      // 1. Next 5 Months Trajectory
+      const fiveMonthTrajectory = simulateTrajectory(5);
+      const tbody = document.getElementById('forecast5MonthsTbody');
+      tbody.innerHTML = '';
+
+      if (fiveMonthTrajectory.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="py-4 text-center text-slate-500">No active loans found.</td></tr>';
+      } else {
+        fiveMonthTrajectory.forEach((row, index) => {
+          const tr = document.createElement('tr');
+          tr.className = index % 2 === 0 ? "bg-slate-900/30" : "bg-transparent";
+          tr.innerHTML = `
+            <td class="py-2.5 px-2.5 font-bold text-white">${row.month}</td>
+            <td class="py-2.5 px-2.5 text-right font-extrabold text-slate-100">${formatINR(row.totalOutstanding)}</td>
+            <td class="py-2.5 px-2.5 text-right text-indigo-300 font-semibold">${formatINR(row.totalEmi)}</td>
+            <td class="py-2.5 px-2.5 text-center">
+              <span class="text-[10px] bg-slate-800 px-2 py-0.5 rounded-full text-slate-300 border border-slate-700">${row.activeLoans}</span>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      // 2. Next 6 Months & Next 1 Year Cards
+      const twelveMonthTrajectory = simulateTrajectory(12);
+      if (twelveMonthTrajectory.length >= 6) {
+        const m6 = twelveMonthTrajectory[5];
+        document.getElementById('forecastDate6M').innerText = m6.month;
+        document.getElementById('forecastDebt6M').innerText = formatINR(m6.totalOutstanding);
+        document.getElementById('forecastEmi6M').innerText = formatINR(m6.totalEmi);
+        const drop6 = currentBalance > 0 ? (((currentBalance - m6.totalOutstanding) / currentBalance) * 100).toFixed(1) : 0;
+        document.getElementById('forecastDrop6M').innerText = `↓ ${drop6}% drop from today`;
+      }
+      if (twelveMonthTrajectory.length >= 12) {
+        const m12 = twelveMonthTrajectory[11];
+        document.getElementById('forecastDate1Y').innerText = m12.month;
+        document.getElementById('forecastDebt1Y').innerText = formatINR(m12.totalOutstanding);
+        document.getElementById('forecastEmi1Y').innerText = formatINR(m12.totalEmi);
+        const drop12 = currentBalance > 0 ? (((currentBalance - m12.totalOutstanding) / currentBalance) * 100).toFixed(1) : 0;
+        document.getElementById('forecastDrop1Y').innerText = `↓ ${drop12}% drop from today`;
+      }
+
+      updateSimulator(document.getElementById('simulatorSlider').value);
+      renderPayoffList();
+    }
+
+    function updateSimulator(extraEmi) {
+      extraEmi = parseFloat(extraEmi) || 0;
+      document.getElementById('simulatorExtraBadge').innerText = `+${formatINR(extraEmi)} /mo`;
+
+      const { latestItems } = getLatestDataset('ALL');
+      if (latestItems.length === 0) {
+        document.getElementById('simMonthsSaved').innerText = '--';
+        document.getElementById('simNewFinishDate').innerText = '--';
+        return;
+      }
+
+      const totalBalance = latestItems.reduce((acc, c) => acc + c.balance, 0);
+      const totalEmi = latestItems.reduce((acc, c) => acc + c.emi, 0);
+      if (totalEmi <= 0) return;
+
+      const baseMonths = Math.ceil(totalBalance / totalEmi);
+      const accMonths = Math.ceil(totalBalance / (totalEmi + extraEmi));
+      const saved = Math.max(0, baseMonths - accMonths);
+
+      document.getElementById('simMonthsSaved').innerText = `${saved} Months Faster`;
+      const finish = new Date();
+      finish.setMonth(finish.getMonth() + accMonths);
+      document.getElementById('simNewFinishDate').innerText = finish.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
+    }
+
+    function renderPayoffList() {
+      const { latestItems, prevItems } = getLatestDataset('ALL');
+      const container = document.getElementById('plannerListContainer');
+      container.innerHTML = '';
+
+      if (latestItems.length === 0) {
+        container.innerHTML = '<div class="text-xs text-slate-500 text-center py-4">No active loans found.</div>';
+        return;
+      }
+
+      const sorted = [...latestItems].sort((a,b) => (b.rate || 0) - (a.rate || 0));
+      sorted.forEach(item => {
+        const prev = prevItems.find(p => p.metric.toLowerCase() === item.metric.toLowerCase());
+        let burn = item.emi;
+        if (prev && prev.balance > item.balance) burn = prev.balance - item.balance;
+
+        const monthsLeft = burn > 0 ? Math.ceil(item.balance / burn) : 'N/A';
+        let targetDate = 'N/A';
+        if (typeof monthsLeft === 'number' && monthsLeft < 480) {
+          const d = new Date();
+          d.setMonth(d.getMonth() + monthsLeft);
+          targetDate = d.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
+        }
+
+        let strategyTag = item.rate >= 11
+          ? `<span class="text-[10px] text-rose-300 font-bold bg-rose-500/15 border border-rose-500/30 px-2 py-0.5 rounded-full">🔥 Top Avalanche (${item.rate}% APR)</span>`
+          : `<span class="text-[10px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded-full border border-slate-700">${item.rate}% APR</span>`;
+
+        const card = document.createElement('div');
+        card.className = "glass-card rounded-2xl p-4 border border-slate-800 space-y-2";
+        card.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div>
+              <span class="text-xs font-bold text-white block">${item.metric}</span>
+              <span class="text-[11px] text-slate-400">${item.category} • Balance: <b class="text-slate-200">${formatINR(item.balance)}</b></span>
+            </div>
+            ${strategyTag}
+          </div>
+          <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800 text-[11px]">
+            <div>
+              <span class="text-[10px] text-slate-500 block uppercase">Monthly Burn</span>
+              <span class="font-bold text-emerald-400">${formatINR(burn)}/mo</span>
+            </div>
+            <div>
+              <span class="text-[10px] text-slate-500 block uppercase">Months Left</span>
+              <span class="font-bold text-slate-200">${monthsLeft} mos</span>
+            </div>
+            <div class="text-right">
+              <span class="text-[10px] text-slate-500 block uppercase">Debt-Free Date</span>
+              <span class="font-bold text-indigo-400">${targetDate}</span>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // ================= EXPORT & BACKUP =================
+    function exportToCSV() {
+      if (debtRecords.length === 0) return notify("No data to export!");
+      let csv = 'Month,Metric,Category,OutstandingBalance,MonthlyEMI,InterestRate,Priority,Notes\r\n';
+      debtRecords.forEach(r => {
+        csv += `"${r.month}","${r.metric}","${r.category}",${r.balance},${r.emi},${r.rate || 0},"${r.priority}","${r.notes || ''}"\r\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Debt_Summary_${new Date().toISOString().slice(0,10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      notify("CSV exported!");
+    }
+
+    function exportJSONBackup() {
+      const backup = { user: currentUserName, categories, debtRecords, exportedAt: new Date().toISOString() };
+      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Debt_Backup_${new Date().toISOString().slice(0,10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      notify("JSON backup saved!");
+    }
+
+    function resetDataPrompt() {
+      if (confirm("Reset everything back to demo sample records?")) {
+        debtRecords = JSON.parse(JSON.stringify(DEFAULT_DATA));
+        categories = [...DEFAULT_CATEGORIES];
+        saveToStorage();
+        populateCategoryElements();
+        renderDashboard();
+        notify("Reset to demo data completed.");
+      }
+    }
+
+    // Initializer
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('fMonth').value = new Date().toISOString().slice(0, 7);
+      document.getElementById('userEmailDisplay').innerText = currentUserName;
+      document.getElementById('settingsUserName').innerText = currentUserName;
+      populateCategoryElements();
+      renderDashboard();
+    });
+  </script>
+</body>
+</html>
