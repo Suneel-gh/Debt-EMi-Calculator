@@ -76,20 +76,20 @@
 </head>
 <body class="bg-app-bg text-slate-100 min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white pb-28">
 
-  <!-- ================= TOP APP BAR WITH TRI-MODE TOGGLE ================= -->
+  <!-- ================= TOP APP BAR WITH TRI-MODE TOGGLE (PLANNER -> SPENDS -> DEBT) ================= -->
   <header class="sticky top-0 z-30 bg-app-bg/90 backdrop-blur-md border-b border-app-border/80 px-4 py-3 safe-top">
     <div class="max-w-md mx-auto space-y-2.5">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2.5">
           <div id="modeIcon" class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center text-white font-bold text-sm">
-            <i class="fa-solid fa-scale-balanced"></i>
+            <i class="fa-solid fa-bullseye"></i>
           </div>
           <div>
             <h1 id="appTitleText" class="text-sm font-bold tracking-tight text-white flex items-center gap-1.5">
-              Debt & EMI Manager
-              <span id="appBadgeText" class="text-[10px] font-semibold bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded-full border border-indigo-500/30">Commitments</span>
+              Monthly Budget Planner
+              <span id="appBadgeText" class="text-[10px] font-semibold bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded-full border border-indigo-500/30">Targets</span>
             </h1>
-            <p id="appSubtitleText" class="text-[11px] text-slate-400">Long-term liabilities & predictions</p>
+            <p id="appSubtitleText" class="text-[11px] text-slate-400">Plan budget & track actual spend balance</p>
           </div>
         </div>
         
@@ -105,14 +105,14 @@
 
       <!-- MASTER TRI-MODE SWITCHER -->
       <div class="bg-slate-900/90 p-1 rounded-2xl flex border border-slate-800 shadow-inner gap-1">
-        <button type="button" id="btnModeDebt" onclick="toggleAppMode('debt')" class="flex-1 py-1.5 text-[11px] font-bold rounded-xl transition text-white bg-indigo-600 shadow cursor-pointer flex items-center justify-center gap-1">
-          <i class="fa-solid fa-receipt"></i> Debt
-        </button>
-        <button type="button" id="btnModePlanner" onclick="toggleAppMode('planner')" class="flex-1 py-1.5 text-[11px] font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer flex items-center justify-center gap-1">
+        <button type="button" id="btnModePlanner" onclick="toggleAppMode('planner')" class="flex-1 py-1.5 text-[11px] font-bold rounded-xl transition text-white bg-indigo-600 shadow cursor-pointer flex items-center justify-center gap-1">
           <i class="fa-solid fa-bullseye"></i> Planner
         </button>
         <button type="button" id="btnModeDaily" onclick="toggleAppMode('daily')" class="flex-1 py-1.5 text-[11px] font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer flex items-center justify-center gap-1">
           <i class="fa-solid fa-wallet"></i> Spends
+        </button>
+        <button type="button" id="btnModeDebt" onclick="toggleAppMode('debt')" class="flex-1 py-1.5 text-[11px] font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer flex items-center justify-center gap-1">
+          <i class="fa-solid fa-receipt"></i> Debt
         </button>
       </div>
     </div>
@@ -121,63 +121,417 @@
   <!-- ================= MAIN VIEWPORT CONTAINER ================= -->
   <main class="max-w-md mx-auto w-full px-4 pt-3 flex-1">
 
-    <!-- PART 1: DEBT & EMI MANAGER -->
-    <div id="debtModuleContainer" class="space-y-4">
-      
-      <!-- SCREEN 1: DEBT DASHBOARD -->
-      <section id="dashboardScreen" class="debt-screen space-y-4">
-        <div class="glass-card rounded-3xl p-5 shadow-xl relative overflow-hidden">
+    <!-- ************************************************************* -->
+    <!-- MODULE 1: MONTHLY BUDGET PLANNER                              -->
+    <!-- ************************************************************* -->
+    <div id="plannerModuleContainer" class="space-y-4">
+
+      <!-- PLANNER VIEW 1: TARGETS SETUP & INPUT (INPUT FIRST) -->
+      <section id="plannerInputScreen" class="planner-screen space-y-4">
+        <div class="flex items-center justify-between px-1">
+          <div>
+            <h2 class="text-base font-bold text-white">Budget Allocations</h2>
+            <p class="text-xs text-slate-400">Configure planned spending targets</p>
+          </div>
+          <div>
+            <input type="month" id="plannerMonthSelector" onchange="onPlannerMonthChanged()" class="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1 text-xs text-white outline-none cursor-pointer">
+          </div>
+        </div>
+
+        <!-- ADD / EDIT BUDGET CATEGORY FORM -->
+        <div class="glass-card rounded-3xl p-4 border border-slate-800 space-y-3">
+          <div class="flex justify-between items-center">
+            <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+              <i class="fa-solid fa-pen-ruler text-indigo-400"></i> Set Category Target
+            </h3>
+            <button type="button" onclick="seedDefaultPlannedBudget()" class="text-[11px] text-indigo-400 hover:underline">
+              Load Quick Template
+            </button>
+          </div>
+
+          <form id="budgetAddForm" onsubmit="handleSaveBudgetItem(event)" class="grid grid-cols-3 gap-2">
+            <div class="col-span-2">
+              <input type="text" id="budgetCatNameInput" list="budgetCatDatalist" placeholder="Category (e.g. Groceries, Fuel)" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+              <datalist id="budgetCatDatalist"></datalist>
+            </div>
+            <div>
+              <input type="number" id="budgetCatAmountInput" min="0" step="any" placeholder="Target ₹" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 font-bold">
+            </div>
+            <div class="col-span-3">
+              <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl text-xs transition active:scale-98 cursor-pointer flex items-center justify-center gap-1">
+                <i class="fa-solid fa-plus text-[10px]"></i> Save Budget Target
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- BUDGET ALLOCATION CARDS -->
+        <div class="space-y-2.5">
+          <div class="flex justify-between items-center px-1">
+            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Planned Allocations</h3>
+            <span id="plannerAllocationsCount" class="text-[11px] text-slate-500 font-semibold">0 Categories</span>
+          </div>
+
+          <div id="plannerCategoryCardsContainer" class="space-y-2.5"></div>
+        </div>
+      </section>
+
+      <!-- PLANNER VIEW 2: MONTH STATUS & VARIANCE DASHBOARD (WITH DYNAMIC MONTH SELECTOR) -->
+      <section id="plannerDashboardScreen" class="planner-screen hidden space-y-4">
+        <div class="flex items-center justify-between px-1">
+          <div>
+            <h2 class="text-base font-bold text-white">Budget vs. Actual Status</h2>
+            <p class="text-xs text-slate-400">Track variance & remaining buffer</p>
+          </div>
+          <div>
+            <input type="month" id="plannerDashMonthSelector" onchange="onPlannerDashMonthChanged()" class="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1 text-xs text-white outline-none cursor-pointer">
+          </div>
+        </div>
+
+        <!-- OVERVIEW SCORECARD -->
+        <div class="glass-card rounded-3xl p-5 shadow-xl relative overflow-hidden border border-indigo-500/30">
           <div class="flex justify-between items-center mb-1">
-            <span class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Total Outstanding Debt</span>
-            <span id="dashMonthBadge" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/25">Oct 2026</span>
+            <span class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Total Planned Budget</span>
+            <span id="plannerOverviewMonthBadge" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/25">Oct 2026</span>
           </div>
-          
-          <div class="flex items-baseline gap-2 mt-1">
-            <span id="kpiTotalDebt" class="text-3xl font-extrabold text-white tracking-tight">₹0</span>
+
+          <div class="flex items-baseline justify-between mt-1">
+            <span id="kpiTotalPlannedBudget" class="text-3xl font-extrabold text-white tracking-tight">₹0</span>
+            <span id="kpiBudgetOverallBurnBadge" class="text-xs font-bold px-2 py-0.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700">0% Used</span>
           </div>
-          
-          <div id="kpiReductionRow" class="flex items-center gap-1.5 mt-2 text-xs font-medium text-emerald-400">
-            <i class="fa-solid fa-circle-arrow-down text-xs"></i>
-            <span id="kpiReductionText">₹0 reduced vs previous month</span>
+
+          <!-- Overall Progress Bar -->
+          <div class="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden mt-3 border border-slate-800">
+            <div id="plannerTotalProgressBar" class="bg-indigo-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
           </div>
 
           <div class="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-slate-700/60">
             <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
-              <span class="text-[10px] text-slate-400 uppercase font-semibold block">Monthly EMI Outflow</span>
-              <span id="kpiTotalEmi" class="text-lg font-bold text-slate-100 mt-0.5 block">₹0</span>
-              <span class="text-[10px] text-slate-500">Committed cash / mo</span>
+              <span class="text-[10px] text-slate-400 uppercase font-semibold block">Actual Spent So Far</span>
+              <span id="kpiPlannerTotalActualSpent" class="text-lg font-bold text-rose-400 mt-0.5 block">₹0</span>
+              <span class="text-[10px] text-slate-500">Auto-mapped from spends</span>
             </div>
             <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
-              <span class="text-[10px] text-slate-400 uppercase font-semibold block">Active Loans</span>
-              <span id="kpiActiveCount" class="text-lg font-bold text-indigo-400 mt-0.5 block">0 Loans</span>
-              <span id="kpiAvgRate" class="text-[10px] text-slate-500">Avg 0% APR</span>
+              <span class="text-[10px] text-slate-400 uppercase font-semibold block">Remaining Unspent Buffer</span>
+              <span id="kpiPlannerTotalRemainingBuffer" class="text-lg font-bold text-emerald-400 mt-0.5 block">₹0</span>
+              <span id="kpiPlannerSurplusStatus" class="text-[10px] text-slate-500">In budget</span>
             </div>
           </div>
         </div>
 
-        <!-- Categories Horizontal Pills -->
-        <div class="space-y-1.5">
-          <div class="flex items-center justify-between text-xs text-slate-400 px-1 font-medium">
-            <span>Categories</span>
-            <button type="button" onclick="openCategoryModal()" class="text-indigo-400 text-[11px] hover:underline flex items-center gap-1 cursor-pointer">
-              <i class="fa-solid fa-plus text-[9px]"></i> Add / Reorder
-            </button>
-          </div>
-          <div id="categoryPillBar" class="flex gap-2 overflow-x-auto no-scrollbar py-1"></div>
-        </div>
-
-        <!-- Commitments List -->
+        <!-- Burn Breakdown List -->
         <div class="space-y-2.5">
-          <div class="flex justify-between items-center px-1">
-            <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Your Commitments</h2>
-            <span id="activeListCount" class="text-[11px] font-semibold text-slate-500">0 Items</span>
-          </div>
-          <div id="liabilitiesListContainer" class="space-y-2.5"></div>
+          <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider px-1">Category Variance & Burn Status</h3>
+          <div id="plannerDashboardProgressList" class="space-y-2.5"></div>
         </div>
       </section>
 
-      <!-- SCREEN 2: DEBT INPUT & HISTORY LOG -->
-      <section id="entryScreen" class="debt-screen hidden space-y-4">
+      <!-- PLANNER VIEW 3: MULTI-MONTH PROGRESS / HISTORY -->
+      <section id="plannerHistoryScreen" class="planner-screen hidden space-y-4">
+        <div class="px-1">
+          <h2 class="text-base font-bold text-white">Multi-Month Budget Progress</h2>
+          <p class="text-xs text-slate-400">Month-over-month planned vs. actual trends</p>
+        </div>
+
+        <!-- Comparative Chart -->
+        <div class="glass-card rounded-3xl p-4 border border-slate-800">
+          <span class="text-xs font-bold text-slate-200 block mb-2">Planned Target vs. Actual Expense Outflow</span>
+          <div class="h-48 relative"><canvas id="plannerMultiMonthChart"></canvas></div>
+        </div>
+
+        <!-- Monthly Variance Table -->
+        <div class="glass-card rounded-3xl p-4 border border-slate-800 space-y-3">
+          <h3 class="text-xs font-bold text-white uppercase tracking-wider">Historical Monthly Summary</h3>
+          <div class="overflow-x-auto no-scrollbar">
+            <table class="w-full text-left text-xs text-slate-300">
+              <thead class="bg-slate-900/80 text-[10px] uppercase font-semibold text-slate-400 border-b border-slate-800">
+                <tr>
+                  <th class="py-2.5 px-2.5">Month</th>
+                  <th class="py-2.5 px-2.5 text-right">Planned</th>
+                  <th class="py-2.5 px-2.5 text-right">Actual Spent</th>
+                  <th class="py-2.5 px-2.5 text-right">Remaining</th>
+                  <th class="py-2.5 px-2.5 text-center">Status</th>
+                </tr>
+              </thead>
+              <tbody id="plannerMultiMonthTableBody" class="divide-y divide-slate-800/60 font-medium"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ************************************************************* -->
+    <!-- MODULE 2: DAILY SPENDS & MULTI-ACCOUNT TRANSACTIONS           -->
+    <!-- ************************************************************* -->
+    <div id="dailyModuleContainer" class="hidden space-y-4">
+
+      <!-- SPENDS VIEW 1: TRANSACTIONS ENTRY & HISTORY (INPUT FIRST) -->
+      <section id="dailyEntryScreen" class="daily-screen space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 id="expenseFormTitle" class="text-base font-bold text-white">Log Transaction</h2>
+            <p class="text-xs text-slate-400">Capture Income, Expense, or Account Transfer</p>
+          </div>
+          <button type="button" id="cancelExpenseEditBtn" onclick="resetExpenseFormToNew()" class="hidden text-xs bg-rose-500/20 text-rose-300 border border-rose-500/30 px-2.5 py-1 rounded-xl cursor-pointer">
+            Cancel Edit
+          </button>
+        </div>
+
+        <!-- Add Transaction Card with Segmented Controller -->
+        <div class="glass-card rounded-3xl p-5 border border-slate-800">
+          <form id="expenseForm" onsubmit="handleExpenseSubmission(event)" class="space-y-3.5">
+            <input type="hidden" id="editExpenseId" value="">
+
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-400 mb-1.5 uppercase">Transaction Type *</label>
+              <div class="bg-slate-900 p-1 rounded-2xl flex border border-slate-800 gap-1">
+                <button type="button" id="tabTypeExpense" onclick="setTransactionType('Expense')" class="flex-1 py-2 text-xs font-bold rounded-xl transition text-white bg-rose-600 shadow cursor-pointer">
+                  💸 Expense
+                </button>
+                <button type="button" id="tabTypeIncome" onclick="setTransactionType('Income')" class="flex-1 py-2 text-xs font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer">
+                  💰 Income
+                </button>
+                <button type="button" id="tabTypeTransfer" onclick="setTransactionType('Transfer')" class="flex-1 py-2 text-xs font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer">
+                  🔄 Transfer
+                </button>
+              </div>
+            </div>
+
+            <!-- DATE & AMOUNT (DATE IS FULLY EDITABLE FOR BACKDATED LOGS) -->
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-400 mb-1">Date *</label>
+                <input type="date" id="expDate" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:border-indigo-500 focus:outline-none cursor-pointer">
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-400 mb-1">Amount (₹) *</label>
+                <input type="number" id="expAmount" step="any" min="0.01" placeholder="₹2,500" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white font-bold placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+              </div>
+            </div>
+
+            <!-- DYNAMIC ROW: EXPENSE & INCOME (CATEGORIES ISOLATED PROPERLY) -->
+            <div id="rowCategoryAndAccount" class="grid grid-cols-2 gap-3">
+              <div>
+                <div class="flex justify-between items-center mb-1">
+                  <label id="lblCategory" class="block text-[11px] font-semibold text-slate-400">Expense Category *</label>
+                  <button type="button" onclick="openExpenseCategoryModal()" class="text-[10px] text-indigo-400 font-semibold cursor-pointer">+ Reorder</button>
+                </div>
+                <select id="expCategory" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:border-indigo-500 focus:outline-none"></select>
+              </div>
+
+              <div>
+                <div class="flex justify-between items-center mb-1">
+                  <label id="lblAccount" class="block text-[11px] font-semibold text-slate-400">Payment Account *</label>
+                  <button type="button" onclick="openAccountModal()" class="text-[10px] text-cyan-400 font-semibold cursor-pointer">+ Reorder</button>
+                </div>
+                <select id="expAccount" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:border-indigo-500 focus:outline-none"></select>
+              </div>
+            </div>
+
+            <!-- DYNAMIC ROW: FOR TRANSFERS -->
+            <div id="rowTransferAccounts" class="hidden grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[11px] font-semibold text-rose-400 mb-1">From Account (Sender) *</label>
+                <select id="expTransferFrom" class="w-full bg-slate-900 border border-rose-500/40 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none"></select>
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-emerald-400 mb-1">To Account (Receiver) *</label>
+                <select id="expTransferTo" class="w-full bg-slate-900 border border-emerald-500/40 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none"></select>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-400 mb-1">Note / Description</label>
+              <input type="text" id="expNote" placeholder="e.g. Monthly salary, Grocery shopping, or Bank transfer" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+            </div>
+
+            <button type="submit" id="btnExpenseSubmit" class="w-full bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-600 text-white font-semibold py-3 rounded-2xl text-xs tracking-wide transition shadow-lg shadow-rose-600/30 flex items-center justify-center gap-2 active:scale-98 cursor-pointer">
+              <i class="fa-solid fa-plus text-xs"></i> Record Expense
+            </button>
+          </form>
+        </div>
+
+        <!-- Transaction History Filter & Log -->
+        <div class="glass-card rounded-3xl p-4 border border-slate-800 space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold text-white uppercase tracking-wider">Transaction History</h3>
+            <span id="expenseLogCounter" class="text-[11px] text-slate-400 font-medium">0 transactions</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <select id="expenseTypeFilter" onchange="renderExpenseHistoryTable()" class="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none">
+              <option value="ALL">All Types</option>
+              <option value="Expense">Expense Only</option>
+              <option value="Income">Income Only</option>
+              <option value="Transfer">Transfer Only</option>
+            </select>
+            <select id="expenseAccountFilter" onchange="renderExpenseHistoryTable()" class="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none">
+              <option value="ALL">All Accounts</option>
+            </select>
+          </div>
+
+          <div class="relative">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
+            <input type="text" id="expenseLogSearch" oninput="renderExpenseHistoryTable()" placeholder="Search description, category..." class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white focus:outline-none">
+          </div>
+
+          <div id="expenseHistoryContainer" class="space-y-2 max-h-80 overflow-y-auto no-scrollbar pt-1"></div>
+        </div>
+      </section>
+
+      <!-- SPENDS VIEW 2: SUMMARY DASHBOARD WITH MONTH SELECTOR -->
+      <section id="dailySummaryScreen" class="daily-screen hidden space-y-4">
+        <div class="flex items-center justify-between px-1">
+          <div>
+            <h2 class="text-base font-bold text-white">Daily Spends Summary</h2>
+            <p class="text-xs text-slate-400">Cashflow, spending & balances</p>
+          </div>
+          <div>
+            <input type="month" id="dailyDashMonthSelector" onchange="onDailyDashMonthChanged()" class="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1 text-xs text-white outline-none cursor-pointer">
+          </div>
+        </div>
+
+        <!-- NET LIQUID WEALTH & MONTH CASHFLOW CARD -->
+        <div class="glass-card rounded-3xl p-5 shadow-xl relative overflow-hidden border border-emerald-500/30">
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Net Liquid Wealth</span>
+            <span id="dailyMonthBadge" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">Oct 2026</span>
+          </div>
+
+          <div class="flex items-baseline gap-2 mt-1">
+            <span id="kpiNetLiquidWealth" class="text-3xl font-extrabold text-white tracking-tight">₹0</span>
+            <span class="text-xs text-slate-400 font-medium">(Across all accounts)</span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-slate-700/60">
+            <div class="bg-slate-900/60 p-2.5 rounded-2xl border border-slate-800">
+              <span class="text-[10px] text-slate-400 uppercase font-semibold block">Income</span>
+              <span id="kpiDailyMonthIncome" class="text-sm font-bold text-emerald-400 mt-0.5 block">₹0</span>
+              <span class="text-[9px] text-slate-500">Inflows</span>
+            </div>
+            <div class="bg-slate-900/60 p-2.5 rounded-2xl border border-slate-800">
+              <span class="text-[10px] text-slate-400 uppercase font-semibold block">Expense</span>
+              <span id="kpiDailyMonthExpense" class="text-sm font-bold text-rose-400 mt-0.5 block">₹0</span>
+              <span class="text-[9px] text-slate-500">Outflows</span>
+            </div>
+            <div class="bg-slate-900/60 p-2.5 rounded-2xl border border-slate-800">
+              <span class="text-[10px] text-slate-400 uppercase font-semibold block">Savings</span>
+              <span id="kpiDailyMonthSavings" class="text-sm font-bold text-cyan-300 mt-0.5 block">₹0</span>
+              <span class="text-[9px] text-slate-500">Net Cashflow</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- TODAY, WEEK, MONTH SPENT CARDS -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between items-center px-1">
+            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+              <i class="fa-solid fa-receipt text-rose-400"></i> Spending Summary
+            </h3>
+            <span class="text-[10px] text-slate-500">Actual Outflows</span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2.5">
+            <div class="glass-card rounded-2xl p-3 border border-slate-800">
+              <span class="text-[10px] font-semibold text-slate-400 uppercase block">Today Spent</span>
+              <span id="kpiSummaryTodaySpent" class="text-base font-extrabold text-white mt-0.5 block">₹0</span>
+              <span id="kpiSummaryTodayCount" class="text-[9px] text-slate-500 block">0 spends</span>
+            </div>
+
+            <div class="glass-card rounded-2xl p-3 border border-slate-800">
+              <span class="text-[10px] font-semibold text-slate-400 uppercase block">Week Spent</span>
+              <span id="kpiSummaryWeekSpent" class="text-base font-extrabold text-rose-400 mt-0.5 block">₹0</span>
+              <span id="kpiSummaryWeekCount" class="text-[9px] text-slate-500 block">Last 7 days</span>
+            </div>
+
+            <div class="glass-card rounded-2xl p-3 border border-slate-800">
+              <span class="text-[10px] font-semibold text-slate-400 uppercase block">Month Spent</span>
+              <span id="kpiSummaryMonthSpent" class="text-base font-extrabold text-slate-100 mt-0.5 block">₹0</span>
+              <span id="kpiSummaryMonthAvg" class="text-[9px] text-slate-500 block">Avg ₹0/d</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- LIVE ACCOUNT BALANCES SCORECARD -->
+        <div class="glass-card rounded-3xl p-4 border border-slate-800 space-y-3">
+          <div class="flex justify-between items-center">
+            <div>
+              <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                <i class="fa-solid fa-building-columns text-cyan-400"></i> Live Account Balances
+              </h3>
+              <p class="text-[11px] text-slate-400">Reconciled with transfers & starting balances</p>
+            </div>
+            <button type="button" onclick="openAccountModal()" class="text-xs text-cyan-400 hover:underline flex items-center gap-1 font-semibold">
+              <i class="fa-solid fa-pen-to-square text-[10px]"></i> Edit Balances
+            </button>
+          </div>
+
+          <div id="liveAccountBalancesContainer" class="grid grid-cols-2 gap-2.5"></div>
+        </div>
+
+        <!-- Category Spend Breakdown -->
+        <div class="glass-card rounded-3xl p-4 border border-slate-800">
+          <div class="flex justify-between items-center mb-3">
+            <span class="text-xs font-bold text-white uppercase tracking-wider">Top Spending Categories</span>
+            <button type="button" onclick="openExpenseCategoryModal()" class="text-xs text-indigo-400 hover:underline">Manage / Reorder</button>
+          </div>
+          <div id="dailyCategoryBreakdownContainer" class="space-y-2"></div>
+        </div>
+      </section>
+
+      <!-- SPENDS VIEW 3: DEDICATED TRENDS & GRAPHS SHEET -->
+      <section id="dailyTrendsScreen" class="daily-screen hidden space-y-4">
+        <div class="flex items-center justify-between px-1">
+          <div>
+            <h2 class="text-base font-bold text-white">Daily Spending Analytics</h2>
+            <p class="text-xs text-slate-400">Weekly & monthly spending trends</p>
+          </div>
+          <span class="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full font-semibold border border-emerald-500/20">Live Trends</span>
+        </div>
+
+        <div class="glass-card rounded-3xl p-4 border border-slate-800">
+          <div class="flex justify-between items-center mb-2">
+            <div>
+              <span class="text-xs font-bold text-slate-200">Weekly Spending Trajectory</span>
+              <p class="text-[10px] text-slate-400">Rolling 6-week outflow</p>
+            </div>
+            <span class="text-[10px] text-rose-400 font-semibold bg-rose-500/10 px-2 py-0.5 rounded-full">Weekly Expense</span>
+          </div>
+          <div class="h-48 relative"><canvas id="dailyWeeklyBarChart"></canvas></div>
+        </div>
+
+        <div class="glass-card rounded-3xl p-4 border border-slate-800">
+          <div class="flex justify-between items-center mb-2">
+            <div>
+              <span class="text-xs font-bold text-slate-200">Monthly Cashflow: Inflow vs Outflow</span>
+              <p class="text-[10px] text-slate-400">Last 6 months comparison</p>
+            </div>
+            <span class="text-[10px] text-cyan-300 font-semibold bg-cyan-500/10 px-2 py-0.5 rounded-full">Cashflow</span>
+          </div>
+          <div class="h-48 relative"><canvas id="dailyMonthlyCompareChart"></canvas></div>
+        </div>
+
+        <div class="glass-card rounded-3xl p-4 border border-slate-800">
+          <span class="text-xs font-bold text-slate-200 block mb-2">Expense Breakdown by Category</span>
+          <div class="h-56 relative flex items-center justify-center"><canvas id="dailyCategoryDoughnutChart"></canvas></div>
+        </div>
+
+        <div class="glass-card rounded-3xl p-4 border border-slate-800">
+          <span class="text-xs font-bold text-slate-200 block mb-2">Outflow Distribution by Account</span>
+          <div class="h-56 relative flex items-center justify-center"><canvas id="dailyAccountDoughnutChart"></canvas></div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ************************************************************* -->
+    <!-- MODULE 3: DEBT & EMI MANAGER                                  -->
+    <!-- ************************************************************* -->
+    <div id="debtModuleContainer" class="hidden space-y-4">
+      
+      <!-- DEBT VIEW 1: COMMITMENTS INPUT & HISTORY (INPUT FIRST) -->
+      <section id="entryScreen" class="debt-screen space-y-4">
         <div class="flex items-center justify-between">
           <div>
             <h2 id="formTitle" class="text-base font-bold text-white">Log Commitment</h2>
@@ -195,7 +549,7 @@
             <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="block text-[11px] font-semibold text-slate-400 mb-1">Month *</label>
-                <input type="month" id="fMonth" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-indigo-500 focus:outline-none">
+                <input type="month" id="fMonth" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-indigo-500 focus:outline-none cursor-pointer">
               </div>
               <div>
                 <label class="block text-[11px] font-semibold text-slate-400 mb-1">Priority</label>
@@ -290,7 +644,68 @@
         </div>
       </section>
 
-      <!-- SCREEN 3: DEBT TRENDS -->
+      <!-- DEBT VIEW 2: EXECUTIVE SUMMARY (WITH DYNAMIC MONTH SELECTOR) -->
+      <section id="dashboardScreen" class="debt-screen hidden space-y-4">
+        <div class="flex items-center justify-between px-1">
+          <div>
+            <h2 class="text-base font-bold text-white">Executive Debt Summary</h2>
+            <p class="text-xs text-slate-400">Total liabilities & burn rate</p>
+          </div>
+          <div>
+            <input type="month" id="debtDashMonthSelector" onchange="onDebtDashMonthChanged()" class="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1 text-xs text-white outline-none cursor-pointer">
+          </div>
+        </div>
+
+        <div class="glass-card rounded-3xl p-5 shadow-xl relative overflow-hidden">
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Total Outstanding Debt</span>
+            <span id="dashMonthBadge" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/25">Oct 2026</span>
+          </div>
+          
+          <div class="flex items-baseline gap-2 mt-1">
+            <span id="kpiTotalDebt" class="text-3xl font-extrabold text-white tracking-tight">₹0</span>
+          </div>
+          
+          <div id="kpiReductionRow" class="flex items-center gap-1.5 mt-2 text-xs font-medium text-emerald-400">
+            <i class="fa-solid fa-circle-arrow-down text-xs"></i>
+            <span id="kpiReductionText">₹0 reduced vs previous month</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-slate-700/60">
+            <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
+              <span class="text-[10px] text-slate-400 uppercase font-semibold block">Monthly EMI Outflow</span>
+              <span id="kpiTotalEmi" class="text-lg font-bold text-slate-100 mt-0.5 block">₹0</span>
+              <span class="text-[10px] text-slate-500">Committed cash / mo</span>
+            </div>
+            <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
+              <span class="text-[10px] text-slate-400 uppercase font-semibold block">Active Loans</span>
+              <span id="kpiActiveCount" class="text-lg font-bold text-indigo-400 mt-0.5 block">0 Loans</span>
+              <span id="kpiAvgRate" class="text-[10px] text-slate-500">Avg 0% APR</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Categories Horizontal Pills -->
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between text-xs text-slate-400 px-1 font-medium">
+            <span>Filter Category</span>
+            <button type="button" onclick="openCategoryModal()" class="text-indigo-400 text-[11px] hover:underline flex items-center gap-1 cursor-pointer">
+              <i class="fa-solid fa-plus text-[9px]"></i> Add / Reorder
+            </button>
+          </div>
+          <div id="categoryPillBar" class="flex gap-2 overflow-x-auto no-scrollbar py-1"></div>
+        </div>
+
+        <div class="space-y-2.5">
+          <div class="flex justify-between items-center px-1">
+            <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Your Commitments</h2>
+            <span id="activeListCount" class="text-[11px] font-semibold text-slate-500">0 Items</span>
+          </div>
+          <div id="liabilitiesListContainer" class="space-y-2.5"></div>
+        </div>
+      </section>
+
+      <!-- DEBT VIEW 3: TRENDS -->
       <section id="trendsScreen" class="debt-screen hidden space-y-4">
         <div class="flex items-center justify-between px-1">
           <div>
@@ -318,7 +733,7 @@
         </div>
       </section>
 
-      <!-- SCREEN 4: PREDICTIONS & FORECASTS -->
+      <!-- DEBT VIEW 4: PAYOFF PLANNER -->
       <section id="plannerScreen" class="debt-screen hidden space-y-4">
         <div class="space-y-2.5">
           <div class="flex items-center justify-between px-1">
@@ -422,7 +837,7 @@
         </div>
       </section>
 
-      <!-- SCREEN 5: APP SETTINGS -->
+      <!-- DEBT VIEW 5: SETTINGS -->
       <section id="settingsScreen" class="debt-screen hidden space-y-4">
         <div class="px-1">
           <h2 class="text-base font-bold text-white">App Settings</h2>
@@ -471,342 +886,6 @@
 
     </div>
 
-    <!-- PART 2: MONTHLY BUDGET PLANNER MODULE -->
-    <div id="plannerModuleContainer" class="hidden space-y-4">
-      
-      <!-- PLANNER CONTROLS & MONTH SELECTOR -->
-      <div class="flex items-center justify-between px-1">
-        <div>
-          <h2 class="text-base font-bold text-white">Monthly Budget Planner</h2>
-          <p class="text-xs text-slate-400">Plan budget & track actuals in real-time</p>
-        </div>
-        <div>
-          <input type="month" id="plannerMonthSelector" onchange="renderBudgetPlanner()" class="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1 text-xs text-white outline-none">
-        </div>
-      </div>
-
-      <!-- BUDGET VS ACTUALS OVERVIEW SCORECARD -->
-      <div class="glass-card rounded-3xl p-5 shadow-xl relative overflow-hidden border border-indigo-500/30">
-        <div class="flex justify-between items-center mb-1">
-          <span class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Total Planned Budget</span>
-          <span id="plannerOverviewMonthBadge" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/25">Oct 2026</span>
-        </div>
-
-        <div class="flex items-baseline justify-between mt-1">
-          <span id="kpiTotalPlannedBudget" class="text-3xl font-extrabold text-white tracking-tight">₹0</span>
-          <span id="kpiBudgetOverallBurnBadge" class="text-xs font-bold px-2 py-0.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700">0% Used</span>
-        </div>
-
-        <!-- Overall Progress Bar -->
-        <div class="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden mt-3 border border-slate-800">
-          <div id="plannerTotalProgressBar" class="bg-indigo-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-slate-700/60">
-          <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
-            <span class="text-[10px] text-slate-400 uppercase font-semibold block">Actual Spent So Far</span>
-            <span id="kpiPlannerTotalActualSpent" class="text-lg font-bold text-rose-400 mt-0.5 block">₹0</span>
-            <span class="text-[10px] text-slate-500">Auto-mapped from spends</span>
-          </div>
-          <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
-            <span class="text-[10px] text-slate-400 uppercase font-semibold block">Remaining Unspent Buffer</span>
-            <span id="kpiPlannerTotalRemainingBuffer" class="text-lg font-bold text-emerald-400 mt-0.5 block">₹0</span>
-            <span id="kpiPlannerSurplusStatus" class="text-[10px] text-slate-500">In budget</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- ADD / EDIT BUDGET CATEGORY FORM -->
-      <div class="glass-card rounded-3xl p-4 border border-slate-800 space-y-3">
-        <div class="flex justify-between items-center">
-          <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-            <i class="fa-solid fa-pen-ruler text-indigo-400"></i> Set Category Budget Target
-          </h3>
-          <button type="button" onclick="seedDefaultPlannedBudget()" class="text-[11px] text-indigo-400 hover:underline">
-            Load Quick Template
-          </button>
-        </div>
-
-        <form id="budgetAddForm" onsubmit="handleSaveBudgetItem(event)" class="grid grid-cols-3 gap-2">
-          <div class="col-span-2">
-            <input type="text" id="budgetCatNameInput" list="budgetCatDatalist" placeholder="Category (e.g. Grocery, EMI, Fuel)" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500">
-            <datalist id="budgetCatDatalist"></datalist>
-          </div>
-          <div>
-            <input type="number" id="budgetCatAmountInput" min="0" step="any" placeholder="Target ₹" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 font-bold">
-          </div>
-          <div class="col-span-3">
-            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 rounded-xl text-xs transition active:scale-98 cursor-pointer flex items-center justify-center gap-1">
-              <i class="fa-solid fa-plus text-[10px]"></i> Save Budget Allocation
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <!-- BUDGET CATEGORIES BREAKDOWN & PROGRESS LIST -->
-      <div class="space-y-2.5">
-        <div class="flex justify-between items-center px-1">
-          <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Category Targets & Progress</h3>
-          <span id="plannerAllocationsCount" class="text-[11px] text-slate-500 font-semibold">0 Categories</span>
-        </div>
-
-        <div id="plannerCategoryCardsContainer" class="space-y-2.5"></div>
-      </div>
-
-    </div>
-
-    <!-- PART 3: DAILY TRANSACTIONS & MULTI-ACCOUNT CASHFLOW MODULE -->
-    <div id="dailyModuleContainer" class="hidden space-y-4">
-      
-      <!-- DAILY VIEW 1: SUMMARY, TODAY/WEEK/MONTH SPENT & ACCOUNTS -->
-      <section id="dailySummaryScreen" class="daily-screen space-y-4">
-        
-        <!-- NET LIQUID WEALTH & MONTH CASHFLOW CARD -->
-        <div class="glass-card rounded-3xl p-5 shadow-xl relative overflow-hidden border border-emerald-500/30">
-          <div class="flex justify-between items-center mb-1">
-            <span class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Net Liquid Wealth</span>
-            <span id="dailyMonthBadge" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">Oct 2026</span>
-          </div>
-
-          <div class="flex items-baseline gap-2 mt-1">
-            <span id="kpiNetLiquidWealth" class="text-3xl font-extrabold text-white tracking-tight">₹0</span>
-            <span class="text-xs text-slate-400 font-medium">(Across all accounts)</span>
-          </div>
-
-          <div class="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-slate-700/60">
-            <div class="bg-slate-900/60 p-2.5 rounded-2xl border border-slate-800">
-              <span class="text-[10px] text-slate-400 uppercase font-semibold block">Income</span>
-              <span id="kpiDailyMonthIncome" class="text-sm font-bold text-emerald-400 mt-0.5 block">₹0</span>
-              <span class="text-[9px] text-slate-500">Inflows</span>
-            </div>
-            <div class="bg-slate-900/60 p-2.5 rounded-2xl border border-slate-800">
-              <span class="text-[10px] text-slate-400 uppercase font-semibold block">Expense</span>
-              <span id="kpiDailyMonthExpense" class="text-sm font-bold text-rose-400 mt-0.5 block">₹0</span>
-              <span class="text-[9px] text-slate-500">Outflows</span>
-            </div>
-            <div class="bg-slate-900/60 p-2.5 rounded-2xl border border-slate-800">
-              <span class="text-[10px] text-slate-400 uppercase font-semibold block">Savings</span>
-              <span id="kpiDailyMonthSavings" class="text-sm font-bold text-cyan-300 mt-0.5 block">₹0</span>
-              <span class="text-[9px] text-slate-500">Net Cashflow</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- TODAY, WEEK, MONTH SPENT SUMMARY CARDS -->
-        <div class="space-y-1.5">
-          <div class="flex justify-between items-center px-1">
-            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-              <i class="fa-solid fa-receipt text-rose-400"></i> Spending Summary
-            </h3>
-            <span class="text-[10px] text-slate-500">Actual Outflows</span>
-          </div>
-
-          <div class="grid grid-cols-3 gap-2.5">
-            <div class="glass-card rounded-2xl p-3 border border-slate-800">
-              <span class="text-[10px] font-semibold text-slate-400 uppercase block">Today Spent</span>
-              <span id="kpiSummaryTodaySpent" class="text-base font-extrabold text-white mt-0.5 block">₹0</span>
-              <span id="kpiSummaryTodayCount" class="text-[9px] text-slate-500 block">0 spends</span>
-            </div>
-
-            <div class="glass-card rounded-2xl p-3 border border-slate-800">
-              <span class="text-[10px] font-semibold text-slate-400 uppercase block">Week Spent</span>
-              <span id="kpiSummaryWeekSpent" class="text-base font-extrabold text-rose-400 mt-0.5 block">₹0</span>
-              <span id="kpiSummaryWeekCount" class="text-[9px] text-slate-500 block">Last 7 days</span>
-            </div>
-
-            <div class="glass-card rounded-2xl p-3 border border-slate-800">
-              <span class="text-[10px] font-semibold text-slate-400 uppercase block">Month Spent</span>
-              <span id="kpiSummaryMonthSpent" class="text-base font-extrabold text-slate-100 mt-0.5 block">₹0</span>
-              <span id="kpiSummaryMonthAvg" class="text-[9px] text-slate-500 block">Avg ₹0/d</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- LIVE ACCOUNT BALANCES SCORECARD -->
-        <div class="glass-card rounded-3xl p-4 border border-slate-800 space-y-3">
-          <div class="flex justify-between items-center">
-            <div>
-              <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                <i class="fa-solid fa-building-columns text-cyan-400"></i> Live Account Balances
-              </h3>
-              <p class="text-[11px] text-slate-400">Real-time balances with transfer reconciliation</p>
-            </div>
-            <button type="button" onclick="openAccountModal()" class="text-xs text-cyan-400 hover:underline flex items-center gap-1 font-semibold">
-              <i class="fa-solid fa-pen-to-square text-[10px]"></i> Edit Balances
-            </button>
-          </div>
-
-          <div id="liveAccountBalancesContainer" class="grid grid-cols-2 gap-2.5"></div>
-        </div>
-
-        <!-- Category Spend Breakdown -->
-        <div class="glass-card rounded-3xl p-4 border border-slate-800">
-          <div class="flex justify-between items-center mb-3">
-            <span class="text-xs font-bold text-white uppercase tracking-wider">Top Spending Categories</span>
-            <button type="button" onclick="openExpenseCategoryModal()" class="text-xs text-indigo-400 hover:underline">Manage / Reorder</button>
-          </div>
-          <div id="dailyCategoryBreakdownContainer" class="space-y-2"></div>
-        </div>
-      </section>
-
-      <!-- DAILY VIEW 2: NEW TRANSACTION ENTRY & LOG -->
-      <section id="dailyEntryScreen" class="daily-screen hidden space-y-4">
-        <div class="flex items-center justify-between">
-          <div>
-            <h2 id="expenseFormTitle" class="text-base font-bold text-white">Log Transaction</h2>
-            <p class="text-xs text-slate-400">Capture Income, Expense, or Account Transfer</p>
-          </div>
-          <button type="button" id="cancelExpenseEditBtn" onclick="resetExpenseFormToNew()" class="hidden text-xs bg-rose-500/20 text-rose-300 border border-rose-500/30 px-2.5 py-1 rounded-xl cursor-pointer">
-            Cancel Edit
-          </button>
-        </div>
-
-        <!-- Add Transaction Card with 3-Type Segmented Controller -->
-        <div class="glass-card rounded-3xl p-5 border border-slate-800">
-          <form id="expenseForm" onsubmit="handleExpenseSubmission(event)" class="space-y-3.5">
-            <input type="hidden" id="editExpenseId" value="">
-
-            <div>
-              <label class="block text-[11px] font-semibold text-slate-400 mb-1.5 uppercase">Transaction Type *</label>
-              <div class="bg-slate-900 p-1 rounded-2xl flex border border-slate-800 gap-1">
-                <button type="button" id="tabTypeExpense" onclick="setTransactionType('Expense')" class="flex-1 py-2 text-xs font-bold rounded-xl transition text-white bg-rose-600 shadow cursor-pointer">
-                  💸 Expense
-                </button>
-                <button type="button" id="tabTypeIncome" onclick="setTransactionType('Income')" class="flex-1 py-2 text-xs font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer">
-                  💰 Income
-                </button>
-                <button type="button" id="tabTypeTransfer" onclick="setTransactionType('Transfer')" class="flex-1 py-2 text-xs font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer">
-                  🔄 Transfer
-                </button>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-[11px] font-semibold text-slate-400 mb-1">Date *</label>
-                <input type="date" id="expDate" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:border-indigo-500 focus:outline-none">
-              </div>
-              <div>
-                <label class="block text-[11px] font-semibold text-slate-400 mb-1">Amount (₹) *</label>
-                <input type="number" id="expAmount" step="any" min="0.01" placeholder="₹2,500" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white font-bold placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
-              </div>
-            </div>
-
-            <!-- DYNAMIC ROW: FOR EXPENSE & INCOME -->
-            <div id="rowCategoryAndAccount" class="grid grid-cols-2 gap-3">
-              <div>
-                <div class="flex justify-between items-center mb-1">
-                  <label id="lblCategory" class="block text-[11px] font-semibold text-slate-400">Category *</label>
-                  <button type="button" onclick="openExpenseCategoryModal()" class="text-[10px] text-indigo-400 font-semibold cursor-pointer">+ Reorder</button>
-                </div>
-                <select id="expCategory" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:border-indigo-500 focus:outline-none"></select>
-              </div>
-
-              <div>
-                <div class="flex justify-between items-center mb-1">
-                  <label id="lblAccount" class="block text-[11px] font-semibold text-slate-400">Payment Account *</label>
-                  <button type="button" onclick="openAccountModal()" class="text-[10px] text-cyan-400 font-semibold cursor-pointer">+ Reorder</button>
-                </div>
-                <select id="expAccount" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:border-indigo-500 focus:outline-none"></select>
-              </div>
-            </div>
-
-            <!-- DYNAMIC ROW: FOR TRANSFERS -->
-            <div id="rowTransferAccounts" class="hidden grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-[11px] font-semibold text-rose-400 mb-1">From Account (Sender) *</label>
-                <select id="expTransferFrom" class="w-full bg-slate-900 border border-rose-500/40 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none"></select>
-              </div>
-              <div>
-                <label class="block text-[11px] font-semibold text-emerald-400 mb-1">To Account (Receiver) *</label>
-                <select id="expTransferTo" class="w-full bg-slate-900 border border-emerald-500/40 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none"></select>
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-[11px] font-semibold text-slate-400 mb-1">Note / Description</label>
-              <input type="text" id="expNote" placeholder="e.g. Monthly salary credit, Fuel, or HDFC to ICICI transfer" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
-            </div>
-
-            <button type="submit" id="btnExpenseSubmit" class="w-full bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-600 text-white font-semibold py-3 rounded-2xl text-xs tracking-wide transition shadow-lg shadow-rose-600/30 flex items-center justify-center gap-2 active:scale-98 cursor-pointer">
-              <i class="fa-solid fa-plus text-xs"></i> Record Expense
-            </button>
-          </form>
-        </div>
-
-        <!-- Transaction History Filter & Log -->
-        <div class="glass-card rounded-3xl p-4 border border-slate-800 space-y-3">
-          <div class="flex items-center justify-between">
-            <h3 class="text-xs font-bold text-white uppercase tracking-wider">Transaction History</h3>
-            <span id="expenseLogCounter" class="text-[11px] text-slate-400 font-medium">0 transactions</span>
-          </div>
-
-          <div class="grid grid-cols-2 gap-2">
-            <select id="expenseTypeFilter" onchange="renderExpenseHistoryTable()" class="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none">
-              <option value="ALL">All Types (All)</option>
-              <option value="Expense">Expense Only</option>
-              <option value="Income">Income Only</option>
-              <option value="Transfer">Transfer Only</option>
-            </select>
-            <select id="expenseAccountFilter" onchange="renderExpenseHistoryTable()" class="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none">
-              <option value="ALL">All Accounts</option>
-            </select>
-          </div>
-
-          <div class="relative">
-            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
-            <input type="text" id="expenseLogSearch" oninput="renderExpenseHistoryTable()" placeholder="Search description, category..." class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white focus:outline-none">
-          </div>
-
-          <div id="expenseHistoryContainer" class="space-y-2 max-h-80 overflow-y-auto no-scrollbar pt-1"></div>
-        </div>
-      </section>
-
-      <!-- DAILY VIEW 3: DEDICATED TRENDS & GRAPHS SHEET -->
-      <section id="dailyTrendsScreen" class="daily-screen hidden space-y-4">
-        <div class="flex items-center justify-between px-1">
-          <div>
-            <h2 class="text-base font-bold text-white">Daily Spending Analytics</h2>
-            <p class="text-xs text-slate-400">Weekly & monthly spending trends</p>
-          </div>
-          <span class="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full font-semibold border border-emerald-500/20">Live Trends</span>
-        </div>
-
-        <div class="glass-card rounded-3xl p-4 border border-slate-800">
-          <div class="flex justify-between items-center mb-2">
-            <div>
-              <span class="text-xs font-bold text-slate-200">Weekly Spending Trajectory</span>
-              <p class="text-[10px] text-slate-400">Rolling 6-week outflow</p>
-            </div>
-            <span class="text-[10px] text-rose-400 font-semibold bg-rose-500/10 px-2 py-0.5 rounded-full">Weekly Expense</span>
-          </div>
-          <div class="h-48 relative"><canvas id="dailyWeeklyBarChart"></canvas></div>
-        </div>
-
-        <div class="glass-card rounded-3xl p-4 border border-slate-800">
-          <div class="flex justify-between items-center mb-2">
-            <div>
-              <span class="text-xs font-bold text-slate-200">Monthly Cashflow: Inflow vs Outflow</span>
-              <p class="text-[10px] text-slate-400">Last 6 months comparison</p>
-            </div>
-            <span class="text-[10px] text-cyan-300 font-semibold bg-cyan-500/10 px-2 py-0.5 rounded-full">Cashflow</span>
-          </div>
-          <div class="h-48 relative"><canvas id="dailyMonthlyCompareChart"></canvas></div>
-        </div>
-
-        <div class="glass-card rounded-3xl p-4 border border-slate-800">
-          <span class="text-xs font-bold text-slate-200 block mb-2">Expense Breakdown by Category</span>
-          <div class="h-56 relative flex items-center justify-center"><canvas id="dailyCategoryDoughnutChart"></canvas></div>
-        </div>
-
-        <div class="glass-card rounded-3xl p-4 border border-slate-800">
-          <span class="text-xs font-bold text-slate-200 block mb-2">Outflow Distribution by Account</span>
-          <div class="h-56 relative flex items-center justify-center"><canvas id="dailyAccountDoughnutChart"></canvas></div>
-        </div>
-      </section>
-
-    </div>
-
   </main>
 
   <!-- ================= FLOATING ACTION BUTTON (+ ADD ENTRY) ================= -->
@@ -821,7 +900,7 @@
     <div id="bottomNavRow" class="max-w-md mx-auto flex items-center justify-around py-2 px-1"></div>
   </nav>
 
-  <!-- ================= MODAL 1: DEBT CATEGORY MANAGER (WITH INSTANT TOP REORDERING) ================= -->
+  <!-- ================= MODAL 1: DEBT CATEGORY MANAGER ================= -->
   <div id="categoryModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="glass-card bg-app-card w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 border border-slate-700/80 space-y-4 max-h-[85vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
@@ -854,28 +933,38 @@
     </div>
   </div>
 
-  <!-- ================= MODAL 2: EXPENSE/INCOME CATEGORY MANAGER (WITH INSTANT TOP REORDERING) ================= -->
+  <!-- ================= MODAL 2: EXPENSE & INCOME CATEGORY MANAGER (STRICTLY SEPARATED) ================= -->
   <div id="expenseCatModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="glass-card bg-app-card w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 border border-slate-700/80 space-y-4 max-h-[85vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <div>
-          <h3 class="text-sm font-bold text-white">Daily Spending Categories</h3>
-          <p class="text-[11px] text-slate-400">Put frequent items at top: <b>⏫ Top</b>, <b>▲ Up</b>, <b>▼ Down</b></p>
+          <h3 class="text-sm font-bold text-white">Categories Manager</h3>
+          <p class="text-[11px] text-slate-400">Strictly separated Incomes and Expenses</p>
         </div>
         <button type="button" onclick="closeExpenseCategoryModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center hover:text-white cursor-pointer">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
 
+      <!-- Segmented Switcher for Categories Modal -->
+      <div class="bg-slate-900 p-1 rounded-2xl flex border border-slate-800 gap-1">
+        <button type="button" id="tabModalCatExpense" onclick="switchCategoryModalType('Expense')" class="flex-1 py-1.5 text-xs font-bold rounded-xl text-white bg-rose-600 shadow cursor-pointer">
+          Expense Categories
+        </button>
+        <button type="button" id="tabModalCatIncome" onclick="switchCategoryModalType('Income')" class="flex-1 py-1.5 text-xs font-bold rounded-xl text-slate-400 hover:text-white cursor-pointer">
+          Income Categories
+        </button>
+      </div>
+
       <form onsubmit="handleNewExpenseCategory(event)" class="flex gap-2">
-        <input type="text" id="newExpenseCatInput" placeholder="e.g. Freelance, Subscriptions, Fuel" required class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+        <input type="text" id="newExpenseCatInput" placeholder="Add category..." required class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
         <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs px-4 py-2 rounded-xl transition flex items-center gap-1 cursor-pointer">
           <i class="fa-solid fa-plus"></i> Add
         </button>
       </form>
 
       <div>
-        <span class="text-[10px] uppercase font-bold text-slate-400 block mb-2">Dropdown Order Priority (<span id="expCatModalCount">0</span>)</span>
+        <span class="text-[10px] uppercase font-bold text-slate-400 block mb-2" id="lblCatModalCount">Expense Categories (0)</span>
         <div id="expenseCategoryBadgeContainer" class="space-y-1.5 max-h-56 overflow-y-auto no-scrollbar p-1"></div>
       </div>
 
@@ -887,7 +976,7 @@
     </div>
   </div>
 
-  <!-- ================= MODAL 3: ACCOUNTS & STARTING BALANCES MANAGER (WITH INSTANT TOP REORDERING) ================= -->
+  <!-- ================= MODAL 3: ACCOUNTS & STARTING BALANCES MANAGER ================= -->
   <div id="accountModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="glass-card bg-app-card w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 border border-slate-700/80 space-y-4 max-h-[85vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
@@ -932,16 +1021,22 @@
   <!-- ================= APP CONTROLLER SCRIPT ================= -->
   <script>
     // -------------------------------------------------------------
-    // DEFAULT CONFIGURATION & SEED DATA
+    // DEFAULT CONFIGURATION & SEED DATA (STRICT SEPARATION: REQUIREMENT 3)
     // -------------------------------------------------------------
     const DEFAULT_DEBT_CATEGORIES = [
       "Gold loan", "Vehicle loan", "Personal loan", "Home loan",
       "Electronics", "Furniture", "Gadgets", "Credit card", "Others"
     ];
 
+    // PURE EXPENSE CATEGORIES ONLY (NO SALARY/BONUS HERE)
     const DEFAULT_EXPENSE_CATEGORIES = [
       "Groceries", "Food & Dining", "Fuel & Transport", "Utilities & Bills",
-      "Shopping", "Health & Medical", "Entertainment", "Apparel & Styling", "Education", "EMI", "Salary", "Bonus", "Allowance", "Miscellaneous"
+      "Shopping", "Health & Medical", "Entertainment", "Apparel & Styling", "Education", "EMI", "Miscellaneous"
+    ];
+
+    // PURE INCOME CATEGORIES ONLY (NO EXPENSES HERE)
+    const DEFAULT_INCOME_CATEGORIES = [
+      "Salary", "Bonus", "Allowance", "Investment Inflow", "Freelance", "Rental Income", "Cashback"
     ];
 
     const DEFAULT_ACCOUNTS = [
@@ -988,16 +1083,18 @@
     // -------------------------------------------------------------
     // STATE STORAGE
     // -------------------------------------------------------------
-    let activeModule = 'debt'; // 'debt' | 'planner' | 'daily'
+    let activeModule = 'planner'; // Default to Planner (Requirement 1)
     let currentTransactionType = 'Expense';
+    let currentCatModalType = 'Expense';
 
     // Debt State
     let categories = JSON.parse(localStorage.getItem('debt_categories')) || DEFAULT_DEBT_CATEGORIES;
     let debtRecords = JSON.parse(localStorage.getItem('debt_records')) || DEFAULT_DEBT_DATA;
     let activeDashboardCategory = 'ALL';
 
-    // Daily Transaction State
+    // Daily Transaction State (Separated categories: Requirement 3)
     let expenseCategories = JSON.parse(localStorage.getItem('expense_categories')) || DEFAULT_EXPENSE_CATEGORIES;
+    let incomeCategories = JSON.parse(localStorage.getItem('income_categories')) || DEFAULT_INCOME_CATEGORIES;
     let accountsList = JSON.parse(localStorage.getItem('expense_accounts')) || DEFAULT_ACCOUNTS;
     if (accountsList.length && typeof accountsList[0] === 'string') {
       accountsList = accountsList.map(name => ({ name, initialBalance: 0 }));
@@ -1011,6 +1108,7 @@
     let debtChart = null, emiChart = null, doughnutChart = null;
     let dailyWeeklyBarChart = null, dailyMonthlyCompareChart = null;
     let dailyCategoryDoughnutChart = null, dailyAccountDoughnutChart = null;
+    let plannerMultiMonthChart = null;
 
     function formatINR(val) {
       if (val === undefined || val === null || isNaN(val)) return '₹0';
@@ -1029,7 +1127,7 @@
     }
 
     // -------------------------------------------------------------
-    // TRI-MODE CONTROLLER (DEBT VS PLANNER VS DAILY SPENDS)
+    // TRI-MODE CONTROLLER (REORDERED: REQUIREMENT 1)
     // -------------------------------------------------------------
     function toggleAppMode(mode) {
       activeModule = mode;
@@ -1054,11 +1152,11 @@
         document.getElementById('modeIcon').className = "w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center text-white font-bold text-sm";
         document.getElementById('modeIcon').innerHTML = '<i class="fa-solid fa-bullseye"></i>';
         document.getElementById('appTitleText').innerHTML = 'Monthly Budget Planner <span class="text-[10px] font-semibold bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded-full border border-indigo-500/30">Targets</span>';
-        document.getElementById('appSubtitleText').innerText = 'Plan targets & monitor actual spend balance';
+        document.getElementById('appSubtitleText').innerText = 'Plan budget & track actual spend balance';
 
         plannerContainer.classList.remove('hidden');
         renderBottomNav('planner');
-        renderBudgetPlanner();
+        switchPlannerScreen('plannerInputScreen'); // Input first (Requirement 4)
       } else if (mode === 'daily') {
         btnDaily.className = "flex-1 py-1.5 text-[11px] font-bold rounded-xl transition text-white bg-emerald-600 shadow cursor-pointer flex items-center justify-center gap-1";
         document.getElementById('modeIcon').className = "w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-cyan-400 flex items-center justify-center text-white font-bold text-sm";
@@ -1068,7 +1166,7 @@
 
         dailyContainer.classList.remove('hidden');
         renderBottomNav('daily');
-        switchDailyScreen('dailySummaryScreen');
+        switchDailyScreen('dailyEntryScreen'); // Input first (Requirement 4)
       } else {
         btnDebt.className = "flex-1 py-1.5 text-[11px] font-bold rounded-xl transition text-white bg-indigo-600 shadow cursor-pointer flex items-center justify-center gap-1";
         document.getElementById('modeIcon').className = "w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center text-white font-bold text-sm";
@@ -1078,25 +1176,26 @@
 
         debtContainer.classList.remove('hidden');
         renderBottomNav('debt');
-        switchDebtScreen('dashboardScreen');
+        switchDebtScreen('entryScreen'); // Input first (Requirement 4)
       }
     }
 
+    // BOTTOM NAVIGATION: ALWAYS INPUT FIRST, DASHBOARD SECOND (REQUIREMENT 4)
     function renderBottomNav(mode) {
       const container = document.getElementById('bottomNavRow');
       if (mode === 'planner') {
         container.innerHTML = `
-          <button type="button" onclick="renderBudgetPlanner()" class="nav-item flex flex-col items-center gap-1 text-slate-400 active-nav transition flex-1 py-1 cursor-pointer">
-            <i class="fa-solid fa-bullseye text-base"></i>
+          <button type="button" onclick="switchPlannerScreen('plannerInputScreen')" id="nav-plannerInputScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 active-nav transition flex-1 py-1 cursor-pointer">
+            <i class="fa-solid fa-pen-ruler text-base"></i>
             <span class="text-[10px] font-semibold">Targets</span>
           </button>
-          <button type="button" onclick="seedDefaultPlannedBudget()" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
-            <i class="fa-solid fa-wand-magic-sparkles text-base"></i>
-            <span class="text-[10px] font-semibold">Template</span>
+          <button type="button" onclick="switchPlannerScreen('plannerDashboardScreen')" id="nav-plannerDashboardScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
+            <i class="fa-solid fa-gauge-high text-base"></i>
+            <span class="text-[10px] font-semibold">Status</span>
           </button>
-          <button type="button" onclick="toggleAppMode('daily')" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
-            <i class="fa-solid fa-wallet text-base"></i>
-            <span class="text-[10px] font-semibold">Go to Spends</span>
+          <button type="button" onclick="switchPlannerScreen('plannerHistoryScreen')" id="nav-plannerHistoryScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
+            <i class="fa-solid fa-chart-column text-base"></i>
+            <span class="text-[10px] font-semibold">Progress</span>
           </button>
           <button type="button" onclick="openExpenseCategoryModal()" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
             <i class="fa-solid fa-tags text-base"></i>
@@ -1105,13 +1204,13 @@
         `;
       } else if (mode === 'daily') {
         container.innerHTML = `
-          <button type="button" onclick="switchDailyScreen('dailySummaryScreen')" id="nav-dailySummaryScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 active-nav transition flex-1 py-1 cursor-pointer">
-            <i class="fa-solid fa-chart-pie text-base"></i>
-            <span class="text-[10px] font-semibold">Summary</span>
-          </button>
-          <button type="button" onclick="switchDailyScreen('dailyEntryScreen')" id="nav-dailyEntryScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
+          <button type="button" onclick="switchDailyScreen('dailyEntryScreen')" id="nav-dailyEntryScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 active-nav transition flex-1 py-1 cursor-pointer">
             <i class="fa-solid fa-plus-minus text-base"></i>
             <span class="text-[10px] font-semibold">Transactions</span>
+          </button>
+          <button type="button" onclick="switchDailyScreen('dailySummaryScreen')" id="nav-dailySummaryScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
+            <i class="fa-solid fa-chart-pie text-base"></i>
+            <span class="text-[10px] font-semibold">Summary</span>
           </button>
           <button type="button" onclick="switchDailyScreen('dailyTrendsScreen')" id="nav-dailyTrendsScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
             <i class="fa-solid fa-chart-line text-base"></i>
@@ -1128,13 +1227,13 @@
         `;
       } else {
         container.innerHTML = `
-          <button type="button" onclick="switchDebtScreen('dashboardScreen')" id="nav-dashboardScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 active-nav transition flex-1 py-1 cursor-pointer">
-            <i class="fa-solid fa-gauge-high text-base"></i>
-            <span class="text-[10px] font-semibold">Summary</span>
-          </button>
-          <button type="button" onclick="switchDebtScreen('entryScreen')" id="nav-entryScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
+          <button type="button" onclick="switchDebtScreen('entryScreen')" id="nav-entryScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 active-nav transition flex-1 py-1 cursor-pointer">
             <i class="fa-solid fa-pen-to-square text-base"></i>
             <span class="text-[10px] font-semibold">Input</span>
+          </button>
+          <button type="button" onclick="switchDebtScreen('dashboardScreen')" id="nav-dashboardScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
+            <i class="fa-solid fa-gauge-high text-base"></i>
+            <span class="text-[10px] font-semibold">Summary</span>
           </button>
           <button type="button" onclick="switchDebtScreen('trendsScreen')" id="nav-trendsScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
             <i class="fa-solid fa-chart-line text-base"></i>
@@ -1158,6 +1257,7 @@
         switchDailyScreen('dailyEntryScreen');
         document.getElementById('expAmount').focus();
       } else if (activeModule === 'planner') {
+        switchPlannerScreen('plannerInputScreen');
         document.getElementById('budgetCatNameInput').focus();
       } else {
         openQuickNewEntry();
@@ -1173,11 +1273,39 @@
     }
 
     // -------------------------------------------------------------
-    // PART 2: MONTHLY BUDGET PLANNER CONTROLLER (SYNCED)
+    // PART 2: MONTHLY BUDGET PLANNER CONTROLLER
     // -------------------------------------------------------------
+    function switchPlannerScreen(screenId) {
+      document.querySelectorAll('.planner-screen').forEach(el => el.classList.add('hidden'));
+      const target = document.getElementById(screenId);
+      if (target) target.classList.remove('hidden');
+
+      document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active-nav'));
+      const activeNavBtn = document.getElementById('nav-' + screenId);
+      if (activeNavBtn) activeNavBtn.classList.add('active-nav');
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (screenId === 'plannerInputScreen') renderBudgetPlanner();
+      if (screenId === 'plannerDashboardScreen') renderPlannerDashboard();
+      if (screenId === 'plannerHistoryScreen') renderPlannerMultiMonthHistory();
+    }
+
     function getSelectedPlannerMonth() {
       const el = document.getElementById('plannerMonthSelector');
       return el.value || new Date().toISOString().slice(0, 7);
+    }
+
+    function onPlannerMonthChanged() {
+      const m = getSelectedPlannerMonth();
+      document.getElementById('plannerDashMonthSelector').value = m;
+      renderBudgetPlanner();
+    }
+
+    function onPlannerDashMonthChanged() {
+      const m = document.getElementById('plannerDashMonthSelector').value;
+      document.getElementById('plannerMonthSelector').value = m;
+      renderPlannerDashboard();
     }
 
     function saveMonthlyBudgetStorage() {
@@ -1222,7 +1350,7 @@
         notify(`Added ${cat} budget (${formatINR(amt)})`);
       }
 
-      // CRITICAL REQUIREMENT 1: SYNC DIRECTLY TO EXPENSE CATEGORIES DROPDOWN
+      // CRITICAL REQUIREMENT 3: AUTOMATIC REFLECTION IN EXPENSE CATEGORIES
       if (!expenseCategories.some(c => c.toLowerCase() === cat.toLowerCase())) {
         expenseCategories.push(cat);
         saveExpenseStorage();
@@ -1256,11 +1384,6 @@
       }
 
       const plannedList = monthlyBudgets[monthKey] || [];
-      const totalPlanned = plannedList.reduce((sum, item) => sum + item.plannedAmount, 0);
-
-      const monthExpenses = expenseRecords.filter(r => r.date.startsWith(monthKey) && r.type === 'Expense');
-      
-      let totalActualSpent = 0;
       const plannedCategoryCards = document.getElementById('plannerCategoryCardsContainer');
       plannedCategoryCards.innerHTML = '';
 
@@ -1271,6 +1394,39 @@
         opt.value = c;
         datalist.appendChild(opt);
       });
+
+      plannedList.forEach(item => {
+        const card = document.createElement('div');
+        card.className = "glass-card rounded-2xl p-4 border border-slate-800 flex justify-between items-center";
+        card.innerHTML = `
+          <div>
+            <span class="text-xs font-bold text-white block">${item.category}</span>
+            <span class="text-[11px] text-slate-400">Target: <b class="text-indigo-300 font-extrabold">${formatINR(item.plannedAmount)}</b></span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="editBudgetItemPrompt('${item.category}', ${item.plannedAmount})" class="text-indigo-400 hover:text-indigo-300 font-semibold p-1 cursor-pointer text-xs">
+              <i class="fa-solid fa-pen-to-square"></i>
+            </button>
+            <button type="button" onclick="deleteBudgetItem('${item.category}')" class="text-rose-500 hover:text-rose-400 p-1 cursor-pointer text-xs">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
+        `;
+        plannedCategoryCards.appendChild(card);
+      });
+
+      document.getElementById('plannerAllocationsCount').innerText = `${plannedList.length} Categories`;
+    }
+
+    function renderPlannerDashboard() {
+      const monthKey = document.getElementById('plannerDashMonthSelector').value || getSelectedPlannerMonth();
+      const plannedList = monthlyBudgets[monthKey] || [];
+      const totalPlanned = plannedList.reduce((sum, item) => sum + item.plannedAmount, 0);
+
+      const monthExpenses = expenseRecords.filter(r => r.date.startsWith(monthKey) && r.type === 'Expense');
+      let totalActualSpent = 0;
+      const progressListContainer = document.getElementById('plannerDashboardProgressList');
+      progressListContainer.innerHTML = '';
 
       plannedList.forEach(item => {
         let catActual = 0;
@@ -1300,16 +1456,16 @@
         }
 
         const card = document.createElement('div');
-        card.className = "glass-card rounded-2xl p-4 border border-slate-800 space-y-2.5";
+        card.className = "glass-card rounded-2xl p-4 border border-slate-800 space-y-2";
         card.innerHTML = `
           <div class="flex justify-between items-start">
             <div>
               <div class="flex items-center gap-1.5">
-                <span class="text-xs font-bold text-white tracking-tight">${item.category}</span>
+                <span class="text-xs font-bold text-white">${item.category}</span>
                 ${statusBadge}
               </div>
-              <span class="text-[11px] text-slate-400 font-medium mt-0.5 block">
-                Target Budget: <b class="text-slate-200">${formatINR(item.plannedAmount)}</b>
+              <span class="text-[11px] text-slate-400 mt-0.5 block">
+                Target: <b class="text-slate-200">${formatINR(item.plannedAmount)}</b>
               </span>
             </div>
             <div class="text-right">
@@ -1323,20 +1479,8 @@
           <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden border border-slate-800/80">
             <div class="${statusColor.split(' ')[0]} h-full rounded-full transition-all duration-300" style="width: ${Math.min(100, burnPct)}%"></div>
           </div>
-
-          <div class="flex justify-between items-center pt-1 text-[11px] text-slate-500">
-            <span>Burn Rate: <b class="${statusColor.split(' ')[1]} font-bold">${burnPct.toFixed(1)}%</b></span>
-            <div class="flex items-center gap-2">
-              <button type="button" onclick="editBudgetItemPrompt('${item.category}', ${item.plannedAmount})" class="text-indigo-400 hover:text-indigo-300 font-semibold cursor-pointer">
-                Edit
-              </button>
-              <button type="button" onclick="deleteBudgetItem('${item.category}')" class="text-rose-500 hover:text-rose-400 cursor-pointer">
-                <i class="fa-solid fa-trash-can text-xs"></i>
-              </button>
-            </div>
-          </div>
         `;
-        plannedCategoryCards.appendChild(card);
+        progressListContainer.appendChild(card);
       });
 
       const totalRemaining = totalPlanned - totalActualSpent;
@@ -1352,30 +1496,80 @@
       document.getElementById('kpiBudgetOverallBurnBadge').innerText = `${totalBurnPct.toFixed(0)}% Used`;
       document.getElementById('plannerTotalProgressBar').style.width = `${Math.min(100, totalBurnPct)}%`;
       document.getElementById('plannerTotalProgressBar').className = `${totalBurnPct > 100 ? 'bg-rose-500' : (totalBurnPct > 75 ? 'bg-amber-500' : 'bg-indigo-500')} h-full rounded-full transition-all duration-500`;
-
-      document.getElementById('kpiPlannerSurplusStatus').innerText = totalRemaining >= 0 ? `${formatINR(totalRemaining)} unspent surplus` : 'Over monthly budget limit';
-      document.getElementById('plannerAllocationsCount').innerText = `${plannedList.length} Categories`;
+      document.getElementById('kpiPlannerSurplusStatus').innerText = totalRemaining >= 0 ? `${formatINR(totalRemaining)} unspent surplus` : 'Over budget limit';
     }
 
-    function editBudgetItemPrompt(cat, currentAmt) {
-      const newAmt = prompt(`Update monthly budget limit for ${cat}:`, currentAmt);
-      if (newAmt !== null) {
-        const parsed = parseFloat(newAmt);
-        if (!isNaN(parsed) && parsed >= 0) {
-          const monthKey = getSelectedPlannerMonth();
-          const target = monthlyBudgets[monthKey].find(b => b.category === cat);
-          if (target) {
-            target.plannedAmount = parsed;
-            saveMonthlyBudgetStorage();
-            renderBudgetPlanner();
-            notify(`Updated ${cat} budget`);
+    // MULTI-MONTH PROGRESS COMPARISON (REQUIREMENT 2)
+    function renderPlannerMultiMonthHistory() {
+      const monthsList = Object.keys(monthlyBudgets).sort();
+      const tbody = document.getElementById('plannerMultiMonthTableBody');
+      tbody.innerHTML = '';
+
+      if (monthsList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="py-4 text-center text-slate-500">No monthly plans recorded yet.</td></tr>';
+        return;
+      }
+
+      const labels = [];
+      const plannedSeries = [];
+      const actualSeries = [];
+
+      monthsList.forEach(mKey => {
+        const plans = monthlyBudgets[mKey] || [];
+        const plannedSum = plans.reduce((s, it) => s + it.plannedAmount, 0);
+
+        const expSum = expenseRecords.filter(r => r.date.startsWith(mKey) && r.type === 'Expense')
+                                    .reduce((s, it) => s + it.amount, 0);
+
+        const remaining = plannedSum - expSum;
+        const dObj = new Date(mKey + '-01');
+        const monthLabel = dObj.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' });
+
+        labels.push(monthLabel);
+        plannedSeries.push(plannedSum);
+        actualSeries.push(expSum);
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-900/40";
+        tr.innerHTML = `
+          <td class="py-2.5 px-2.5 font-bold text-white">${monthLabel}</td>
+          <td class="py-2.5 px-2.5 text-right font-medium text-slate-300">${formatINR(plannedSum)}</td>
+          <td class="py-2.5 px-2.5 text-right font-bold text-rose-400">${formatINR(expSum)}</td>
+          <td class="py-2.5 px-2.5 text-right font-bold ${remaining >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${formatINR(remaining)}</td>
+          <td class="py-2.5 px-2.5 text-center">
+            <span class="text-[9px] px-1.5 py-0.5 rounded-full font-bold ${remaining >= 0 ? 'bg-emerald-500/15 text-emerald-300' : 'bg-rose-500/15 text-rose-300'}">
+              ${remaining >= 0 ? 'Surplus' : 'Deficit'}
+            </span>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Chart
+      if (plannerMultiMonthChart) plannerMultiMonthChart.destroy();
+      const ctxMulti = document.getElementById('plannerMultiMonthChart').getContext('2d');
+      plannerMultiMonthChart = new Chart(ctxMulti, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Planned Target', data: plannedSeries, backgroundColor: '#6366f1', borderRadius: 4 },
+            { label: 'Actual Outflow', data: actualSeries, backgroundColor: '#f43f5e', borderRadius: 4 }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: 'top', labels: { boxWidth: 10, color: '#94a3b8', font: { size: 10 } } } },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } },
+            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 }, callback: v => '₹' + v } }
           }
         }
-      }
+      });
     }
 
     // -------------------------------------------------------------
-    // PART 3: DAILY SPENDS CONTROLLER (PRESERVED & SYNCED)
+    // PART 3: DAILY SPENDS CONTROLLER (INDEPENDENT INCOME VS EXPENSE)
     // -------------------------------------------------------------
     function setTransactionType(type) {
       currentTransactionType = type;
@@ -1390,6 +1584,10 @@
         btn.className = "flex-1 py-2 text-xs font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer";
       });
 
+      // Populate Categories dynamically based strictly on Transaction Type (Requirement 3)
+      const catEl = document.getElementById('expCategory');
+      catEl.innerHTML = '';
+
       if (type === 'Income') {
         bInc.className = "flex-1 py-2 text-xs font-bold rounded-xl transition text-white bg-emerald-600 shadow cursor-pointer";
         rowNormal.classList.remove('hidden');
@@ -1398,6 +1596,14 @@
         document.getElementById('lblAccount').innerText = 'Deposit Account *';
         submitBtn.className = "w-full bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-600 text-white font-semibold py-3 rounded-2xl text-xs tracking-wide transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 active:scale-98 cursor-pointer";
         submitBtn.innerHTML = '<i class="fa-solid fa-plus text-xs"></i> Record Income';
+
+        // STRICT INCOME CATEGORIES (Requirement 3)
+        incomeCategories.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c;
+          opt.textContent = c;
+          catEl.appendChild(opt);
+        });
       } else if (type === 'Transfer') {
         bTrf.className = "flex-1 py-2 text-xs font-bold rounded-xl transition text-white bg-cyan-600 shadow cursor-pointer";
         rowNormal.classList.add('hidden');
@@ -1412,6 +1618,14 @@
         document.getElementById('lblAccount').innerText = 'Payment Account *';
         submitBtn.className = "w-full bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-600 text-white font-semibold py-3 rounded-2xl text-xs tracking-wide transition shadow-lg shadow-rose-600/30 flex items-center justify-center gap-2 active:scale-98 cursor-pointer";
         submitBtn.innerHTML = '<i class="fa-solid fa-plus text-xs"></i> Record Expense';
+
+        // STRICT EXPENSE CATEGORIES ONLY (Requirement 3)
+        expenseCategories.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c;
+          opt.textContent = c;
+          catEl.appendChild(opt);
+        });
       }
     }
 
@@ -1426,44 +1640,25 @@
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
-      if (screenId === 'dailySummaryScreen') renderDailySummary();
       if (screenId === 'dailyEntryScreen') renderExpenseHistoryTable();
+      if (screenId === 'dailySummaryScreen') renderDailySummary();
       if (screenId === 'dailyTrendsScreen') renderDailyTrendsCharts();
+    }
+
+    function onDailyDashMonthChanged() {
+      renderDailySummary();
     }
 
     function saveExpenseStorage() {
       localStorage.setItem('expense_categories', JSON.stringify(expenseCategories));
+      localStorage.setItem('income_categories', JSON.stringify(incomeCategories));
       localStorage.setItem('expense_accounts', JSON.stringify(accountsList));
       localStorage.setItem('expense_records', JSON.stringify(expenseRecords));
     }
 
     function populateExpenseElements() {
-      // DYNAMIC MERGE: Ensure all categories from any month in the planner are included in expense categories
-      Object.values(monthlyBudgets).forEach(planArr => {
-        if (Array.isArray(planArr)) {
-          planArr.forEach(b => {
-            if (b.category && !expenseCategories.some(c => c.toLowerCase() === b.category.toLowerCase())) {
-              expenseCategories.push(b.category);
-            }
-          });
-        }
-      });
+      setTransactionType(currentTransactionType);
 
-      // 1. Populate Expense Category Dropdown preserving custom array order
-      const catEl = document.getElementById('expCategory');
-      const curCat = catEl.value;
-      catEl.innerHTML = '';
-      expenseCategories.forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c;
-        opt.textContent = c;
-        catEl.appendChild(opt);
-      });
-      if (curCat && expenseCategories.includes(curCat)) {
-        catEl.value = curCat;
-      }
-
-      // 2. Populate Accounts Dropdowns preserving custom array order
       ['expAccount', 'expTransferFrom', 'expTransferTo', 'expenseAccountFilter'].forEach(id => {
         const el = document.getElementById(id);
         if (!el) return;
@@ -1669,11 +1864,11 @@
     }
 
     function renderDailySummary() {
+      const selectedMonthKey = document.getElementById('dailyDashMonthSelector').value || new Date().toISOString().slice(0, 7);
       const now = new Date();
-      const currentYearMonth = now.toISOString().slice(0, 7);
       const todayStr = now.toISOString().slice(0, 10);
 
-      const monthRecords = expenseRecords.filter(r => r.date.startsWith(currentYearMonth));
+      const monthRecords = expenseRecords.filter(r => r.date.startsWith(selectedMonthKey));
       const monthIncome = monthRecords.filter(r => r.type === 'Income').reduce((s, it) => s + it.amount, 0);
       const monthExpense = monthRecords.filter(r => r.type === 'Expense').reduce((s, it) => s + it.amount, 0);
       const monthSavings = monthIncome - monthExpense;
@@ -1685,14 +1880,15 @@
       const weekRecords = expenseRecords.filter(r => r.date >= sevenDaysAgo && r.date <= todayStr && r.type === 'Expense');
       const weekSpent = weekRecords.reduce((s, it) => s + it.amount, 0);
 
-      const dayOfMonth = now.getDate();
-      const dailyAvg = dayOfMonth > 0 ? (monthExpense / dayOfMonth) : 0;
+      const dayCount = 30;
+      const dailyAvg = (monthExpense / dayCount);
 
       const balanceMap = calculateAccountBalances();
       let totalLiquidWealth = 0;
       Object.values(balanceMap).forEach(b => totalLiquidWealth += b);
 
-      document.getElementById('dailyMonthBadge').innerText = now.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
+      const dObj = new Date(selectedMonthKey + '-01');
+      document.getElementById('dailyMonthBadge').innerText = dObj.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
       document.getElementById('kpiNetLiquidWealth').innerText = formatINR(totalLiquidWealth);
       document.getElementById('kpiDailyMonthIncome').innerText = formatINR(monthIncome);
       document.getElementById('kpiDailyMonthExpense').innerText = formatINR(monthExpense);
@@ -1824,7 +2020,7 @@
         }
       });
 
-      const currentYearMonth = now.toISOString().slice(0, 7);
+      const currentYearMonth = document.getElementById('dailyDashMonthSelector').value || now.toISOString().slice(0, 7);
       const catMap = {};
       expenseRecords.filter(r => r.type === 'Expense' && r.date.startsWith(currentYearMonth))
                     .forEach(i => catMap[i.category] = (catMap[i.category] || 0) + i.amount);
@@ -1870,21 +2066,38 @@
       });
     }
 
-    // ================= REORDERING CATEGORIES & ACCOUNTS (INSTANT TOP + STEP MOVE) =================
+    // ================= REORDERING CATEGORIES & ACCOUNTS =================
+    function switchCategoryModalType(type) {
+      currentCatModalType = type;
+      const bExp = document.getElementById('tabModalCatExpense');
+      const bInc = document.getElementById('tabModalCatIncome');
+      if (type === 'Income') {
+        bInc.className = "flex-1 py-1.5 text-xs font-bold rounded-xl text-white bg-emerald-600 shadow cursor-pointer";
+        bExp.className = "flex-1 py-1.5 text-xs font-bold rounded-xl text-slate-400 hover:text-white cursor-pointer";
+        document.getElementById('lblCatModalCount').innerText = `Income Categories (${incomeCategories.length})`;
+      } else {
+        bExp.className = "flex-1 py-1.5 text-xs font-bold rounded-xl text-white bg-rose-600 shadow cursor-pointer";
+        bInc.className = "flex-1 py-1.5 text-xs font-bold rounded-xl text-slate-400 hover:text-white cursor-pointer";
+        document.getElementById('lblCatModalCount').innerText = `Expense Categories (${expenseCategories.length})`;
+      }
+      renderExpenseCategoryBadges();
+    }
+
     function moveExpenseCategory(index, direction) {
+      const arr = currentCatModalType === 'Income' ? incomeCategories : expenseCategories;
       if (direction === 'top') {
-        const item = expenseCategories.splice(index, 1)[0];
-        expenseCategories.unshift(item);
+        const item = arr.splice(index, 1)[0];
+        arr.unshift(item);
       } else {
         const newIndex = index + direction;
-        if (newIndex < 0 || newIndex >= expenseCategories.length) return;
-        const item = expenseCategories.splice(index, 1)[0];
-        expenseCategories.splice(newIndex, 0, item);
+        if (newIndex < 0 || newIndex >= arr.length) return;
+        const item = arr.splice(index, 1)[0];
+        arr.splice(newIndex, 0, item);
       }
       saveExpenseStorage();
       populateExpenseElements();
       renderExpenseCategoryBadges();
-      notify(`Reordered dropdowns`);
+      notify(`Reordered priority`);
     }
 
     function moveDebtCategory(index, direction) {
@@ -1900,7 +2113,7 @@
       saveDebtStorage();
       populateCategoryElements();
       renderCategoryBadges();
-      notify(`Reordered dropdowns`);
+      notify(`Reordered priority`);
     }
 
     function moveAccount(index, direction) {
@@ -1921,7 +2134,7 @@
 
     function openExpenseCategoryModal() {
       document.getElementById('expenseCatModal').classList.remove('hidden');
-      renderExpenseCategoryBadges();
+      switchCategoryModalType(currentCatModalType);
       document.getElementById('newExpenseCatInput').focus();
     }
     function closeExpenseCategoryModal() {
@@ -1932,21 +2145,27 @@
       const input = document.getElementById('newExpenseCatInput');
       const val = input.value.trim();
       if (!val) return;
-      if (expenseCategories.some(c => c.toLowerCase() === val.toLowerCase())) {
-        notify("Category already exists!");
+
+      const arr = currentCatModalType === 'Income' ? incomeCategories : expenseCategories;
+      if (arr.some(c => c.toLowerCase() === val.toLowerCase())) {
+        notify("Category already exists in this list!");
         return;
       }
-      expenseCategories.push(val);
+      arr.push(val);
       saveExpenseStorage();
       populateExpenseElements();
       renderDailySummary();
       renderBudgetPlanner();
       input.value = '';
-      notify(`Added "${val}"`);
+      notify(`Added "${val}" to ${currentCatModalType}`);
     }
     function deleteExpenseCategory(name) {
       if (confirm(`Remove category "${name}"?`)) {
-        expenseCategories = expenseCategories.filter(c => c !== name);
+        if (currentCatModalType === 'Income') {
+          incomeCategories = incomeCategories.filter(c => c !== name);
+        } else {
+          expenseCategories = expenseCategories.filter(c => c !== name);
+        }
         saveExpenseStorage();
         populateExpenseElements();
         renderDailySummary();
@@ -1957,9 +2176,10 @@
     function renderExpenseCategoryBadges() {
       const container = document.getElementById('expenseCategoryBadgeContainer');
       container.innerHTML = '';
-      document.getElementById('expCatModalCount').innerText = expenseCategories.length;
+      const arr = currentCatModalType === 'Income' ? incomeCategories : expenseCategories;
+      document.getElementById('lblCatModalCount').innerText = `${currentCatModalType} Categories (${arr.length})`;
 
-      expenseCategories.forEach((cat, idx) => {
+      arr.forEach((cat, idx) => {
         const row = document.createElement('div');
         row.className = "flex items-center justify-between bg-slate-900 border border-slate-700 px-3 py-2 rounded-xl text-xs text-slate-300 font-medium";
         row.innerHTML = `
@@ -1974,7 +2194,7 @@
             <button type="button" onclick="moveExpenseCategory(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} title="Move Up" class="w-6 h-6 rounded bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white disabled:opacity-30 cursor-pointer">
               ▲
             </button>
-            <button type="button" onclick="moveExpenseCategory(${idx}, 1)" ${idx === expenseCategories.length - 1 ? 'disabled' : ''} title="Move Down" class="w-6 h-6 rounded bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white disabled:opacity-30 cursor-pointer">
+            <button type="button" onclick="moveExpenseCategory(${idx}, 1)" ${idx === arr.length - 1 ? 'disabled' : ''} title="Move Down" class="w-6 h-6 rounded bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white disabled:opacity-30 cursor-pointer">
               ▼
             </button>
             <button type="button" onclick="deleteExpenseCategory('${cat}')" class="text-rose-400 hover:text-rose-300 ml-1.5 cursor-pointer">
@@ -2050,10 +2270,10 @@
             <button type="button" onclick="moveAccount(${idx}, 'top')" title="Move to Top" class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-300 hover:text-white cursor-pointer text-[10px]">
               ⏫
             </button>
-            <button type="button" onclick="moveAccount(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} class="w-6 h-6 rounded bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white disabled:opacity-30 cursor-pointer">
+            <button type="button" onclick="moveAccount(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} title="Move Up" class="w-6 h-6 rounded bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white disabled:opacity-30 cursor-pointer">
               ▲
             </button>
-            <button type="button" onclick="moveAccount(${idx}, 1)" ${idx === accountsList.length - 1 ? 'disabled' : ''} class="w-6 h-6 rounded bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white disabled:opacity-30 cursor-pointer">
+            <button type="button" onclick="moveAccount(${idx}, 1)" ${idx === accountsList.length - 1 ? 'disabled' : ''} title="Move Down" class="w-6 h-6 rounded bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white disabled:opacity-30 cursor-pointer">
               ▼
             </button>
             <input type="number" step="any" placeholder="Balance" value="${acc.initialBalance}" onchange="updateAccountInitial('${acc.name}', this.value)" class="w-16 bg-slate-800 border border-slate-600 rounded-lg px-1.5 py-1 text-xs text-white">
@@ -2067,6 +2287,10 @@
     // -------------------------------------------------------------
     // PART 1 CONTROLLER: DEBT & EMI (PRESERVED)
     // -------------------------------------------------------------
+    function onDebtDashMonthChanged() {
+      renderDashboard();
+    }
+
     function computeMonthsFromAmortization() {
       const P = parseFloat(document.getElementById('fBalance').value);
       const E = parseFloat(document.getElementById('fEmi').value);
@@ -2148,8 +2372,8 @@
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
-      if (screenId === 'dashboardScreen') renderDashboard();
       if (screenId === 'entryScreen') renderHistoryTable();
+      if (screenId === 'dashboardScreen') renderDashboard();
       if (screenId === 'trendsScreen') renderCharts();
       if (screenId === 'plannerScreen') renderPredictionsView();
     }
@@ -2295,12 +2519,14 @@
     }
 
     function getLatestDataset(cat = 'ALL') {
+      const selectedMonth = document.getElementById('debtDashMonthSelector').value || null;
       const source = (cat === 'ALL') ? debtRecords : debtRecords.filter(d => d.category === cat);
       if (source.length === 0) return { latestMonth: 'N/A', latestItems: [], prevItems: [] };
 
       const months = [...new Set(source.map(d => d.month))].sort();
-      const latestMonth = months[months.length - 1];
-      const prevMonth = months.length > 1 ? months[months.length - 2] : null;
+      const latestMonth = selectedMonth && months.includes(selectedMonth) ? selectedMonth : months[months.length - 1];
+      const curIndex = months.indexOf(latestMonth);
+      const prevMonth = curIndex > 0 ? months[curIndex - 1] : null;
 
       const latestItems = source.filter(d => d.month === latestMonth);
       const prevItems = prevMonth ? source.filter(d => d.month === prevMonth) : [];
@@ -2315,11 +2541,11 @@
         document.getElementById('kpiTotalDebt').innerText = '₹0';
         document.getElementById('kpiTotalEmi').innerText = '₹0';
         document.getElementById('kpiActiveCount').innerText = '0 Loans';
-        document.getElementById('kpiReductionText').innerText = 'No records for this category';
+        document.getElementById('kpiReductionText').innerText = 'No records for this month';
         document.getElementById('activeListCount').innerText = '0 Items';
         document.getElementById('liabilitiesListContainer').innerHTML = `
           <div class="glass-card rounded-2xl p-6 text-center text-slate-500 text-xs">
-            No active commitments found. Tap <b>+</b> to add your first loan.
+            No commitments recorded for this month.
           </div>
         `;
         return;
@@ -2844,6 +3070,7 @@
         debtCategories: categories,
         debtRecords,
         expenseCategories,
+        incomeCategories,
         accountsList,
         expenseRecords,
         monthlyBudgets,
@@ -2866,6 +3093,7 @@
         categories = [...DEFAULT_DEBT_CATEGORIES];
         expenseRecords = JSON.parse(JSON.stringify(DEFAULT_EXPENSE_DATA));
         expenseCategories = [...DEFAULT_EXPENSE_CATEGORIES];
+        incomeCategories = [...DEFAULT_INCOME_CATEGORIES];
         accountsList = [...DEFAULT_ACCOUNTS];
         monthlyBudgets = {};
 
@@ -2884,21 +3112,21 @@
     }
 
     // -------------------------------------------------------------
-    // INITIALIZATION
+    // INITIALIZATION (DEFAULTS TO PLANNER FIRST: REQUIREMENT 1 & 4)
     // -------------------------------------------------------------
     window.addEventListener('DOMContentLoaded', () => {
       const currentMonth = new Date().toISOString().slice(0, 7);
       document.getElementById('fMonth').value = currentMonth;
       document.getElementById('expDate').value = new Date().toISOString().slice(0, 10);
       document.getElementById('plannerMonthSelector').value = currentMonth;
+      document.getElementById('plannerDashMonthSelector').value = currentMonth;
+      document.getElementById('dailyDashMonthSelector').value = currentMonth;
+      document.getElementById('debtDashMonthSelector').value = currentMonth;
 
       populateCategoryElements();
       populateExpenseElements();
 
-      renderBottomNav('debt');
-      renderDashboard();
-      renderDailySummary();
-      renderBudgetPlanner();
+      toggleAppMode('planner'); // Planner first (Requirement 1)
     });
   </script>
 </body>
