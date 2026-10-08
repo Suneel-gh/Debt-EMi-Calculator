@@ -482,7 +482,7 @@
     <!-- ************************************************************* -->
     <div id="dailyModuleContainer" class="hidden space-y-4">
       
-      <!-- DAILY VIEW 1: SUMMARY, CASHFLOW & ACCOUNT BALANCES -->
+      <!-- DAILY VIEW 1: SUMMARY, TODAY/WEEK/MONTH SPENT & ACCOUNTS -->
       <section id="dailySummaryScreen" class="daily-screen space-y-4">
         
         <!-- NET LIQUID WEALTH & MONTH CASHFLOW CARD -->
@@ -517,6 +517,39 @@
           </div>
         </div>
 
+        <!-- NEW: TODAY, WEEK, MONTH SPENT SUMMARY CARDS -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between items-center px-1">
+            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+              <i class="fa-solid fa-receipt text-rose-400"></i> Spending Summary
+            </h3>
+            <span class="text-[10px] text-slate-500">Actual Outflows</span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2.5">
+            <!-- Today Spent -->
+            <div class="glass-card rounded-2xl p-3 border border-slate-800">
+              <span class="text-[10px] font-semibold text-slate-400 uppercase block">Today Spent</span>
+              <span id="kpiSummaryTodaySpent" class="text-base font-extrabold text-white mt-0.5 block">₹0</span>
+              <span id="kpiSummaryTodayCount" class="text-[9px] text-slate-500 block">0 spends</span>
+            </div>
+
+            <!-- Week Spent -->
+            <div class="glass-card rounded-2xl p-3 border border-slate-800">
+              <span class="text-[10px] font-semibold text-slate-400 uppercase block">Week Spent</span>
+              <span id="kpiSummaryWeekSpent" class="text-base font-extrabold text-rose-400 mt-0.5 block">₹0</span>
+              <span id="kpiSummaryWeekCount" class="text-[9px] text-slate-500 block">Last 7 days</span>
+            </div>
+
+            <!-- Month Spent -->
+            <div class="glass-card rounded-2xl p-3 border border-slate-800">
+              <span class="text-[10px] font-semibold text-slate-400 uppercase block">Month Spent</span>
+              <span id="kpiSummaryMonthSpent" class="text-base font-extrabold text-slate-100 mt-0.5 block">₹0</span>
+              <span id="kpiSummaryMonthAvg" class="text-[9px] text-slate-500 block">Avg ₹0/d</span>
+            </div>
+          </div>
+        </div>
+
         <!-- LIVE ACCOUNT BALANCES SCORECARD -->
         <div class="glass-card rounded-3xl p-4 border border-slate-800 space-y-3">
           <div class="flex justify-between items-center">
@@ -531,22 +564,7 @@
             </button>
           </div>
 
-          <!-- Accounts Horizontal Live Cards -->
-          <div id="liveAccountBalancesContainer" class="grid grid-cols-2 gap-2.5">
-            <!-- Dynamically populated via JS -->
-          </div>
-        </div>
-
-        <!-- Weekly Spending & Cash Outflow Chart -->
-        <div class="glass-card rounded-3xl p-4 border border-slate-800">
-          <div class="flex justify-between items-center mb-2">
-            <div>
-              <span class="text-xs font-bold text-slate-200">Daily Spending Outflow</span>
-              <p class="text-[10px] text-slate-400">Last 14 days true expenses</p>
-            </div>
-            <span class="text-[10px] text-emerald-400 font-semibold bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">Expenses Only</span>
-          </div>
-          <div class="h-44 relative"><canvas id="dailyTrendChart"></canvas></div>
+          <div id="liveAccountBalancesContainer" class="grid grid-cols-2 gap-2.5"></div>
         </div>
 
         <!-- Category Spend Breakdown -->
@@ -640,7 +658,7 @@
             </div>
 
             <button type="submit" id="btnExpenseSubmit" class="w-full bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-600 text-white font-semibold py-3 rounded-2xl text-xs tracking-wide transition shadow-lg shadow-rose-600/30 flex items-center justify-center gap-2 active:scale-98 cursor-pointer">
-              <i class="fa-solid fa-plus text-xs"></i> Add Expense
+              <i class="fa-solid fa-plus text-xs"></i> Record Expense
             </button>
           </form>
         </div>
@@ -670,6 +688,53 @@
           </div>
 
           <div id="expenseHistoryContainer" class="space-y-2 max-h-80 overflow-y-auto no-scrollbar pt-1"></div>
+        </div>
+      </section>
+
+      <!-- DAILY VIEW 3: DEDICATED TRENDS & GRAPHS SHEET (NEW FEATURE) -->
+      <section id="dailyTrendsScreen" class="daily-screen hidden space-y-4">
+        <div class="flex items-center justify-between px-1">
+          <div>
+            <h2 class="text-base font-bold text-white">Daily Spending Analytics</h2>
+            <p class="text-xs text-slate-400">Weekly & monthly spending trends</p>
+          </div>
+          <span class="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full font-semibold border border-emerald-500/20">Live Trends</span>
+        </div>
+
+        <!-- Weekly Spending Trajectory (Last 6 Weeks) -->
+        <div class="glass-card rounded-3xl p-4 border border-slate-800">
+          <div class="flex justify-between items-center mb-2">
+            <div>
+              <span class="text-xs font-bold text-slate-200">Weekly Spending Trajectory</span>
+              <p class="text-[10px] text-slate-400">Rolling 6-week outflow</p>
+            </div>
+            <span class="text-[10px] text-rose-400 font-semibold bg-rose-500/10 px-2 py-0.5 rounded-full">Weekly Expense</span>
+          </div>
+          <div class="h-48 relative"><canvas id="dailyWeeklyBarChart"></canvas></div>
+        </div>
+
+        <!-- Monthly Income vs Expense Comparative Flow -->
+        <div class="glass-card rounded-3xl p-4 border border-slate-800">
+          <div class="flex justify-between items-center mb-2">
+            <div>
+              <span class="text-xs font-bold text-slate-200">Monthly Cashflow: Inflow vs Outflow</span>
+              <p class="text-[10px] text-slate-400">Last 6 months comparison</p>
+            </div>
+            <span class="text-[10px] text-cyan-300 font-semibold bg-cyan-500/10 px-2 py-0.5 rounded-full">Cashflow</span>
+          </div>
+          <div class="h-48 relative"><canvas id="dailyMonthlyCompareChart"></canvas></div>
+        </div>
+
+        <!-- Category Spend Doughnut -->
+        <div class="glass-card rounded-3xl p-4 border border-slate-800">
+          <span class="text-xs font-bold text-slate-200 block mb-2">Expense Breakdown by Category</span>
+          <div class="h-56 relative flex items-center justify-center"><canvas id="dailyCategoryDoughnutChart"></canvas></div>
+        </div>
+
+        <!-- Account Outflow Doughnut -->
+        <div class="glass-card rounded-3xl p-4 border border-slate-800">
+          <span class="text-xs font-bold text-slate-200 block mb-2">Outflow Distribution by Account</span>
+          <div class="h-56 relative flex items-center justify-center"><canvas id="dailyAccountDoughnutChart"></canvas></div>
         </div>
       </section>
 
@@ -814,7 +879,6 @@
       "Shopping", "Health & Medical", "Entertainment", "Education", "Salary", "Bonus", "Allowance", "Investment Inflow", "Miscellaneous"
     ];
 
-    // Accounts object structure: { name: string, initialBalance: number }
     const DEFAULT_ACCOUNTS = [
       { name: "HDFC Bank", initialBalance: 50000 },
       { name: "ICICI Bank", initialBalance: 25000 },
@@ -838,7 +902,6 @@
       { id: 11, month: '2026-09', metric: 'iPhone 15 EMI', category: 'Gadgets', balance: 58500, emi: 6500, rate: 0.0, monthsLeft: 9, priority: 'Low', notes: 'No cost EMI' }
     ];
 
-    // Transactions sample: type is 'Expense' | 'Income' | 'Transfer'
     const DEFAULT_EXPENSE_DATA = [
       { id: 101, type: 'Income', date: '2026-10-01', category: 'Salary', amount: 125000, account: 'HDFC Bank', toAccount: '', note: 'Monthly corporate salary' },
       { id: 102, type: 'Transfer', date: '2026-10-02', category: 'Transfer', amount: 20000, account: 'HDFC Bank', toAccount: 'ICICI Bank', note: 'Savings allocation' },
@@ -851,7 +914,7 @@
     // STATE STORAGE
     // -------------------------------------------------------------
     let activeModule = 'debt'; // 'debt' or 'daily'
-    let currentTransactionType = 'Expense'; // 'Expense' | 'Income' | 'Transfer'
+    let currentTransactionType = 'Expense';
 
     // Debt State
     let categories = JSON.parse(localStorage.getItem('debt_categories')) || DEFAULT_DEBT_CATEGORIES;
@@ -861,15 +924,15 @@
     // Daily Transaction State
     let expenseCategories = JSON.parse(localStorage.getItem('expense_categories')) || DEFAULT_EXPENSE_CATEGORIES;
     let accountsList = JSON.parse(localStorage.getItem('expense_accounts')) || DEFAULT_ACCOUNTS;
-    // Normalize accounts if string array was saved earlier
     if (accountsList.length && typeof accountsList[0] === 'string') {
       accountsList = accountsList.map(name => ({ name, initialBalance: 0 }));
     }
     let expenseRecords = JSON.parse(localStorage.getItem('expense_records')) || DEFAULT_EXPENSE_DATA;
 
-    // Charts
+    // Charts references
     let debtChart = null, emiChart = null, doughnutChart = null;
-    let dailyTrendChart = null;
+    let dailyWeeklyBarChart = null, dailyMonthlyCompareChart = null;
+    let dailyCategoryDoughnutChart = null, dailyAccountDoughnutChart = null;
 
     function formatINR(val) {
       if (val === undefined || val === null || isNaN(val)) return '₹0';
@@ -904,7 +967,7 @@
         document.getElementById('modeIcon').className = "w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-cyan-400 flex items-center justify-center text-white font-bold text-sm";
         document.getElementById('modeIcon').innerHTML = '<i class="fa-solid fa-wallet"></i>';
         document.getElementById('appTitleText').innerHTML = 'Daily Spends & Cashflow <span class="text-[10px] font-semibold bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded-full border border-emerald-500/30">Live Balances</span>';
-        document.getElementById('appSubtitleText').innerText = 'Income, expenses, transfers & account balances';
+        document.getElementById('appSubtitleText').innerText = 'Income, expenses, transfers & trends';
 
         debtContainer.classList.add('hidden');
         dailyContainer.classList.remove('hidden');
@@ -937,6 +1000,10 @@
           <button type="button" onclick="switchDailyScreen('dailyEntryScreen')" id="nav-dailyEntryScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
             <i class="fa-solid fa-plus-minus text-base"></i>
             <span class="text-[10px] font-semibold">Transactions</span>
+          </button>
+          <button type="button" onclick="switchDailyScreen('dailyTrendsScreen')" id="nav-dailyTrendsScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
+            <i class="fa-solid fa-chart-line text-base"></i>
+            <span class="text-[10px] font-semibold">Trends</span>
           </button>
           <button type="button" onclick="openExpenseCategoryModal()" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
             <i class="fa-solid fa-tags text-base"></i>
@@ -1003,7 +1070,6 @@
       const rowTransfer = document.getElementById('rowTransferAccounts');
       const submitBtn = document.getElementById('btnExpenseSubmit');
 
-      // Reset classes
       [bExp, bInc, bTrf].forEach(btn => {
         btn.className = "flex-1 py-2 text-xs font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer";
       });
@@ -1046,6 +1112,7 @@
 
       if (screenId === 'dailySummaryScreen') renderDailySummary();
       if (screenId === 'dailyEntryScreen') renderExpenseHistoryTable();
+      if (screenId === 'dailyTrendsScreen') renderDailyTrendsCharts();
     }
 
     function saveExpenseStorage() {
@@ -1055,7 +1122,6 @@
     }
 
     function populateExpenseElements() {
-      // 1. Category Dropdown
       const catEl = document.getElementById('expCategory');
       const curCat = catEl.value;
       catEl.innerHTML = '';
@@ -1067,7 +1133,6 @@
       });
       if (curCat && expenseCategories.includes(curCat)) catEl.value = curCat;
 
-      // 2. Account Dropdowns
       ['expAccount', 'expTransferFrom', 'expTransferTo', 'expenseAccountFilter'].forEach(id => {
         const el = document.getElementById(id);
         if (!el) return;
@@ -1086,7 +1151,6 @@
       renderAccountBadges();
     }
 
-    // ================= LIVE ACCOUNT BALANCE COMPUTATION =================
     function calculateAccountBalances() {
       const balanceMap = {};
       accountsList.forEach(acc => {
@@ -1271,15 +1335,30 @@
       });
     }
 
+    // ================= DAILY SUMMARY & SPEND SUMMARY (TODAY/WEEK/MONTH) =================
     function renderDailySummary() {
       const now = new Date();
       const currentYearMonth = now.toISOString().slice(0, 7);
+      const todayStr = now.toISOString().slice(0, 10);
 
-      // Monthly Items (excluding Transfers from Income/Expense cash totals)
+      // Monthly Items
       const monthRecords = expenseRecords.filter(r => r.date.startsWith(currentYearMonth));
       const monthIncome = monthRecords.filter(r => r.type === 'Income').reduce((s, it) => s + it.amount, 0);
       const monthExpense = monthRecords.filter(r => r.type === 'Expense').reduce((s, it) => s + it.amount, 0);
       const monthSavings = monthIncome - monthExpense;
+
+      // TODAY SPENT (Pure Expense)
+      const todayRecords = expenseRecords.filter(r => r.date === todayStr && r.type === 'Expense');
+      const todaySpent = todayRecords.reduce((s, it) => s + it.amount, 0);
+
+      // WEEK SPENT (Last 7 Days Rolling Pure Expense)
+      const sevenDaysAgo = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)).toISOString().slice(0, 10);
+      const weekRecords = expenseRecords.filter(r => r.date >= sevenDaysAgo && r.date <= todayStr && r.type === 'Expense');
+      const weekSpent = weekRecords.reduce((s, it) => s + it.amount, 0);
+
+      // Daily Average for Month
+      const dayOfMonth = now.getDate();
+      const dailyAvg = dayOfMonth > 0 ? (monthExpense / dayOfMonth) : 0;
 
       // 1. Live Account Balances & Total Liquid Wealth
       const balanceMap = calculateAccountBalances();
@@ -1292,6 +1371,16 @@
       document.getElementById('kpiDailyMonthExpense').innerText = formatINR(monthExpense);
       document.getElementById('kpiDailyMonthSavings').innerText = (monthSavings >= 0 ? '+' : '') + formatINR(monthSavings);
       document.getElementById('kpiDailyMonthSavings').className = `text-sm font-bold mt-0.5 block ${monthSavings >= 0 ? 'text-cyan-300' : 'text-rose-400'}`;
+
+      // Update TODAY / WEEK / MONTH SPENT KPI Cards
+      document.getElementById('kpiSummaryTodaySpent').innerText = formatINR(todaySpent);
+      document.getElementById('kpiSummaryTodayCount').innerText = `${todayRecords.length} spend${todayRecords.length === 1 ? '' : 's'}`;
+
+      document.getElementById('kpiSummaryWeekSpent').innerText = formatINR(weekSpent);
+      document.getElementById('kpiSummaryWeekCount').innerText = `${weekRecords.length} spend${weekRecords.length === 1 ? '' : 's'}`;
+
+      document.getElementById('kpiSummaryMonthSpent').innerText = formatINR(monthExpense);
+      document.getElementById('kpiSummaryMonthAvg').innerText = `Avg ${formatINR(dailyAvg)}/d`;
 
       // Populate Live Account Cards
       const balancesContainer = document.getElementById('liveAccountBalancesContainer');
@@ -1310,39 +1399,7 @@
         balancesContainer.appendChild(card);
       });
 
-      // 2. Daily Outflow Bar Chart (Expenses only)
-      const last14Days = [];
-      const dailyTotals = [];
-      for (let i = 13; i >= 0; i--) {
-        const d = new Date(now.getTime() - (i * 24 * 60 * 60 * 1000)).toISOString().slice(0, 10);
-        last14Days.push(d.slice(5)); // MM-DD
-        const daySum = expenseRecords.filter(r => r.date === d && r.type === 'Expense').reduce((s, it) => s + it.amount, 0);
-        dailyTotals.push(daySum);
-      }
-
-      if (dailyTrendChart) dailyTrendChart.destroy();
-      const ctxTrend = document.getElementById('dailyTrendChart').getContext('2d');
-      dailyTrendChart = new Chart(ctxTrend, {
-        type: 'bar',
-        data: {
-          labels: last14Days,
-          datasets: [{
-            data: dailyTotals,
-            backgroundColor: '#f43f5e',
-            borderRadius: 6
-          }]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 9 } } },
-            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 9 }, callback: v => '₹' + v } }
-          }
-        }
-      });
-
-      // 3. Category Breakdown List
+      // Category Breakdown List
       const catMap = {};
       monthRecords.filter(r => r.type === 'Expense').forEach(i => catMap[i.category] = (catMap[i.category] || 0) + i.amount);
       const catContainer = document.getElementById('dailyCategoryBreakdownContainer');
@@ -1367,6 +1424,131 @@
           catContainer.appendChild(rowEl);
         });
       }
+    }
+
+    // ================= DEDICATED DAILY TRENDS & GRAPHS ENGINE =================
+    function renderDailyTrendsCharts() {
+      const now = new Date();
+
+      // 1. Weekly Outflows (Last 6 Weeks)
+      const weekLabels = [];
+      const weeklyTotals = [];
+      for (let w = 5; w >= 0; w--) {
+        const start = new Date(now.getTime() - ((w * 7 + 6) * 24 * 60 * 60 * 1000)).toISOString().slice(0, 10);
+        const end = new Date(now.getTime() - (w * 7 * 24 * 60 * 60 * 1000)).toISOString().slice(0, 10);
+        weekLabels.push(`W-${w === 0 ? 'Curr' : w}`);
+        const sum = expenseRecords.filter(r => r.date >= start && r.date <= end && r.type === 'Expense')
+                                  .reduce((s, it) => s + it.amount, 0);
+        weeklyTotals.push(sum);
+      }
+
+      if (dailyWeeklyBarChart) dailyWeeklyBarChart.destroy();
+      const ctxWeekly = document.getElementById('dailyWeeklyBarChart').getContext('2d');
+      dailyWeeklyBarChart = new Chart(ctxWeekly, {
+        type: 'bar',
+        data: {
+          labels: weekLabels,
+          datasets: [{
+            label: 'Weekly Expense (₹)',
+            data: weeklyTotals,
+            backgroundColor: '#f43f5e',
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } },
+            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 }, callback: v => '₹' + v } }
+          }
+        }
+      });
+
+      // 2. Monthly Inflow vs Outflow (Last 6 Months)
+      const monthLabels = [];
+      const monthIncomes = [];
+      const monthExpenses = [];
+      for (let m = 5; m >= 0; m--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - m, 1);
+        const key = d.toISOString().slice(0, 7);
+        monthLabels.push(d.toLocaleDateString('en-IN', { month: 'short' }));
+
+        const inc = expenseRecords.filter(r => r.date.startsWith(key) && r.type === 'Income').reduce((s, it) => s + it.amount, 0);
+        const exp = expenseRecords.filter(r => r.date.startsWith(key) && r.type === 'Expense').reduce((s, it) => s + it.amount, 0);
+        monthIncomes.push(inc);
+        monthExpenses.push(exp);
+      }
+
+      if (dailyMonthlyCompareChart) dailyMonthlyCompareChart.destroy();
+      const ctxCompare = document.getElementById('dailyMonthlyCompareChart').getContext('2d');
+      dailyMonthlyCompareChart = new Chart(ctxCompare, {
+        type: 'bar',
+        data: {
+          labels: monthLabels,
+          datasets: [
+            { label: 'Income', data: monthIncomes, backgroundColor: '#10b981', borderRadius: 4 },
+            { label: 'Expense', data: monthExpenses, backgroundColor: '#f43f5e', borderRadius: 4 }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'top', labels: { boxWidth: 10, color: '#94a3b8', font: { size: 10 } } }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } },
+            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 }, callback: v => '₹' + v } }
+          }
+        }
+      });
+
+      // 3. Category Breakdown Doughnut
+      const currentYearMonth = now.toISOString().slice(0, 7);
+      const catMap = {};
+      expenseRecords.filter(r => r.type === 'Expense' && r.date.startsWith(currentYearMonth))
+                    .forEach(i => catMap[i.category] = (catMap[i.category] || 0) + i.amount);
+
+      if (dailyCategoryDoughnutChart) dailyCategoryDoughnutChart.destroy();
+      const ctxCat = document.getElementById('dailyCategoryDoughnutChart').getContext('2d');
+      dailyCategoryDoughnutChart = new Chart(ctxCat, {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(catMap).length ? Object.keys(catMap) : ['No Expenses'],
+          datasets: [{
+            data: Object.values(catMap).length ? Object.values(catMap) : [1],
+            backgroundColor: ['#f43f5e', '#6366f1', '#06b6d4', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#3b82f6'],
+            borderWidth: 2, borderColor: '#090d16'
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, color: '#94a3b8', font: { size: 10 } } } }
+        }
+      });
+
+      // 4. Account Outflow Doughnut
+      const accOutMap = {};
+      expenseRecords.filter(r => r.type === 'Expense' && r.date.startsWith(currentYearMonth))
+                    .forEach(i => accOutMap[i.account] = (accOutMap[i.account] || 0) + i.amount);
+
+      if (dailyAccountDoughnutChart) dailyAccountDoughnutChart.destroy();
+      const ctxAcc = document.getElementById('dailyAccountDoughnutChart').getContext('2d');
+      dailyAccountDoughnutChart = new Chart(ctxAcc, {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(accOutMap).length ? Object.keys(accOutMap) : ['No Outflows'],
+          datasets: [{
+            data: Object.values(accOutMap).length ? Object.values(accOutMap) : [1],
+            backgroundColor: ['#06b6d4', '#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'],
+            borderWidth: 2, borderColor: '#090d16'
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, color: '#94a3b8', font: { size: 10 } } } }
+        }
+      });
     }
 
     // Modal Handlers
@@ -2171,7 +2353,7 @@
     }
 
     function renderPayoffList() {
-      const { latestItems } = getLatestDataset('ALL');
+      const { latestItems, prevItems } = getLatestDataset('ALL');
       const container = document.getElementById('plannerListContainer');
       container.innerHTML = '';
 
