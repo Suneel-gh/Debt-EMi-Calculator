@@ -94,7 +94,7 @@
         </div>
         
         <div class="flex items-center gap-2">
-          <button type="button" onclick="openContextModal()" class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white transition active:scale-95" title="Manage Categories & Accounts">
+          <button type="button" onclick="openContextModal()" class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white transition active:scale-95" title="Settings & Categories">
             <i class="fa-solid fa-sliders text-xs"></i>
           </button>
           <button type="button" onclick="switchDebtScreen('settingsScreen')" class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white transition active:scale-95" title="Settings">
@@ -478,50 +478,75 @@
     </div>
 
     <!-- ************************************************************* -->
-    <!-- PART 2: DAILY EXPENSES & TRANSACTION TRACKER MODULE            -->
+    <!-- PART 2: DAILY TRANSACTIONS & MULTI-ACCOUNT CASHFLOW MODULE     -->
     <!-- ************************************************************* -->
     <div id="dailyModuleContainer" class="hidden space-y-4">
       
-      <!-- DAILY VIEW 1: EXPENSE SUMMARY & TRENDS -->
+      <!-- DAILY VIEW 1: SUMMARY, CASHFLOW & ACCOUNT BALANCES -->
       <section id="dailySummaryScreen" class="daily-screen space-y-4">
-        <!-- Main Spend Scorecard -->
+        
+        <!-- NET LIQUID WEALTH & MONTH CASHFLOW CARD -->
         <div class="glass-card rounded-3xl p-5 shadow-xl relative overflow-hidden border border-emerald-500/30">
           <div class="flex justify-between items-center mb-1">
-            <span class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">This Month's Spending</span>
+            <span class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Net Liquid Wealth</span>
             <span id="dailyMonthBadge" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">Oct 2026</span>
           </div>
 
           <div class="flex items-baseline gap-2 mt-1">
-            <span id="kpiDailyMonthTotal" class="text-3xl font-extrabold text-white tracking-tight">₹0</span>
+            <span id="kpiNetLiquidWealth" class="text-3xl font-extrabold text-white tracking-tight">₹0</span>
+            <span class="text-xs text-slate-400 font-medium">(Across all accounts)</span>
           </div>
 
-          <div class="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-slate-700/60">
-            <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
-              <span class="text-[10px] text-slate-400 uppercase font-semibold block">Last 7 Days (Weekly)</span>
-              <span id="kpiDailyWeeklyTotal" class="text-lg font-bold text-emerald-400 mt-0.5 block">₹0</span>
-              <span id="kpiDailyWeeklyCount" class="text-[10px] text-slate-500">0 payments</span>
+          <!-- Monthly Cashflow Breakdown: Income, Expense, Net Savings -->
+          <div class="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-slate-700/60">
+            <div class="bg-slate-900/60 p-2.5 rounded-2xl border border-slate-800">
+              <span class="text-[10px] text-slate-400 uppercase font-semibold block">Income</span>
+              <span id="kpiDailyMonthIncome" class="text-sm font-bold text-emerald-400 mt-0.5 block">₹0</span>
+              <span class="text-[9px] text-slate-500">Inflows</span>
             </div>
-            <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
-              <span class="text-[10px] text-slate-400 uppercase font-semibold block">Today's Spends</span>
-              <span id="kpiDailyTodayTotal" class="text-lg font-bold text-slate-100 mt-0.5 block">₹0</span>
-              <span id="kpiDailyAvgDay" class="text-[10px] text-slate-500">Avg ₹0 / day</span>
+            <div class="bg-slate-900/60 p-2.5 rounded-2xl border border-slate-800">
+              <span class="text-[10px] text-slate-400 uppercase font-semibold block">Expense</span>
+              <span id="kpiDailyMonthExpense" class="text-sm font-bold text-rose-400 mt-0.5 block">₹0</span>
+              <span class="text-[9px] text-slate-500">Outflows</span>
+            </div>
+            <div class="bg-slate-900/60 p-2.5 rounded-2xl border border-slate-800">
+              <span class="text-[10px] text-slate-400 uppercase font-semibold block">Savings</span>
+              <span id="kpiDailyMonthSavings" class="text-sm font-bold text-cyan-300 mt-0.5 block">₹0</span>
+              <span class="text-[9px] text-slate-500">Net Cashflow</span>
             </div>
           </div>
         </div>
 
-        <!-- Weekly & Monthly Trend Chart -->
+        <!-- LIVE ACCOUNT BALANCES SCORECARD -->
+        <div class="glass-card rounded-3xl p-4 border border-slate-800 space-y-3">
+          <div class="flex justify-between items-center">
+            <div>
+              <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                <i class="fa-solid fa-building-columns text-cyan-400"></i> Live Account Balances
+              </h3>
+              <p class="text-[11px] text-slate-400">Real-time balances with transfer reconciliation</p>
+            </div>
+            <button type="button" onclick="openAccountModal()" class="text-xs text-cyan-400 hover:underline flex items-center gap-1 font-semibold">
+              <i class="fa-solid fa-pen-to-square text-[10px]"></i> Edit Balances
+            </button>
+          </div>
+
+          <!-- Accounts Horizontal Live Cards -->
+          <div id="liveAccountBalancesContainer" class="grid grid-cols-2 gap-2.5">
+            <!-- Dynamically populated via JS -->
+          </div>
+        </div>
+
+        <!-- Weekly Spending & Cash Outflow Chart -->
         <div class="glass-card rounded-3xl p-4 border border-slate-800">
           <div class="flex justify-between items-center mb-2">
-            <span class="text-xs font-bold text-slate-200">Daily Spending Outflow (Last 14 Days)</span>
-            <span class="text-[10px] text-emerald-400 font-semibold bg-emerald-500/10 px-2 py-0.5 rounded-full">Cash Out</span>
+            <div>
+              <span class="text-xs font-bold text-slate-200">Daily Spending Outflow</span>
+              <p class="text-[10px] text-slate-400">Last 14 days true expenses</p>
+            </div>
+            <span class="text-[10px] text-emerald-400 font-semibold bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">Expenses Only</span>
           </div>
           <div class="h-44 relative"><canvas id="dailyTrendChart"></canvas></div>
-        </div>
-
-        <!-- Account Exposure Breakdown -->
-        <div class="glass-card rounded-3xl p-4 border border-slate-800">
-          <span class="text-xs font-bold text-slate-200 block mb-2">Spending by Payment Account</span>
-          <div class="h-48 relative flex items-center justify-center"><canvas id="dailyAccountChart"></canvas></div>
         </div>
 
         <!-- Category Spend Breakdown -->
@@ -534,22 +559,38 @@
         </div>
       </section>
 
-      <!-- DAILY VIEW 2: NEW EXPENSE ENTRY & LOG -->
+      <!-- DAILY VIEW 2: NEW TRANSACTION ENTRY & LOG -->
       <section id="dailyEntryScreen" class="daily-screen hidden space-y-4">
         <div class="flex items-center justify-between">
           <div>
-            <h2 id="expenseFormTitle" class="text-base font-bold text-white">Log Expense</h2>
-            <p class="text-xs text-slate-400">Capture daily transactions with account tagging</p>
+            <h2 id="expenseFormTitle" class="text-base font-bold text-white">Log Transaction</h2>
+            <p class="text-xs text-slate-400">Capture Income, Expense, or Account Transfer</p>
           </div>
           <button type="button" id="cancelExpenseEditBtn" onclick="resetExpenseFormToNew()" class="hidden text-xs bg-rose-500/20 text-rose-300 border border-rose-500/30 px-2.5 py-1 rounded-xl cursor-pointer">
             Cancel Edit
           </button>
         </div>
 
-        <!-- Add Transaction Card -->
+        <!-- Add Transaction Card with 3-Type Segmented Controller -->
         <div class="glass-card rounded-3xl p-5 border border-slate-800">
           <form id="expenseForm" onsubmit="handleExpenseSubmission(event)" class="space-y-3.5">
             <input type="hidden" id="editExpenseId" value="">
+
+            <!-- TRANSACTION TYPE SELECTOR: EXPENSE | INCOME | TRANSFER -->
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-400 mb-1.5 uppercase">Transaction Type *</label>
+              <div class="bg-slate-900 p-1 rounded-2xl flex border border-slate-800 gap-1">
+                <button type="button" id="tabTypeExpense" onclick="setTransactionType('Expense')" class="flex-1 py-2 text-xs font-bold rounded-xl transition text-white bg-rose-600 shadow cursor-pointer">
+                  💸 Expense
+                </button>
+                <button type="button" id="tabTypeIncome" onclick="setTransactionType('Income')" class="flex-1 py-2 text-xs font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer">
+                  💰 Income
+                </button>
+                <button type="button" id="tabTypeTransfer" onclick="setTransactionType('Transfer')" class="flex-1 py-2 text-xs font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer">
+                  🔄 Transfer
+                </button>
+              </div>
+            </div>
 
             <div class="grid grid-cols-2 gap-3">
               <div>
@@ -558,14 +599,15 @@
               </div>
               <div>
                 <label class="block text-[11px] font-semibold text-slate-400 mb-1">Amount (₹) *</label>
-                <input type="number" id="expAmount" step="any" min="0.01" placeholder="₹450" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white font-bold placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+                <input type="number" id="expAmount" step="any" min="0.01" placeholder="₹2,500" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white font-bold placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
               </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-3">
+            <!-- DYNAMIC ROW: FOR EXPENSE & INCOME (CATEGORY + ACCOUNT) -->
+            <div id="rowCategoryAndAccount" class="grid grid-cols-2 gap-3">
               <div>
                 <div class="flex justify-between items-center mb-1">
-                  <label class="block text-[11px] font-semibold text-slate-400">Category *</label>
+                  <label id="lblCategory" class="block text-[11px] font-semibold text-slate-400">Category *</label>
                   <button type="button" onclick="openExpenseCategoryModal()" class="text-[10px] text-indigo-400 font-semibold cursor-pointer">+ New</button>
                 </div>
                 <select id="expCategory" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:border-indigo-500 focus:outline-none"></select>
@@ -573,39 +615,58 @@
 
               <div>
                 <div class="flex justify-between items-center mb-1">
-                  <label class="block text-[11px] font-semibold text-slate-400">Payment Account *</label>
+                  <label id="lblAccount" class="block text-[11px] font-semibold text-slate-400">Payment Account *</label>
                   <button type="button" onclick="openAccountModal()" class="text-[10px] text-cyan-400 font-semibold cursor-pointer">+ New</button>
                 </div>
                 <select id="expAccount" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:border-indigo-500 focus:outline-none"></select>
               </div>
             </div>
 
-            <div>
-              <label class="block text-[11px] font-semibold text-slate-400 mb-1">Note / Description</label>
-              <input type="text" id="expNote" placeholder="e.g. Grocery shopping at DMart, Fuel refill" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+            <!-- DYNAMIC ROW: FOR TRANSFERS (FROM ACCOUNT -> TO ACCOUNT) -->
+            <div id="rowTransferAccounts" class="hidden grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[11px] font-semibold text-rose-400 mb-1">From Account (Sender) *</label>
+                <select id="expTransferFrom" class="w-full bg-slate-900 border border-rose-500/40 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none"></select>
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-emerald-400 mb-1">To Account (Receiver) *</label>
+                <select id="expTransferTo" class="w-full bg-slate-900 border border-emerald-500/40 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none"></select>
+              </div>
             </div>
 
-            <button type="submit" id="btnExpenseSubmit" class="w-full bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-600 text-white font-semibold py-3 rounded-2xl text-xs tracking-wide transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 active:scale-98 cursor-pointer">
-              <i class="fa-solid fa-plus text-xs"></i> Add Transaction
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-400 mb-1">Note / Description</label>
+              <input type="text" id="expNote" placeholder="e.g. Monthly salary credit, Fuel, or HDFC to ICICI transfer" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+            </div>
+
+            <button type="submit" id="btnExpenseSubmit" class="w-full bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-600 text-white font-semibold py-3 rounded-2xl text-xs tracking-wide transition shadow-lg shadow-rose-600/30 flex items-center justify-center gap-2 active:scale-98 cursor-pointer">
+              <i class="fa-solid fa-plus text-xs"></i> Add Expense
             </button>
           </form>
         </div>
 
-        <!-- Transaction Log Table -->
+        <!-- Transaction History Filter & Log -->
         <div class="glass-card rounded-3xl p-4 border border-slate-800 space-y-3">
           <div class="flex items-center justify-between">
             <h3 class="text-xs font-bold text-white uppercase tracking-wider">Transaction History</h3>
             <span id="expenseLogCounter" class="text-[11px] text-slate-400 font-medium">0 transactions</span>
           </div>
 
-          <div class="flex gap-2">
-            <div class="relative flex-1">
-              <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
-              <input type="text" id="expenseLogSearch" oninput="renderExpenseHistoryTable()" placeholder="Search transactions..." class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white focus:outline-none">
-            </div>
-            <select id="expenseAccountFilter" onchange="renderExpenseHistoryTable()" class="bg-slate-900 border border-slate-700 rounded-xl px-2 py-1.5 text-xs text-slate-300 focus:outline-none">
+          <div class="grid grid-cols-2 gap-2">
+            <select id="expenseTypeFilter" onchange="renderExpenseHistoryTable()" class="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none">
+              <option value="ALL">All Types (All)</option>
+              <option value="Expense">Expense Only</option>
+              <option value="Income">Income Only</option>
+              <option value="Transfer">Transfer Only</option>
+            </select>
+            <select id="expenseAccountFilter" onchange="renderExpenseHistoryTable()" class="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none">
               <option value="ALL">All Accounts</option>
             </select>
+          </div>
+
+          <div class="relative">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
+            <input type="text" id="expenseLogSearch" oninput="renderExpenseHistoryTable()" placeholder="Search description, category..." class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white focus:outline-none">
           </div>
 
           <div id="expenseHistoryContainer" class="space-y-2 max-h-80 overflow-y-auto no-scrollbar pt-1"></div>
@@ -626,7 +687,7 @@
   <!-- ================= DYNAMIC BOTTOM NAVIGATION BAR ================= -->
   <nav class="fixed bottom-0 left-0 right-0 z-40 bg-app-card/95 backdrop-blur-lg border-t border-app-border safe-bottom">
     <div id="bottomNavRow" class="max-w-md mx-auto flex items-center justify-around py-2 px-1">
-      <!-- Injected dynamically based on active module (Debt vs Daily) -->
+      <!-- Injected dynamically based on active module -->
     </div>
   </nav>
 
@@ -663,13 +724,13 @@
     </div>
   </div>
 
-  <!-- ================= MODAL 2: EXPENSE CATEGORY MANAGER ================= -->
+  <!-- ================= MODAL 2: EXPENSE/INCOME CATEGORY MANAGER ================= -->
   <div id="expenseCatModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="glass-card bg-app-card w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 border border-slate-700/80 space-y-4 max-h-[85vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <div>
-          <h3 class="text-sm font-bold text-white">Daily Spend Categories</h3>
-          <p class="text-[11px] text-slate-400">Customize spending buckets (Groceries, Fuel, Dining)</p>
+          <h3 class="text-sm font-bold text-white">Daily Spending Categories</h3>
+          <p class="text-[11px] text-slate-400">Customize categories for Incomes & Expenses</p>
         </div>
         <button type="button" onclick="closeExpenseCategoryModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center hover:text-white cursor-pointer">
           <i class="fa-solid fa-xmark"></i>
@@ -677,7 +738,7 @@
       </div>
 
       <form onsubmit="handleNewExpenseCategory(event)" class="flex gap-2">
-        <input type="text" id="newExpenseCatInput" placeholder="e.g. Subscriptions, Medicine" required class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+        <input type="text" id="newExpenseCatInput" placeholder="e.g. Freelance, Subscriptions, Fuel" required class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
         <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs px-4 py-2 rounded-xl transition flex items-center gap-1 cursor-pointer">
           <i class="fa-solid fa-plus"></i> Add
         </button>
@@ -696,12 +757,12 @@
     </div>
   </div>
 
-  <!-- ================= MODAL 3: ACCOUNTS MANAGER ================= -->
+  <!-- ================= MODAL 3: ACCOUNTS & STARTING BALANCES MANAGER ================= -->
   <div id="accountModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="glass-card bg-app-card w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 border border-slate-700/80 space-y-4 max-h-[85vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <div>
-          <h3 class="text-sm font-bold text-white">Payment Accounts</h3>
+          <h3 class="text-sm font-bold text-white">Accounts & Starting Balances</h3>
           <p class="text-[11px] text-slate-400">Add Bank accounts, UPI apps, Credit Cards, or Cash</p>
         </div>
         <button type="button" onclick="closeAccountModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center hover:text-white cursor-pointer">
@@ -709,16 +770,19 @@
         </button>
       </div>
 
-      <form onsubmit="handleNewAccount(event)" class="flex gap-2">
-        <input type="text" id="newAccountInput" placeholder="e.g. Axis Bank, SBI Card, Cash" required class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
-        <button type="submit" class="bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-xs px-4 py-2 rounded-xl transition flex items-center gap-1 cursor-pointer">
-          <i class="fa-solid fa-plus"></i> Add
+      <form onsubmit="handleNewAccount(event)" class="space-y-2">
+        <div class="grid grid-cols-2 gap-2">
+          <input type="text" id="newAccountName" placeholder="Account Name (e.g. Axis Bank)" required class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+          <input type="number" id="newAccountInitial" step="any" placeholder="Initial Balance (₹)" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+        </div>
+        <button type="submit" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-xs py-2 rounded-xl transition flex items-center justify-center gap-1 cursor-pointer">
+          <i class="fa-solid fa-plus"></i> Add Account with Balance
         </button>
       </form>
 
       <div>
-        <span class="text-[10px] uppercase font-bold text-slate-400 block mb-2">Available Accounts (<span id="accModalCount">0</span>)</span>
-        <div id="accountBadgeContainer" class="flex flex-wrap gap-2 max-h-48 overflow-y-auto no-scrollbar p-1"></div>
+        <span class="text-[10px] uppercase font-bold text-slate-400 block mb-2">Manage Configured Accounts</span>
+        <div id="accountDetailedListContainer" class="space-y-2 max-h-52 overflow-y-auto no-scrollbar"></div>
       </div>
 
       <div class="pt-2 border-t border-slate-800 flex justify-end">
@@ -747,11 +811,17 @@
 
     const DEFAULT_EXPENSE_CATEGORIES = [
       "Groceries", "Food & Dining", "Fuel & Transport", "Utilities & Bills",
-      "Shopping", "Health & Medical", "Entertainment", "Education", "Miscellaneous"
+      "Shopping", "Health & Medical", "Entertainment", "Education", "Salary", "Bonus", "Allowance", "Investment Inflow", "Miscellaneous"
     ];
 
+    // Accounts object structure: { name: string, initialBalance: number }
     const DEFAULT_ACCOUNTS = [
-      "HDFC Bank", "ICICI Bank", "SBI Bank", "Credit Card", "UPI / GPay", "Cash Wallet"
+      { name: "HDFC Bank", initialBalance: 50000 },
+      { name: "ICICI Bank", initialBalance: 25000 },
+      { name: "SBI Bank", initialBalance: 15000 },
+      { name: "Credit Card", initialBalance: 0 },
+      { name: "UPI / GPay", initialBalance: 5000 },
+      { name: "Cash Wallet", initialBalance: 3000 }
     ];
 
     const DEFAULT_DEBT_DATA = [
@@ -768,32 +838,38 @@
       { id: 11, month: '2026-09', metric: 'iPhone 15 EMI', category: 'Gadgets', balance: 58500, emi: 6500, rate: 0.0, monthsLeft: 9, priority: 'Low', notes: 'No cost EMI' }
     ];
 
+    // Transactions sample: type is 'Expense' | 'Income' | 'Transfer'
     const DEFAULT_EXPENSE_DATA = [
-      { id: 101, date: '2026-10-01', category: 'Groceries', amount: 3200, account: 'HDFC Bank', note: 'Monthly supermarket essentials' },
-      { id: 102, date: '2026-10-02', category: 'Fuel & Transport', amount: 2000, account: 'Credit Card', note: 'Petrol pump refuel' },
-      { id: 103, date: '2026-10-03', category: 'Food & Dining', amount: 1450, account: 'UPI / GPay', note: 'Family dinner' },
-      { id: 104, date: '2026-10-04', category: 'Utilities & Bills', amount: 2800, account: 'HDFC Bank', note: 'Electricity & Wifi' },
-      { id: 105, date: '2026-10-06', category: 'Groceries', amount: 650, account: 'UPI / GPay', note: 'Vegetables & dairy' }
+      { id: 101, type: 'Income', date: '2026-10-01', category: 'Salary', amount: 125000, account: 'HDFC Bank', toAccount: '', note: 'Monthly corporate salary' },
+      { id: 102, type: 'Transfer', date: '2026-10-02', category: 'Transfer', amount: 20000, account: 'HDFC Bank', toAccount: 'ICICI Bank', note: 'Savings allocation' },
+      { id: 103, type: 'Expense', date: '2026-10-03', category: 'Groceries', amount: 3200, account: 'ICICI Bank', toAccount: '', note: 'Supermarket essentials' },
+      { id: 104, type: 'Expense', date: '2026-10-04', category: 'Fuel & Transport', amount: 2000, account: 'Credit Card', toAccount: '', note: 'Vehicle fuel' },
+      { id: 105, type: 'Expense', date: '2026-10-05', category: 'Food & Dining', amount: 1450, account: 'UPI / GPay', toAccount: '', note: 'Family dinner' }
     ];
 
     // -------------------------------------------------------------
     // STATE STORAGE
     // -------------------------------------------------------------
     let activeModule = 'debt'; // 'debt' or 'daily'
+    let currentTransactionType = 'Expense'; // 'Expense' | 'Income' | 'Transfer'
 
     // Debt State
     let categories = JSON.parse(localStorage.getItem('debt_categories')) || DEFAULT_DEBT_CATEGORIES;
     let debtRecords = JSON.parse(localStorage.getItem('debt_records')) || DEFAULT_DEBT_DATA;
     let activeDashboardCategory = 'ALL';
 
-    // Expense State
+    // Daily Transaction State
     let expenseCategories = JSON.parse(localStorage.getItem('expense_categories')) || DEFAULT_EXPENSE_CATEGORIES;
     let accountsList = JSON.parse(localStorage.getItem('expense_accounts')) || DEFAULT_ACCOUNTS;
+    // Normalize accounts if string array was saved earlier
+    if (accountsList.length && typeof accountsList[0] === 'string') {
+      accountsList = accountsList.map(name => ({ name, initialBalance: 0 }));
+    }
     let expenseRecords = JSON.parse(localStorage.getItem('expense_records')) || DEFAULT_EXPENSE_DATA;
 
-    // Charts references
+    // Charts
     let debtChart = null, emiChart = null, doughnutChart = null;
-    let dailyTrendChart = null, dailyAccountChart = null;
+    let dailyTrendChart = null;
 
     function formatINR(val) {
       if (val === undefined || val === null || isNaN(val)) return '₹0';
@@ -812,7 +888,7 @@
     }
 
     // -------------------------------------------------------------
-    // DUAL-MODE CONTROLLER (DEBT VS DAILY EXPENSES)
+    // DUAL-MODE CONTROLLER
     // -------------------------------------------------------------
     function toggleAppMode(mode) {
       activeModule = mode;
@@ -827,8 +903,8 @@
         
         document.getElementById('modeIcon').className = "w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-cyan-400 flex items-center justify-center text-white font-bold text-sm";
         document.getElementById('modeIcon').innerHTML = '<i class="fa-solid fa-wallet"></i>';
-        document.getElementById('appTitleText').innerHTML = 'Daily Spends Tracker <span class="text-[10px] font-semibold bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded-full border border-emerald-500/30">Day-to-Day</span>';
-        document.getElementById('appSubtitleText').innerText = 'Daily transactions, weekly & monthly trends';
+        document.getElementById('appTitleText').innerHTML = 'Daily Spends & Cashflow <span class="text-[10px] font-semibold bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded-full border border-emerald-500/30">Live Balances</span>';
+        document.getElementById('appSubtitleText').innerText = 'Income, expenses, transfers & account balances';
 
         debtContainer.classList.add('hidden');
         dailyContainer.classList.remove('hidden');
@@ -856,7 +932,7 @@
         container.innerHTML = `
           <button type="button" onclick="switchDailyScreen('dailySummaryScreen')" id="nav-dailySummaryScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 active-nav transition flex-1 py-1 cursor-pointer">
             <i class="fa-solid fa-chart-pie text-base"></i>
-            <span class="text-[10px] font-semibold">Trends</span>
+            <span class="text-[10px] font-semibold">Summary</span>
           </button>
           <button type="button" onclick="switchDailyScreen('dailyEntryScreen')" id="nav-dailyEntryScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
             <i class="fa-solid fa-plus-minus text-base"></i>
@@ -909,15 +985,54 @@
 
     function openContextModal() {
       if (activeModule === 'daily') {
-        openExpenseCategoryModal();
+        openAccountModal();
       } else {
         openCategoryModal();
       }
     }
 
     // -------------------------------------------------------------
-    // PART 2 CONTROLLER: DAILY EXPENSES & ACCOUNTS
+    // PART 2: DAILY EXPENSES, INCOME & TRANSFERS CONTROLLER
     // -------------------------------------------------------------
+    function setTransactionType(type) {
+      currentTransactionType = type;
+      const bExp = document.getElementById('tabTypeExpense');
+      const bInc = document.getElementById('tabTypeIncome');
+      const bTrf = document.getElementById('tabTypeTransfer');
+      const rowNormal = document.getElementById('rowCategoryAndAccount');
+      const rowTransfer = document.getElementById('rowTransferAccounts');
+      const submitBtn = document.getElementById('btnExpenseSubmit');
+
+      // Reset classes
+      [bExp, bInc, bTrf].forEach(btn => {
+        btn.className = "flex-1 py-2 text-xs font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer";
+      });
+
+      if (type === 'Income') {
+        bInc.className = "flex-1 py-2 text-xs font-bold rounded-xl transition text-white bg-emerald-600 shadow cursor-pointer";
+        rowNormal.classList.remove('hidden');
+        rowTransfer.classList.add('hidden');
+        document.getElementById('lblCategory').innerText = 'Income Category *';
+        document.getElementById('lblAccount').innerText = 'Deposit Account *';
+        submitBtn.className = "w-full bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-600 text-white font-semibold py-3 rounded-2xl text-xs tracking-wide transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 active:scale-98 cursor-pointer";
+        submitBtn.innerHTML = '<i class="fa-solid fa-plus text-xs"></i> Record Income';
+      } else if (type === 'Transfer') {
+        bTrf.className = "flex-1 py-2 text-xs font-bold rounded-xl transition text-white bg-cyan-600 shadow cursor-pointer";
+        rowNormal.classList.add('hidden');
+        rowTransfer.classList.remove('hidden');
+        submitBtn.className = "w-full bg-gradient-to-r from-cyan-600 to-blue-500 hover:from-cyan-500 hover:to-blue-600 text-white font-semibold py-3 rounded-2xl text-xs tracking-wide transition shadow-lg shadow-cyan-600/30 flex items-center justify-center gap-2 active:scale-98 cursor-pointer";
+        submitBtn.innerHTML = '<i class="fa-solid fa-arrow-right-arrow-left text-xs"></i> Record Account Transfer';
+      } else {
+        bExp.className = "flex-1 py-2 text-xs font-bold rounded-xl transition text-white bg-rose-600 shadow cursor-pointer";
+        rowNormal.classList.remove('hidden');
+        rowTransfer.classList.add('hidden');
+        document.getElementById('lblCategory').innerText = 'Expense Category *';
+        document.getElementById('lblAccount').innerText = 'Payment Account *';
+        submitBtn.className = "w-full bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-600 text-white font-semibold py-3 rounded-2xl text-xs tracking-wide transition shadow-lg shadow-rose-600/30 flex items-center justify-center gap-2 active:scale-98 cursor-pointer";
+        submitBtn.innerHTML = '<i class="fa-solid fa-plus text-xs"></i> Record Expense';
+      }
+    }
+
     function switchDailyScreen(screenId) {
       document.querySelectorAll('.daily-screen').forEach(el => el.classList.add('hidden'));
       const target = document.getElementById(screenId);
@@ -940,7 +1055,7 @@
     }
 
     function populateExpenseElements() {
-      // 1. Expense Category Dropdown
+      // 1. Category Dropdown
       const catEl = document.getElementById('expCategory');
       const curCat = catEl.value;
       catEl.innerHTML = '';
@@ -953,31 +1068,44 @@
       if (curCat && expenseCategories.includes(curCat)) catEl.value = curCat;
 
       // 2. Account Dropdowns
-      const accEl = document.getElementById('expAccount');
-      const curAcc = accEl.value;
-      accEl.innerHTML = '';
-      accountsList.forEach(a => {
-        const opt = document.createElement('option');
-        opt.value = a;
-        opt.textContent = a;
-        accEl.appendChild(opt);
+      ['expAccount', 'expTransferFrom', 'expTransferTo', 'expenseAccountFilter'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const curVal = el.value;
+        el.innerHTML = id === 'expenseAccountFilter' ? '<option value="ALL">All Accounts</option>' : '';
+        accountsList.forEach(a => {
+          const opt = document.createElement('option');
+          opt.value = a.name;
+          opt.textContent = a.name;
+          el.appendChild(opt);
+        });
+        if (curVal) el.value = curVal;
       });
-      if (curAcc && accountsList.includes(curAcc)) accEl.value = curAcc;
-
-      // Filter Dropdown
-      const filterEl = document.getElementById('expenseAccountFilter');
-      const curFilter = filterEl.value;
-      filterEl.innerHTML = '<option value="ALL">All Accounts</option>';
-      accountsList.forEach(a => {
-        const opt = document.createElement('option');
-        opt.value = a;
-        opt.textContent = a;
-        filterEl.appendChild(opt);
-      });
-      if (curFilter && (curFilter === 'ALL' || accountsList.includes(curFilter))) filterEl.value = curFilter;
 
       renderExpenseCategoryBadges();
       renderAccountBadges();
+    }
+
+    // ================= LIVE ACCOUNT BALANCE COMPUTATION =================
+    function calculateAccountBalances() {
+      const balanceMap = {};
+      accountsList.forEach(acc => {
+        balanceMap[acc.name] = parseFloat(acc.initialBalance) || 0;
+      });
+
+      expenseRecords.forEach(r => {
+        const amt = parseFloat(r.amount) || 0;
+        if (r.type === 'Income') {
+          if (balanceMap[r.account] !== undefined) balanceMap[r.account] += amt;
+        } else if (r.type === 'Expense') {
+          if (balanceMap[r.account] !== undefined) balanceMap[r.account] -= amt;
+        } else if (r.type === 'Transfer') {
+          if (balanceMap[r.account] !== undefined) balanceMap[r.account] -= amt;
+          if (balanceMap[r.toAccount] !== undefined) balanceMap[r.toAccount] += amt;
+        }
+      });
+
+      return balanceMap;
     }
 
     function handleExpenseSubmission(e) {
@@ -985,20 +1113,36 @@
       const editId = document.getElementById('editExpenseId').value;
       const date = document.getElementById('expDate').value;
       const amount = parseFloat(document.getElementById('expAmount').value) || 0;
-      const category = document.getElementById('expCategory').value;
-      const account = document.getElementById('expAccount').value;
       const note = document.getElementById('expNote').value.trim();
+
+      let category = '';
+      let account = '';
+      let toAccount = '';
+
+      if (currentTransactionType === 'Transfer') {
+        category = 'Transfer';
+        account = document.getElementById('expTransferFrom').value;
+        toAccount = document.getElementById('expTransferTo').value;
+        if (account === toAccount) {
+          notify("Sender and receiver accounts cannot be the same!");
+          return;
+        }
+      } else {
+        category = document.getElementById('expCategory').value;
+        account = document.getElementById('expAccount').value;
+        toAccount = '';
+      }
 
       if (editId) {
         const idx = expenseRecords.findIndex(r => r.id == editId);
         if (idx !== -1) {
-          expenseRecords[idx] = { ...expenseRecords[idx], date, amount, category, account, note };
+          expenseRecords[idx] = { ...expenseRecords[idx], type: currentTransactionType, date, amount, category, account, toAccount, note };
           notify("Updated transaction");
         }
       } else {
-        const newRecord = { id: Date.now(), date, amount, category, account, note };
+        const newRecord = { id: Date.now(), type: currentTransactionType, date, amount, category, account, toAccount, note };
         expenseRecords.push(newRecord);
-        notify(`Logged ₹${amount} for ${category}`);
+        notify(`Recorded ${currentTransactionType}: ${formatINR(amount)}`);
       }
 
       saveExpenseStorage();
@@ -1013,13 +1157,21 @@
 
       switchDailyScreen('dailyEntryScreen');
       document.getElementById('editExpenseId').value = item.id;
+      setTransactionType(item.type || 'Expense');
+
       document.getElementById('expDate').value = item.date;
       document.getElementById('expAmount').value = item.amount;
-      document.getElementById('expCategory').value = item.category;
-      document.getElementById('expAccount').value = item.account;
       document.getElementById('expNote').value = item.note || '';
 
-      document.getElementById('expenseFormTitle').innerText = `Edit: ₹${item.amount} (${item.category})`;
+      if (item.type === 'Transfer') {
+        document.getElementById('expTransferFrom').value = item.account;
+        document.getElementById('expTransferTo').value = item.toAccount;
+      } else {
+        document.getElementById('expCategory').value = item.category;
+        document.getElementById('expAccount').value = item.account;
+      }
+
+      document.getElementById('expenseFormTitle').innerText = `Edit ${item.type}: ${formatINR(item.amount)}`;
       document.getElementById('btnExpenseSubmit').innerHTML = `<i class="fa-solid fa-check text-xs"></i> Update Transaction`;
       document.getElementById('cancelExpenseEditBtn').classList.remove('hidden');
 
@@ -1030,8 +1182,8 @@
       document.getElementById('editExpenseId').value = '';
       document.getElementById('expenseForm').reset();
       document.getElementById('expDate').value = new Date().toISOString().slice(0, 10);
-      document.getElementById('expenseFormTitle').innerText = 'Log Expense';
-      document.getElementById('btnExpenseSubmit').innerHTML = `<i class="fa-solid fa-plus text-xs"></i> Add Transaction`;
+      setTransactionType('Expense');
+      document.getElementById('expenseFormTitle').innerText = 'Log Transaction';
       document.getElementById('cancelExpenseEditBtn').classList.add('hidden');
     }
 
@@ -1050,20 +1202,23 @@
       container.innerHTML = '';
 
       const search = document.getElementById('expenseLogSearch').value.toLowerCase();
+      const filterType = document.getElementById('expenseTypeFilter').value;
       const filterAcc = document.getElementById('expenseAccountFilter').value;
 
       let filtered = expenseRecords.filter(r => {
-        const matchesAcc = (filterAcc === 'ALL' || r.account === filterAcc);
+        const matchesType = (filterType === 'ALL' || r.type === filterType);
+        const matchesAcc = (filterAcc === 'ALL' || r.account === filterAcc || r.toAccount === filterAcc);
         const matchesSearch = !search || 
           r.category.toLowerCase().includes(search) || 
           r.account.toLowerCase().includes(search) || 
+          (r.toAccount && r.toAccount.toLowerCase().includes(search)) ||
           (r.note && r.note.toLowerCase().includes(search)) ||
           r.date.includes(search);
-        return matchesAcc && matchesSearch;
+        return matchesType && matchesAcc && matchesSearch;
       });
 
       filtered.sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id);
-      document.getElementById('expenseLogCounter').innerText = `${filtered.length} transactions`;
+      document.getElementById('expenseLogCounter').innerText = `${filtered.length} entries`;
 
       if (filtered.length === 0) {
         container.innerHTML = '<div class="text-xs text-slate-500 text-center py-4">No transactions found.</div>';
@@ -1071,18 +1226,39 @@
       }
 
       filtered.forEach(row => {
+        let typeBadge = '';
+        let amountDisplay = '';
+
+        if (row.type === 'Income') {
+          typeBadge = '<span class="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">Income</span>';
+          amountDisplay = `<span class="font-extrabold text-emerald-400 mr-1">+${formatINR(row.amount)}</span>`;
+        } else if (row.type === 'Transfer') {
+          typeBadge = '<span class="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">Transfer</span>';
+          amountDisplay = `<span class="font-extrabold text-cyan-300 mr-1">⇄ ${formatINR(row.amount)}</span>`;
+        } else {
+          typeBadge = '<span class="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-rose-500/15 text-rose-300 border border-rose-500/30">Expense</span>';
+          amountDisplay = `<span class="font-extrabold text-rose-400 mr-1">-${formatINR(row.amount)}</span>`;
+        }
+
         const itemEl = document.createElement('div');
         itemEl.className = "p-3 rounded-2xl bg-slate-900/80 border border-slate-800 flex justify-between items-center text-xs";
+        
+        let accountText = `<b class="text-slate-300">${row.account}</b>`;
+        if (row.type === 'Transfer') {
+          accountText = `<b class="text-rose-400">${row.account}</b> ➔ <b class="text-emerald-400">${row.toAccount}</b>`;
+        }
+
         itemEl.innerHTML = `
           <div>
             <div class="flex items-center gap-1.5">
+              ${typeBadge}
               <span class="font-bold text-white">${row.category}</span>
               <span class="text-[10px] text-slate-400">(${row.date})</span>
             </div>
-            <span class="text-[10px] text-slate-400"><b class="text-cyan-300">${row.account}</b> • ${row.note || 'No note'}</span>
+            <span class="text-[10px] text-slate-400">${accountText} • ${row.note || 'No note'}</span>
           </div>
           <div class="flex items-center gap-2">
-            <span class="font-extrabold text-emerald-400 mr-1">${formatINR(row.amount)}</span>
+            ${amountDisplay}
             <button type="button" onclick="editExpense(${row.id})" class="text-indigo-400 hover:text-indigo-300 p-1.5 cursor-pointer" title="Edit">
               <i class="fa-solid fa-pen-to-square"></i>
             </button>
@@ -1098,39 +1274,49 @@
     function renderDailySummary() {
       const now = new Date();
       const currentYearMonth = now.toISOString().slice(0, 7);
-      const todayStr = now.toISOString().slice(0, 10);
 
-      // Monthly Total
-      const monthItems = expenseRecords.filter(r => r.date.startsWith(currentYearMonth));
-      const monthTotal = monthItems.reduce((sum, item) => sum + item.amount, 0);
+      // Monthly Items (excluding Transfers from Income/Expense cash totals)
+      const monthRecords = expenseRecords.filter(r => r.date.startsWith(currentYearMonth));
+      const monthIncome = monthRecords.filter(r => r.type === 'Income').reduce((s, it) => s + it.amount, 0);
+      const monthExpense = monthRecords.filter(r => r.type === 'Expense').reduce((s, it) => s + it.amount, 0);
+      const monthSavings = monthIncome - monthExpense;
 
-      // Weekly Total (Last 7 Days)
-      const sevenDaysAgo = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)).toISOString().slice(0, 10);
-      const weekItems = expenseRecords.filter(r => r.date >= sevenDaysAgo && r.date <= todayStr);
-      const weekTotal = weekItems.reduce((sum, item) => sum + item.amount, 0);
-
-      // Today's Total
-      const todayItems = expenseRecords.filter(r => r.date === todayStr);
-      const todayTotal = todayItems.reduce((sum, item) => sum + item.amount, 0);
-
-      // Daily Average
-      const dayOfMonth = now.getDate();
-      const dailyAvg = dayOfMonth > 0 ? (monthTotal / dayOfMonth) : 0;
+      // 1. Live Account Balances & Total Liquid Wealth
+      const balanceMap = calculateAccountBalances();
+      let totalLiquidWealth = 0;
+      Object.values(balanceMap).forEach(b => totalLiquidWealth += b);
 
       document.getElementById('dailyMonthBadge').innerText = now.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
-      document.getElementById('kpiDailyMonthTotal').innerText = formatINR(monthTotal);
-      document.getElementById('kpiDailyWeeklyTotal').innerText = formatINR(weekTotal);
-      document.getElementById('kpiDailyWeeklyCount').innerText = `${weekItems.length} payments`;
-      document.getElementById('kpiDailyTodayTotal').innerText = formatINR(todayTotal);
-      document.getElementById('kpiDailyAvgDay').innerText = `Avg ${formatINR(dailyAvg)} / day`;
+      document.getElementById('kpiNetLiquidWealth').innerText = formatINR(totalLiquidWealth);
+      document.getElementById('kpiDailyMonthIncome').innerText = formatINR(monthIncome);
+      document.getElementById('kpiDailyMonthExpense').innerText = formatINR(monthExpense);
+      document.getElementById('kpiDailyMonthSavings').innerText = (monthSavings >= 0 ? '+' : '') + formatINR(monthSavings);
+      document.getElementById('kpiDailyMonthSavings').className = `text-sm font-bold mt-0.5 block ${monthSavings >= 0 ? 'text-cyan-300' : 'text-rose-400'}`;
 
-      // 1. Trend Chart (Last 14 days)
+      // Populate Live Account Cards
+      const balancesContainer = document.getElementById('liveAccountBalancesContainer');
+      balancesContainer.innerHTML = '';
+      accountsList.forEach(acc => {
+        const bal = balanceMap[acc.name] || 0;
+        const card = document.createElement('div');
+        card.className = "bg-slate-900/70 p-3 rounded-2xl border border-slate-800 flex flex-col justify-between";
+        card.innerHTML = `
+          <div class="flex items-center justify-between text-[11px] text-slate-400 font-semibold">
+            <span class="truncate">${acc.name}</span>
+            <i class="fa-solid fa-wallet text-cyan-400/60 text-xs"></i>
+          </div>
+          <span class="text-sm font-extrabold ${bal >= 0 ? 'text-white' : 'text-rose-400'} mt-1.5 block">${formatINR(bal)}</span>
+        `;
+        balancesContainer.appendChild(card);
+      });
+
+      // 2. Daily Outflow Bar Chart (Expenses only)
       const last14Days = [];
       const dailyTotals = [];
       for (let i = 13; i >= 0; i--) {
         const d = new Date(now.getTime() - (i * 24 * 60 * 60 * 1000)).toISOString().slice(0, 10);
         last14Days.push(d.slice(5)); // MM-DD
-        const daySum = expenseRecords.filter(r => r.date === d).reduce((s, it) => s + it.amount, 0);
+        const daySum = expenseRecords.filter(r => r.date === d && r.type === 'Expense').reduce((s, it) => s + it.amount, 0);
         dailyTotals.push(daySum);
       }
 
@@ -1142,7 +1328,7 @@
           labels: last14Days,
           datasets: [{
             data: dailyTotals,
-            backgroundColor: '#10b981',
+            backgroundColor: '#f43f5e',
             borderRadius: 6
           }]
         },
@@ -1156,31 +1342,9 @@
         }
       });
 
-      // 2. Account Breakdown Chart
-      const accMap = {};
-      monthItems.forEach(i => accMap[i.account] = (accMap[i.account] || 0) + i.amount);
-
-      if (dailyAccountChart) dailyAccountChart.destroy();
-      const ctxAcc = document.getElementById('dailyAccountChart').getContext('2d');
-      dailyAccountChart = new Chart(ctxAcc, {
-        type: 'doughnut',
-        data: {
-          labels: Object.keys(accMap).length ? Object.keys(accMap) : ['No Spends'],
-          datasets: [{
-            data: Object.values(accMap).length ? Object.values(accMap) : [1],
-            backgroundColor: ['#06b6d4', '#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'],
-            borderWidth: 2, borderColor: '#090d16'
-          }]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, color: '#94a3b8', font: { size: 10 } } } }
-        }
-      });
-
       // 3. Category Breakdown List
       const catMap = {};
-      monthItems.forEach(i => catMap[i.category] = (catMap[i.category] || 0) + i.amount);
+      monthRecords.filter(r => r.type === 'Expense').forEach(i => catMap[i.category] = (catMap[i.category] || 0) + i.amount);
       const catContainer = document.getElementById('dailyCategoryBreakdownContainer');
       catContainer.innerHTML = '';
 
@@ -1189,12 +1353,12 @@
         catContainer.innerHTML = '<div class="text-xs text-slate-500 text-center py-2">No expenses logged for this month yet.</div>';
       } else {
         sortedCats.forEach(([cat, val]) => {
-          const pct = monthTotal > 0 ? ((val / monthTotal) * 100).toFixed(1) : 0;
+          const pct = monthExpense > 0 ? ((val / monthExpense) * 100).toFixed(1) : 0;
           const rowEl = document.createElement('div');
           rowEl.className = "flex justify-between items-center text-xs p-2 bg-slate-900/60 rounded-xl border border-slate-800";
           rowEl.innerHTML = `
             <div class="flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <span class="w-2 h-2 rounded-full bg-rose-400"></span>
               <span class="font-bold text-white">${cat}</span>
               <span class="text-[10px] text-slate-400">(${pct}%)</span>
             </div>
@@ -1205,7 +1369,7 @@
       }
     }
 
-    // Modal Helpers for Expense Categories & Accounts
+    // Modal Handlers
     function openExpenseCategoryModal() {
       document.getElementById('expenseCatModal').classList.remove('hidden');
       document.getElementById('newExpenseCatInput').focus();
@@ -1227,10 +1391,10 @@
       populateExpenseElements();
       renderDailySummary();
       input.value = '';
-      notify(`Added category "${val}"`);
+      notify(`Added "${val}"`);
     }
     function deleteExpenseCategory(name) {
-      if (confirm(`Remove expense category "${name}"?`)) {
+      if (confirm(`Remove category "${name}"?`)) {
         expenseCategories = expenseCategories.filter(c => c !== name);
         saveExpenseStorage();
         populateExpenseElements();
@@ -1244,12 +1408,11 @@
       document.getElementById('expCatModalCount').innerText = expenseCategories.length;
 
       expenseCategories.forEach(cat => {
-        const isCore = DEFAULT_EXPENSE_CATEGORIES.includes(cat);
         const badge = document.createElement('div');
         badge.className = "flex items-center gap-1.5 bg-slate-900 border border-slate-700 px-2.5 py-1 rounded-xl text-xs text-slate-300 font-medium";
         badge.innerHTML = `
           <span>${cat}</span>
-          ${!isCore ? `<button type="button" onclick="deleteExpenseCategory('${cat}')" class="text-rose-400 hover:text-rose-300 ml-1 cursor-pointer"><i class="fa-solid fa-xmark text-[10px]"></i></button>` : ''}
+          <button type="button" onclick="deleteExpenseCategory('${cat}')" class="text-rose-400 hover:text-rose-300 ml-1 cursor-pointer"><i class="fa-solid fa-xmark text-[10px]"></i></button>
         `;
         container.appendChild(badge);
       });
@@ -1257,30 +1420,43 @@
 
     function openAccountModal() {
       document.getElementById('accountModal').classList.remove('hidden');
-      document.getElementById('newAccountInput').focus();
+      renderAccountBadges();
+      document.getElementById('newAccountName').focus();
     }
     function closeAccountModal() {
       document.getElementById('accountModal').classList.add('hidden');
     }
     function handleNewAccount(e) {
       e.preventDefault();
-      const input = document.getElementById('newAccountInput');
-      const val = input.value.trim();
-      if (!val) return;
-      if (accountsList.some(a => a.toLowerCase() === val.toLowerCase())) {
+      const name = document.getElementById('newAccountName').value.trim();
+      const initial = parseFloat(document.getElementById('newAccountInitial').value) || 0;
+      if (!name) return;
+
+      if (accountsList.some(a => a.name.toLowerCase() === name.toLowerCase())) {
         notify("Account already exists!");
         return;
       }
-      accountsList.push(val);
+
+      accountsList.push({ name, initialBalance: initial });
       saveExpenseStorage();
       populateExpenseElements();
       renderDailySummary();
-      input.value = '';
-      notify(`Added account "${val}"`);
+      document.getElementById('newAccountName').value = '';
+      document.getElementById('newAccountInitial').value = '';
+      notify(`Added account "${name}"`);
+    }
+    function updateAccountInitial(name, newInitial) {
+      const acc = accountsList.find(a => a.name === name);
+      if (acc) {
+        acc.initialBalance = parseFloat(newInitial) || 0;
+        saveExpenseStorage();
+        renderDailySummary();
+        notify(`Updated ${name} starting balance`);
+      }
     }
     function deleteAccount(name) {
       if (confirm(`Remove account "${name}"?`)) {
-        accountsList = accountsList.filter(a => a !== name);
+        accountsList = accountsList.filter(a => a.name !== name);
         saveExpenseStorage();
         populateExpenseElements();
         renderDailySummary();
@@ -1288,19 +1464,23 @@
       }
     }
     function renderAccountBadges() {
-      const container = document.getElementById('accountBadgeContainer');
+      const container = document.getElementById('accountDetailedListContainer');
       container.innerHTML = '';
-      document.getElementById('accModalCount').innerText = accountsList.length;
 
       accountsList.forEach(acc => {
-        const isCore = DEFAULT_ACCOUNTS.includes(acc);
-        const badge = document.createElement('div');
-        badge.className = "flex items-center gap-1.5 bg-slate-900 border border-slate-700 px-2.5 py-1 rounded-xl text-xs text-slate-300 font-medium";
-        badge.innerHTML = `
-          <span>${acc}</span>
-          ${!isCore ? `<button type="button" onclick="deleteAccount('${acc}')" class="text-rose-400 hover:text-rose-300 ml-1 cursor-pointer"><i class="fa-solid fa-xmark text-[10px]"></i></button>` : ''}
+        const row = document.createElement('div');
+        row.className = "p-2.5 rounded-xl bg-slate-900 border border-slate-700 flex justify-between items-center text-xs";
+        row.innerHTML = `
+          <div>
+            <span class="font-bold text-white block">${acc.name}</span>
+            <span class="text-[10px] text-slate-400">Starting: ${formatINR(acc.initialBalance)}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <input type="number" step="any" placeholder="Balance" value="${acc.initialBalance}" onchange="updateAccountInitial('${acc.name}', this.value)" class="w-24 bg-slate-800 border border-slate-600 rounded-lg px-2 py-1 text-xs text-white">
+            <button type="button" onclick="deleteAccount('${acc.name}')" class="text-rose-400 hover:text-rose-300 p-1 cursor-pointer"><i class="fa-solid fa-trash-can"></i></button>
+          </div>
         `;
-        container.appendChild(badge);
+        container.appendChild(row);
       });
     }
 
