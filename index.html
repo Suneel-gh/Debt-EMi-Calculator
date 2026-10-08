@@ -7,8 +7,8 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="DebtTracker">
-  <title>Debt & EMI Manager</title>
+  <meta name="apple-mobile-web-app-title" content="FinTrack">
+  <title>Personal Finance Hub</title>
   
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/5501/5501375.png">
@@ -76,442 +76,574 @@
 </head>
 <body class="bg-app-bg text-slate-100 min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white pb-28">
 
-  <!-- ================= APP HEADER ================= -->
+  <!-- ================= TOP APP BAR WITH DUAL-MODE TOGGLE ================= -->
   <header class="sticky top-0 z-30 bg-app-bg/90 backdrop-blur-md border-b border-app-border/80 px-4 py-3 safe-top">
-    <div class="max-w-md mx-auto flex items-center justify-between">
-      <div class="flex items-center gap-2.5">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center text-white font-bold text-sm">
-          <i class="fa-solid fa-scale-balanced"></i>
+    <div class="max-w-md mx-auto space-y-2.5">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div id="modeIcon" class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center text-white font-bold text-sm">
+            <i class="fa-solid fa-scale-balanced"></i>
+          </div>
+          <div>
+            <h1 id="appTitleText" class="text-sm font-bold tracking-tight text-white flex items-center gap-1.5">
+              Debt & EMI Manager
+              <span id="appBadgeText" class="text-[10px] font-semibold bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded-full border border-indigo-500/30">Commitments</span>
+            </h1>
+            <p id="appSubtitleText" class="text-[11px] text-slate-400">Long-term liabilities & predictions</p>
+          </div>
         </div>
-        <div>
-          <h1 class="text-sm font-bold tracking-tight text-white flex items-center gap-1.5">
-            Debt & EMI Manager
-            <span class="text-[10px] font-semibold bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded-full border border-indigo-500/30">Active</span>
-          </h1>
-          <p class="text-[11px] text-slate-400">Personal Portfolio Tracker</p>
+        
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="openContextModal()" class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white transition active:scale-95" title="Manage Categories & Accounts">
+            <i class="fa-solid fa-sliders text-xs"></i>
+          </button>
+          <button type="button" onclick="switchDebtScreen('settingsScreen')" class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white transition active:scale-95" title="Settings">
+            <i class="fa-solid fa-gear text-xs"></i>
+          </button>
         </div>
       </div>
-      
-      <div class="flex items-center gap-2">
-        <button type="button" onclick="openCategoryModal()" class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white transition active:scale-95" title="Categories">
-          <i class="fa-solid fa-tag text-xs"></i>
+
+      <!-- MASTER DUAL-MODE SWITCHER (DEBT VS DAILY EXPENSES) -->
+      <div class="bg-slate-900/90 p-1 rounded-2xl flex border border-slate-800 shadow-inner">
+        <button type="button" id="btnModeDebt" onclick="toggleAppMode('debt')" class="flex-1 py-1.5 text-xs font-bold rounded-xl transition text-white bg-indigo-600 shadow cursor-pointer flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-receipt"></i> Debt & EMI
         </button>
-        <button type="button" onclick="switchScreen('settingsScreen')" class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white transition active:scale-95" title="Settings">
-          <i class="fa-solid fa-gear text-xs"></i>
+        <button type="button" id="btnModeDaily" onclick="toggleAppMode('daily')" class="flex-1 py-1.5 text-xs font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-wallet"></i> Daily Spends
         </button>
       </div>
     </div>
   </header>
 
   <!-- ================= MAIN VIEWPORT CONTAINER ================= -->
-  <main class="max-w-md mx-auto w-full px-4 pt-4 flex-1">
+  <main class="max-w-md mx-auto w-full px-4 pt-3 flex-1">
 
-    <!-- SCREEN 1: DASHBOARD -->
-    <section id="dashboardScreen" class="app-screen space-y-4">
-      <div class="glass-card rounded-3xl p-5 shadow-xl relative overflow-hidden">
-        <div class="flex justify-between items-center mb-1">
-          <span class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Total Outstanding Debt</span>
-          <span id="dashMonthBadge" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/25">Oct 2026</span>
+    <!-- ************************************************************* -->
+    <!-- PART 1: DEBT & EMI MANAGER (PRESERVED FULL EXISTING ENGINE)   -->
+    <!-- ************************************************************* -->
+    <div id="debtModuleContainer" class="space-y-4">
+      
+      <!-- SCREEN 1: DEBT DASHBOARD -->
+      <section id="dashboardScreen" class="debt-screen space-y-4">
+        <div class="glass-card rounded-3xl p-5 shadow-xl relative overflow-hidden">
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Total Outstanding Debt</span>
+            <span id="dashMonthBadge" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/25">Oct 2026</span>
+          </div>
+          
+          <div class="flex items-baseline gap-2 mt-1">
+            <span id="kpiTotalDebt" class="text-3xl font-extrabold text-white tracking-tight">₹0</span>
+          </div>
+          
+          <div id="kpiReductionRow" class="flex items-center gap-1.5 mt-2 text-xs font-medium text-emerald-400">
+            <i class="fa-solid fa-circle-arrow-down text-xs"></i>
+            <span id="kpiReductionText">₹0 reduced vs previous month</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-slate-700/60">
+            <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
+              <span class="text-[10px] text-slate-400 uppercase font-semibold block">Monthly EMI Outflow</span>
+              <span id="kpiTotalEmi" class="text-lg font-bold text-slate-100 mt-0.5 block">₹0</span>
+              <span class="text-[10px] text-slate-500">Committed cash / mo</span>
+            </div>
+            <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
+              <span class="text-[10px] text-slate-400 uppercase font-semibold block">Active Loans</span>
+              <span id="kpiActiveCount" class="text-lg font-bold text-indigo-400 mt-0.5 block">0 Loans</span>
+              <span id="kpiAvgRate" class="text-[10px] text-slate-500">Avg 0% APR</span>
+            </div>
+          </div>
         </div>
-        
-        <div class="flex items-baseline gap-2 mt-1">
-          <span id="kpiTotalDebt" class="text-3xl font-extrabold text-white tracking-tight">₹0</span>
+
+        <!-- Categories Horizontal Pills -->
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between text-xs text-slate-400 px-1 font-medium">
+            <span>Categories</span>
+            <button type="button" onclick="openCategoryModal()" class="text-indigo-400 text-[11px] hover:underline flex items-center gap-1 cursor-pointer">
+              <i class="fa-solid fa-plus text-[9px]"></i> Add More
+            </button>
+          </div>
+          <div id="categoryPillBar" class="flex gap-2 overflow-x-auto no-scrollbar py-1"></div>
         </div>
-        
-        <div id="kpiReductionRow" class="flex items-center gap-1.5 mt-2 text-xs font-medium text-emerald-400">
-          <i class="fa-solid fa-circle-arrow-down text-xs"></i>
-          <span id="kpiReductionText">₹0 reduced vs previous month</span>
+
+        <!-- Commitments List -->
+        <div class="space-y-2.5">
+          <div class="flex justify-between items-center px-1">
+            <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Your Commitments</h2>
+            <span id="activeListCount" class="text-[11px] font-semibold text-slate-500">0 Items</span>
+          </div>
+          <div id="liabilitiesListContainer" class="space-y-2.5"></div>
         </div>
+      </section>
 
-        <div class="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-slate-700/60">
-          <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
-            <span class="text-[10px] text-slate-400 uppercase font-semibold block">Monthly EMI Outflow</span>
-            <span id="kpiTotalEmi" class="text-lg font-bold text-slate-100 mt-0.5 block">₹0</span>
-            <span class="text-[10px] text-slate-500">Committed cash / mo</span>
-          </div>
-          <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
-            <span class="text-[10px] text-slate-400 uppercase font-semibold block">Active Loans</span>
-            <span id="kpiActiveCount" class="text-lg font-bold text-indigo-400 mt-0.5 block">0 Loans</span>
-            <span id="kpiAvgRate" class="text-[10px] text-slate-500">Avg 0% APR</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Categories Horizontal Pills -->
-      <div class="space-y-1.5">
-        <div class="flex items-center justify-between text-xs text-slate-400 px-1 font-medium">
-          <span>Categories</span>
-          <button type="button" onclick="openCategoryModal()" class="text-indigo-400 text-[11px] hover:underline flex items-center gap-1 cursor-pointer">
-            <i class="fa-solid fa-plus text-[9px]"></i> Add More
-          </button>
-        </div>
-        <div id="categoryPillBar" class="flex gap-2 overflow-x-auto no-scrollbar py-1"></div>
-      </div>
-
-      <!-- Commitments List -->
-      <div class="space-y-2.5">
-        <div class="flex justify-between items-center px-1">
-          <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Your Commitments</h2>
-          <span id="activeListCount" class="text-[11px] font-semibold text-slate-500">0 Items</span>
-        </div>
-        <div id="liabilitiesListContainer" class="space-y-2.5"></div>
-      </div>
-    </section>
-
-    <!-- SCREEN 2: INPUT & HISTORY LOG -->
-    <section id="entryScreen" class="app-screen hidden space-y-4">
-      <div class="flex items-center justify-between">
-        <div>
-          <h2 id="formTitle" class="text-base font-bold text-white">Log Commitment</h2>
-          <p class="text-xs text-slate-400">Add, calculate, or clone monthly liabilities</p>
-        </div>
-        <button type="button" id="cancelEditBtn" onclick="resetFormToNew()" class="hidden text-xs bg-rose-500/20 text-rose-300 border border-rose-500/30 px-2.5 py-1 rounded-xl cursor-pointer">
-          Cancel Edit
-        </button>
-      </div>
-
-      <!-- Input Form Card with Exact Reducing Amortization Engine -->
-      <div class="glass-card rounded-3xl p-5 border border-slate-800">
-        <form id="entryForm" onsubmit="handleFormSubmission(event)" class="space-y-3.5">
-          <input type="hidden" id="editEntryId" value="">
-
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="block text-[11px] font-semibold text-slate-400 mb-1">Month *</label>
-              <input type="month" id="fMonth" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-indigo-500 focus:outline-none">
-            </div>
-            <div>
-              <label class="block text-[11px] font-semibold text-slate-400 mb-1">Priority</label>
-              <select id="fPriority" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-indigo-500 focus:outline-none">
-                <option value="High">🔥 High</option>
-                <option value="Normal" selected>🔹 Normal</option>
-                <option value="Low">🌱 Low</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-[11px] font-semibold text-slate-400 mb-1">Commitment / Loan Name *</label>
-            <input type="text" id="fMetric" placeholder="e.g. Gold Loan Instance 1, Car Loan" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
-          </div>
-
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <div class="flex justify-between items-center mb-1">
-                <label class="block text-[11px] font-semibold text-slate-400">Category *</label>
-                <button type="button" onclick="openCategoryModal()" class="text-[10px] text-indigo-400 font-semibold cursor-pointer">+ New</button>
-              </div>
-              <select id="fCategory" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:border-indigo-500 focus:outline-none"></select>
-            </div>
-            <div>
-              <label class="block text-[11px] font-semibold text-slate-400 mb-1">Interest Rate (% p.a.)</label>
-              <input type="number" id="fRate" step="0.05" min="0" max="100" placeholder="e.g. 9.0" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
-            </div>
-          </div>
-
-          <div class="grid grid-cols-3 gap-2.5">
-            <div>
-              <label class="block text-[11px] font-semibold text-slate-400 mb-1">Balance (₹) *</label>
-              <input type="number" id="fBalance" step="any" min="0" placeholder="2000000" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
-            </div>
-            <div>
-              <label class="block text-[11px] font-semibold text-slate-400 mb-1">EMI (₹) *</label>
-              <input type="number" id="fEmi" step="any" min="0" placeholder="30000" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
-            </div>
-            <div>
-              <label class="block text-[11px] font-semibold text-indigo-300 mb-1">Months Left</label>
-              <input type="number" id="fMonthsLeft" min="1" max="600" placeholder="93" class="w-full bg-slate-900 border border-indigo-500/40 rounded-xl px-2.5 py-2.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none font-semibold">
-            </div>
-          </div>
-
-          <!-- 2-WAY EXACT AMORTIZATION CONTROLLER -->
-          <div class="bg-slate-900/70 p-2.5 rounded-2xl border border-slate-800 space-y-1.5">
-            <div class="flex justify-between items-center text-[10px] text-slate-400 font-semibold uppercase tracking-wider px-1">
-              <span>Amortization Formula Engine</span>
-              <span class="text-indigo-400 lowercase">Reducing balance</span>
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-              <button type="button" onclick="computeMonthsFromAmortization()" class="bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/40 text-[11px] font-semibold py-1.5 px-2 rounded-xl transition flex items-center justify-center gap-1 active:scale-95 cursor-pointer">
-                <i class="fa-solid fa-calculator text-[10px]"></i> Auto-Calc Months
-              </button>
-              <button type="button" onclick="computeBalanceFromAmortization()" class="bg-cyan-600/20 hover:bg-cyan-600/30 text-cyan-300 border border-cyan-500/40 text-[11px] font-semibold py-1.5 px-2 rounded-xl transition flex items-center justify-center gap-1 active:scale-95 cursor-pointer">
-                <i class="fa-solid fa-coins text-[10px]"></i> Auto-Calc Balance
-              </button>
-            </div>
-            <p id="amortizationFeedback" class="text-[10px] text-slate-500 px-1 italic">
-              Uses exact reducing interest: n = -ln(1 - P·r/E) / ln(1+r)
-            </p>
-          </div>
-
-          <div>
-            <label class="block text-[11px] font-semibold text-slate-400 mb-1">Notes / Identifier</label>
-            <input type="text" id="fNotes" placeholder="e.g. Tenor ends 2030, reducing balance" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
-          </div>
-
-          <button type="submit" id="formSubmitBtn" class="w-full bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-600 text-white font-semibold py-3 rounded-2xl text-xs tracking-wide transition shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 active:scale-98 cursor-pointer">
-            <i class="fa-solid fa-floppy-disk text-xs"></i> Save Commitment
-          </button>
-        </form>
-      </div>
-
-      <!-- History Log -->
-      <div class="glass-card rounded-3xl p-4 border border-slate-800 space-y-3">
+      <!-- SCREEN 2: DEBT INPUT & HISTORY LOG -->
+      <section id="entryScreen" class="debt-screen hidden space-y-4">
         <div class="flex items-center justify-between">
-          <h3 class="text-xs font-bold text-white uppercase tracking-wider">Entries History</h3>
-          <span id="logCounter" class="text-[11px] text-slate-400 font-medium">0 records</span>
+          <div>
+            <h2 id="formTitle" class="text-base font-bold text-white">Log Commitment</h2>
+            <p class="text-xs text-slate-400">Add, calculate, or clone monthly liabilities</p>
+          </div>
+          <button type="button" id="cancelEditBtn" onclick="resetFormToNew()" class="hidden text-xs bg-rose-500/20 text-rose-300 border border-rose-500/30 px-2.5 py-1 rounded-xl cursor-pointer">
+            Cancel Edit
+          </button>
         </div>
 
-        <div class="flex gap-2">
-          <div class="relative flex-1">
-            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
-            <input type="text" id="logSearch" oninput="renderHistoryTable()" placeholder="Search loans..." class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white focus:outline-none">
+        <!-- Input Form Card with Exact Reducing Amortization Engine -->
+        <div class="glass-card rounded-3xl p-5 border border-slate-800">
+          <form id="entryForm" onsubmit="handleFormSubmission(event)" class="space-y-3.5">
+            <input type="hidden" id="editEntryId" value="">
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-400 mb-1">Month *</label>
+                <input type="month" id="fMonth" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-indigo-500 focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-400 mb-1">Priority</label>
+                <select id="fPriority" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-indigo-500 focus:outline-none">
+                  <option value="High">🔥 High</option>
+                  <option value="Normal" selected>🔹 Normal</option>
+                  <option value="Low">🌱 Low</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-400 mb-1">Commitment / Loan Name *</label>
+              <input type="text" id="fMetric" placeholder="e.g. Gold Loan Instance 1, Car Loan" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <div class="flex justify-between items-center mb-1">
+                  <label class="block text-[11px] font-semibold text-slate-400">Category *</label>
+                  <button type="button" onclick="openCategoryModal()" class="text-[10px] text-indigo-400 font-semibold cursor-pointer">+ New</button>
+                </div>
+                <select id="fCategory" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:border-indigo-500 focus:outline-none"></select>
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-400 mb-1">Interest Rate (% p.a.)</label>
+                <input type="number" id="fRate" step="0.05" min="0" max="100" placeholder="e.g. 9.0" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2.5">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-400 mb-1">Balance (₹) *</label>
+                <input type="number" id="fBalance" step="any" min="0" placeholder="2000000" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-400 mb-1">EMI (₹) *</label>
+                <input type="number" id="fEmi" step="any" min="0" placeholder="30000" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-indigo-300 mb-1">Months Left</label>
+                <input type="number" id="fMonthsLeft" min="1" max="600" placeholder="93" class="w-full bg-slate-900 border border-indigo-500/40 rounded-xl px-2.5 py-2.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none font-semibold">
+              </div>
+            </div>
+
+            <!-- 2-WAY EXACT AMORTIZATION CONTROLLER -->
+            <div class="bg-slate-900/70 p-2.5 rounded-2xl border border-slate-800 space-y-1.5">
+              <div class="flex justify-between items-center text-[10px] text-slate-400 font-semibold uppercase tracking-wider px-1">
+                <span>Amortization Formula Engine</span>
+                <span class="text-indigo-400 lowercase">Reducing balance</span>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <button type="button" onclick="computeMonthsFromAmortization()" class="bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/40 text-[11px] font-semibold py-1.5 px-2 rounded-xl transition flex items-center justify-center gap-1 active:scale-95 cursor-pointer">
+                  <i class="fa-solid fa-calculator text-[10px]"></i> Auto-Calc Months
+                </button>
+                <button type="button" onclick="computeBalanceFromAmortization()" class="bg-cyan-600/20 hover:bg-cyan-600/30 text-cyan-300 border border-cyan-500/40 text-[11px] font-semibold py-1.5 px-2 rounded-xl transition flex items-center justify-center gap-1 active:scale-95 cursor-pointer">
+                  <i class="fa-solid fa-coins text-[10px]"></i> Auto-Calc Balance
+                </button>
+              </div>
+              <p id="amortizationFeedback" class="text-[10px] text-slate-500 px-1 italic">
+                Formula: $n = -\ln(1 - P\cdot r/E) / \ln(1+r)$
+              </p>
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-400 mb-1">Notes / Identifier</label>
+              <input type="text" id="fNotes" placeholder="e.g. Tenor ends 2030, reducing balance" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+            </div>
+
+            <button type="submit" id="formSubmitBtn" class="w-full bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-600 text-white font-semibold py-3 rounded-2xl text-xs tracking-wide transition shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 active:scale-98 cursor-pointer">
+              <i class="fa-solid fa-floppy-disk text-xs"></i> Save Commitment
+            </button>
+          </form>
+        </div>
+
+        <!-- History Log -->
+        <div class="glass-card rounded-3xl p-4 border border-slate-800 space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold text-white uppercase tracking-wider">Entries History</h3>
+            <span id="logCounter" class="text-[11px] text-slate-400 font-medium">0 records</span>
           </div>
-          <select id="logCategoryFilter" onchange="renderHistoryTable()" class="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none">
+
+          <div class="flex gap-2">
+            <div class="relative flex-1">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
+              <input type="text" id="logSearch" oninput="renderHistoryTable()" placeholder="Search loans..." class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white focus:outline-none">
+            </div>
+            <select id="logCategoryFilter" onchange="renderHistoryTable()" class="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none">
+              <option value="ALL">All Categories</option>
+            </select>
+          </div>
+
+          <div id="historyTableContainer" class="space-y-2 max-h-72 overflow-y-auto no-scrollbar pt-1"></div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: DEBT TRENDS -->
+      <section id="trendsScreen" class="debt-screen hidden space-y-4">
+        <div class="flex items-center justify-between px-1">
+          <div>
+            <h2 class="text-base font-bold text-white">Debt Analytics</h2>
+            <p class="text-xs text-slate-400">Historical performance & breakdown</p>
+          </div>
+          <select id="trendsCategorySelect" onchange="renderCharts()" class="bg-slate-800 border border-slate-700 text-slate-300 text-xs rounded-xl px-2.5 py-1.5 outline-none">
             <option value="ALL">All Categories</option>
           </select>
         </div>
 
-        <div id="historyTableContainer" class="space-y-2 max-h-72 overflow-y-auto no-scrollbar pt-1"></div>
-      </div>
-    </section>
-
-    <!-- SCREEN 3: TRENDS & ANALYTICS -->
-    <section id="trendsScreen" class="app-screen hidden space-y-4">
-      <div class="flex items-center justify-between px-1">
-        <div>
-          <h2 class="text-base font-bold text-white">Debt Analytics</h2>
-          <p class="text-xs text-slate-400">Historical performance & breakdown</p>
-        </div>
-        <select id="trendsCategorySelect" onchange="renderCharts()" class="bg-slate-800 border border-slate-700 text-slate-300 text-xs rounded-xl px-2.5 py-1.5 outline-none">
-          <option value="ALL">All Categories</option>
-        </select>
-      </div>
-
-      <div class="glass-card rounded-3xl p-4 border border-slate-800">
-        <span class="text-xs font-bold text-slate-200 block mb-2">Total Outstanding Trajectory</span>
-        <div class="h-52 relative"><canvas id="debtTrendChart"></canvas></div>
-      </div>
-
-      <div class="glass-card rounded-3xl p-4 border border-slate-800">
-        <span class="text-xs font-bold text-slate-200 block mb-2">Monthly EMI Cash Flow</span>
-        <div class="h-48 relative"><canvas id="emiTrendChart"></canvas></div>
-      </div>
-
-      <div class="glass-card rounded-3xl p-4 border border-slate-800">
-        <span class="text-xs font-bold text-slate-200 block mb-2">Category Exposure Share</span>
-        <div class="h-56 relative flex items-center justify-center"><canvas id="categoryDoughnutChart"></canvas></div>
-      </div>
-    </section>
-
-    <!-- SCREEN 4: PREDICTIONS & FORECASTS -->
-    <section id="plannerScreen" class="app-screen hidden space-y-4">
-      
-      <!-- 6M & 1Y Strategic Interval Forecasts -->
-      <div class="space-y-2.5">
-        <div class="flex items-center justify-between px-1">
-          <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-            <i class="fa-solid fa-chart-line text-indigo-400"></i> Milestone Forecasts
-          </h2>
-          <span class="text-[10px] text-slate-500">Compounding Amortization</span>
+        <div class="glass-card rounded-3xl p-4 border border-slate-800">
+          <span class="text-xs font-bold text-slate-200 block mb-2">Total Outstanding Trajectory</span>
+          <div class="h-52 relative"><canvas id="debtTrendChart"></canvas></div>
         </div>
 
-        <div class="grid grid-cols-2 gap-3">
-          <div class="glass-card rounded-3xl p-4 border border-indigo-500/30 relative overflow-hidden">
-            <div class="flex justify-between items-center text-[11px] font-semibold text-indigo-300">
-              <span>Next 6 Months</span>
-              <span id="forecastDate6M" class="text-[10px] bg-indigo-500/20 px-1.5 py-0.5 rounded text-indigo-200">--</span>
-            </div>
-            <div class="mt-2">
-              <span class="text-[10px] uppercase text-slate-400 block font-medium">Est. Outstanding</span>
-              <span id="forecastDebt6M" class="text-lg font-extrabold text-white block mt-0.5">₹0</span>
-              <span id="forecastDrop6M" class="text-[10px] text-emerald-400 font-semibold block mt-0.5">↓ 0% drop</span>
-            </div>
-            <div class="mt-3 pt-2 border-t border-slate-800/80 flex justify-between items-center text-[10px]">
-              <span class="text-slate-400">Monthly EMI:</span>
-              <span id="forecastEmi6M" class="font-bold text-slate-200">₹0</span>
-            </div>
+        <div class="glass-card rounded-3xl p-4 border border-slate-800">
+          <span class="text-xs font-bold text-slate-200 block mb-2">Monthly EMI Cash Flow</span>
+          <div class="h-48 relative"><canvas id="emiTrendChart"></canvas></div>
+        </div>
+
+        <div class="glass-card rounded-3xl p-4 border border-slate-800">
+          <span class="text-xs font-bold text-slate-200 block mb-2">Category Exposure Share</span>
+          <div class="h-56 relative flex items-center justify-center"><canvas id="categoryDoughnutChart"></canvas></div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: PREDICTIONS & FORECASTS -->
+      <section id="plannerScreen" class="debt-screen hidden space-y-4">
+        <!-- 6M & 1Y Milestone Cards -->
+        <div class="space-y-2.5">
+          <div class="flex items-center justify-between px-1">
+            <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+              <i class="fa-solid fa-chart-line text-indigo-400"></i> Milestone Forecasts
+            </h2>
+            <span class="text-[10px] text-slate-500">Compounding Amortization</span>
           </div>
 
-          <div class="glass-card rounded-3xl p-4 border border-cyan-500/30 relative overflow-hidden">
-            <div class="flex justify-between items-center text-[11px] font-semibold text-cyan-300">
-              <span>Next 1 Year</span>
-              <span id="forecastDate1Y" class="text-[10px] bg-cyan-500/20 px-1.5 py-0.5 rounded text-cyan-200">--</span>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="glass-card rounded-3xl p-4 border border-indigo-500/30 relative overflow-hidden">
+              <div class="flex justify-between items-center text-[11px] font-semibold text-indigo-300">
+                <span>Next 6 Months</span>
+                <span id="forecastDate6M" class="text-[10px] bg-indigo-500/20 px-1.5 py-0.5 rounded text-indigo-200">--</span>
+              </div>
+              <div class="mt-2">
+                <span class="text-[10px] uppercase text-slate-400 block font-medium">Est. Outstanding</span>
+                <span id="forecastDebt6M" class="text-lg font-extrabold text-white block mt-0.5">₹0</span>
+                <span id="forecastDrop6M" class="text-[10px] text-emerald-400 font-semibold block mt-0.5">↓ 0% drop</span>
+              </div>
+              <div class="mt-3 pt-2 border-t border-slate-800/80 flex justify-between items-center text-[10px]">
+                <span class="text-slate-400">Monthly EMI:</span>
+                <span id="forecastEmi6M" class="font-bold text-slate-200">₹0</span>
+              </div>
             </div>
-            <div class="mt-2">
-              <span class="text-[10px] uppercase text-slate-400 block font-medium">Est. Outstanding</span>
-              <span id="forecastDebt1Y" class="text-lg font-extrabold text-white block mt-0.5">₹0</span>
-              <span id="forecastDrop1Y" class="text-[10px] text-emerald-400 font-semibold block mt-0.5">↓ 0% drop</span>
-            </div>
-            <div class="mt-3 pt-2 border-t border-slate-800/80 flex justify-between items-center text-[10px]">
-              <span class="text-slate-400">Monthly EMI:</span>
-              <span id="forecastEmi1Y" class="font-bold text-slate-200">₹0</span>
+
+            <div class="glass-card rounded-3xl p-4 border border-cyan-500/30 relative overflow-hidden">
+              <div class="flex justify-between items-center text-[11px] font-semibold text-cyan-300">
+                <span>Next 1 Year</span>
+                <span id="forecastDate1Y" class="text-[10px] bg-cyan-500/20 px-1.5 py-0.5 rounded text-cyan-200">--</span>
+              </div>
+              <div class="mt-2">
+                <span class="text-[10px] uppercase text-slate-400 block font-medium">Est. Outstanding</span>
+                <span id="forecastDebt1Y" class="text-lg font-extrabold text-white block mt-0.5">₹0</span>
+                <span id="forecastDrop1Y" class="text-[10px] text-emerald-400 font-semibold block mt-0.5">↓ 0% drop</span>
+              </div>
+              <div class="mt-3 pt-2 border-t border-slate-800/80 flex justify-between items-center text-[10px]">
+                <span class="text-slate-400">Monthly EMI:</span>
+                <span id="forecastEmi1Y" class="font-bold text-slate-200">₹0</span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Next 5 Months Trajectory Table -->
-      <div class="glass-card rounded-3xl p-4 border border-slate-800 space-y-3">
-        <div class="flex justify-between items-center">
-          <div>
-            <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-              <i class="fa-solid fa-calendar-days text-indigo-400"></i> Next 5 Months Trajectory
-            </h3>
-            <p class="text-[11px] text-slate-400">Scheduled principal and tenor progress</p>
-          </div>
-        </div>
-
-        <div class="overflow-x-auto no-scrollbar">
-          <table class="w-full text-left text-xs text-slate-300">
-            <thead class="bg-slate-900/80 text-[10px] uppercase font-semibold text-slate-400 border-b border-slate-800">
-              <tr>
-                <th class="py-2 px-2.5">Month</th>
-                <th class="py-2 px-2.5 text-right">Projected Balance</th>
-                <th class="py-2 px-2.5 text-right">Committed EMI</th>
-                <th class="py-2 px-2.5 text-center">Active</th>
-              </tr>
-            </thead>
-            <tbody id="forecast5MonthsTbody" class="divide-y divide-slate-800/60 font-medium"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Prepayment Simulator -->
-      <div class="glass-card rounded-3xl p-5 border border-slate-800 space-y-3">
-        <div class="flex justify-between items-center">
-          <div>
-            <span class="text-xs font-bold text-white flex items-center gap-1.5">
-              <i class="fa-solid fa-sliders text-indigo-400"></i> Prepayment Simulator
-            </span>
-            <p class="text-[11px] text-slate-400">Impact of paying extra every month</p>
-          </div>
-          <span id="simulatorExtraBadge" class="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-lg">+₹5,000 /mo</span>
-        </div>
-
-        <input type="range" id="simulatorSlider" min="0" max="50000" step="1000" value="5000" oninput="updateSimulator(this.value)" class="w-full accent-indigo-500 cursor-pointer">
-
-        <div class="grid grid-cols-2 gap-3 pt-2">
-          <div class="bg-slate-900/80 p-3 rounded-2xl border border-slate-800">
-            <span class="text-[10px] text-slate-400 font-semibold uppercase">Months Saved</span>
-            <span id="simMonthsSaved" class="text-base font-extrabold text-emerald-400 mt-0.5 block">--</span>
-          </div>
-          <div class="bg-slate-900/80 p-3 rounded-2xl border border-slate-800">
-            <span class="text-[10px] text-slate-400 font-semibold uppercase">Debt-Free Date</span>
-            <span id="simNewFinishDate" class="text-base font-extrabold text-indigo-300 mt-0.5 block">--</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Individual Per-Loan Target Dates -->
-      <div class="space-y-2.5">
-        <div class="flex justify-between items-center px-1">
-          <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Per-Loan Avalanche Priority</h3>
-          <span class="text-[10px] text-indigo-400">Ranked by APR</span>
-        </div>
-        <div id="plannerListContainer" class="space-y-2.5"></div>
-      </div>
-    </section>
-
-    <!-- SCREEN 5: SETTINGS & BACKUP -->
-    <section id="settingsScreen" class="app-screen hidden space-y-4">
-      <div class="px-1">
-        <h2 class="text-base font-bold text-white">App Settings</h2>
-        <p class="text-xs text-slate-400">Categories, backups & data controls</p>
-      </div>
-
-      <div class="glass-card rounded-3xl p-4 border border-slate-800 space-y-2">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2.5">
-            <i class="fa-solid fa-tags text-indigo-400 text-sm"></i>
+        <!-- Next 5 Months Trajectory Table -->
+        <div class="glass-card rounded-3xl p-4 border border-slate-800 space-y-3">
+          <div class="flex justify-between items-center">
             <div>
-              <h3 class="text-xs font-bold text-white">Manage Categories</h3>
-              <p class="text-[11px] text-slate-400">Current: <span id="settingsCatCount">9</span> categories active</p>
+              <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                <i class="fa-solid fa-calendar-days text-indigo-400"></i> Next 5 Months Trajectory
+              </h3>
+              <p class="text-[11px] text-slate-400">Scheduled principal and tenor progress</p>
             </div>
           </div>
-          <button type="button" onclick="openCategoryModal()" class="text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-xl transition active:scale-95 cursor-pointer">
-            Manage
+
+          <div class="overflow-x-auto no-scrollbar">
+            <table class="w-full text-left text-xs text-slate-300">
+              <thead class="bg-slate-900/80 text-[10px] uppercase font-semibold text-slate-400 border-b border-slate-800">
+                <tr>
+                  <th class="py-2 px-2.5">Month</th>
+                  <th class="py-2 px-2.5 text-right">Projected Balance</th>
+                  <th class="py-2 px-2.5 text-right">Committed EMI</th>
+                  <th class="py-2 px-2.5 text-center">Active</th>
+                </tr>
+              </thead>
+              <tbody id="forecast5MonthsTbody" class="divide-y divide-slate-800/60 font-medium"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Prepayment Simulator -->
+        <div class="glass-card rounded-3xl p-5 border border-slate-800 space-y-3">
+          <div class="flex justify-between items-center">
+            <div>
+              <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                <i class="fa-solid fa-sliders text-indigo-400"></i> Prepayment Simulator
+              </span>
+              <p class="text-[11px] text-slate-400">Impact of paying extra every month</p>
+            </div>
+            <span id="simulatorExtraBadge" class="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-lg">+₹5,000 /mo</span>
+          </div>
+
+          <input type="range" id="simulatorSlider" min="0" max="50000" step="1000" value="5000" oninput="updateSimulator(this.value)" class="w-full accent-indigo-500 cursor-pointer">
+
+          <div class="grid grid-cols-2 gap-3 pt-2">
+            <div class="bg-slate-900/80 p-3 rounded-2xl border border-slate-800">
+              <span class="text-[10px] text-slate-400 font-semibold uppercase">Months Saved</span>
+              <span id="simMonthsSaved" class="text-base font-extrabold text-emerald-400 mt-0.5 block">--</span>
+            </div>
+            <div class="bg-slate-900/80 p-3 rounded-2xl border border-slate-800">
+              <span class="text-[10px] text-slate-400 font-semibold uppercase">Debt-Free Date</span>
+              <span id="simNewFinishDate" class="text-base font-extrabold text-indigo-300 mt-0.5 block">--</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Per-Loan Avalanche List -->
+        <div class="space-y-2.5">
+          <div class="flex justify-between items-center px-1">
+            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Per-Loan Avalanche Priority</h3>
+            <span class="text-[10px] text-indigo-400">Ranked by APR</span>
+          </div>
+          <div id="plannerListContainer" class="space-y-2.5"></div>
+        </div>
+      </section>
+
+      <!-- SCREEN 5: APP SETTINGS -->
+      <section id="settingsScreen" class="debt-screen hidden space-y-4">
+        <div class="px-1">
+          <h2 class="text-base font-bold text-white">App Settings</h2>
+          <p class="text-xs text-slate-400">Categories, backups & data controls</p>
+        </div>
+
+        <div class="glass-card rounded-3xl p-4 border border-slate-800 space-y-2">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <i class="fa-solid fa-tags text-indigo-400 text-sm"></i>
+              <div>
+                <h3 class="text-xs font-bold text-white">Debt Categories</h3>
+                <p class="text-[11px] text-slate-400"><span id="settingsCatCount">9</span> categories active</p>
+              </div>
+            </div>
+            <button type="button" onclick="openCategoryModal()" class="text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-xl transition active:scale-95 cursor-pointer">
+              Manage
+            </button>
+          </div>
+        </div>
+
+        <div class="glass-card rounded-3xl p-5 border border-slate-800 space-y-3">
+          <h3 class="text-xs font-bold text-white uppercase tracking-wider">Data Export & Backup</h3>
+          <div class="grid grid-cols-2 gap-2.5">
+            <button type="button" onclick="exportToCSV()" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 font-semibold p-3 rounded-2xl text-xs flex flex-col items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer">
+              <i class="fa-solid fa-file-excel text-base"></i>
+              <span>Export CSV</span>
+            </button>
+            <button type="button" onclick="exportJSONBackup()" class="bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-400 border border-indigo-500/30 font-semibold p-3 rounded-2xl text-xs flex flex-col items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer">
+              <i class="fa-solid fa-cloud-arrow-down text-base"></i>
+              <span>Backup JSON</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-3xl border border-rose-500/20 bg-rose-500/5 space-y-2">
+          <h3 class="text-xs font-bold text-rose-400">Reset Application</h3>
+          <p class="text-[11px] text-slate-400 leading-relaxed">
+            Restore sample demo data for loans and commitments.
+          </p>
+          <button type="button" onclick="resetDataPrompt()" class="w-full text-xs font-semibold bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 py-2.5 rounded-xl transition active:scale-98 cursor-pointer">
+            Reset to Demo Dataset
           </button>
         </div>
-      </div>
+      </section>
 
-      <div class="glass-card rounded-3xl p-5 border border-slate-800 space-y-3">
-        <h3 class="text-xs font-bold text-white uppercase tracking-wider">Data Export & Backup</h3>
-        <div class="grid grid-cols-2 gap-2.5">
-          <button type="button" onclick="exportToCSV()" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 font-semibold p-3 rounded-2xl text-xs flex flex-col items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer">
-            <i class="fa-solid fa-file-excel text-base"></i>
-            <span>Export CSV</span>
-          </button>
-          <button type="button" onclick="exportJSONBackup()" class="bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-400 border border-indigo-500/30 font-semibold p-3 rounded-2xl text-xs flex flex-col items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer">
-            <i class="fa-solid fa-cloud-arrow-down text-base"></i>
-            <span>Backup JSON</span>
+    </div>
+
+    <!-- ************************************************************* -->
+    <!-- PART 2: DAILY EXPENSES & TRANSACTION TRACKER MODULE            -->
+    <!-- ************************************************************* -->
+    <div id="dailyModuleContainer" class="hidden space-y-4">
+      
+      <!-- DAILY VIEW 1: EXPENSE SUMMARY & TRENDS -->
+      <section id="dailySummaryScreen" class="daily-screen space-y-4">
+        <!-- Main Spend Scorecard -->
+        <div class="glass-card rounded-3xl p-5 shadow-xl relative overflow-hidden border border-emerald-500/30">
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">This Month's Spending</span>
+            <span id="dailyMonthBadge" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">Oct 2026</span>
+          </div>
+
+          <div class="flex items-baseline gap-2 mt-1">
+            <span id="kpiDailyMonthTotal" class="text-3xl font-extrabold text-white tracking-tight">₹0</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-slate-700/60">
+            <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
+              <span class="text-[10px] text-slate-400 uppercase font-semibold block">Last 7 Days (Weekly)</span>
+              <span id="kpiDailyWeeklyTotal" class="text-lg font-bold text-emerald-400 mt-0.5 block">₹0</span>
+              <span id="kpiDailyWeeklyCount" class="text-[10px] text-slate-500">0 payments</span>
+            </div>
+            <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
+              <span class="text-[10px] text-slate-400 uppercase font-semibold block">Today's Spends</span>
+              <span id="kpiDailyTodayTotal" class="text-lg font-bold text-slate-100 mt-0.5 block">₹0</span>
+              <span id="kpiDailyAvgDay" class="text-[10px] text-slate-500">Avg ₹0 / day</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Weekly & Monthly Trend Chart -->
+        <div class="glass-card rounded-3xl p-4 border border-slate-800">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-xs font-bold text-slate-200">Daily Spending Outflow (Last 14 Days)</span>
+            <span class="text-[10px] text-emerald-400 font-semibold bg-emerald-500/10 px-2 py-0.5 rounded-full">Cash Out</span>
+          </div>
+          <div class="h-44 relative"><canvas id="dailyTrendChart"></canvas></div>
+        </div>
+
+        <!-- Account Exposure Breakdown -->
+        <div class="glass-card rounded-3xl p-4 border border-slate-800">
+          <span class="text-xs font-bold text-slate-200 block mb-2">Spending by Payment Account</span>
+          <div class="h-48 relative flex items-center justify-center"><canvas id="dailyAccountChart"></canvas></div>
+        </div>
+
+        <!-- Category Spend Breakdown -->
+        <div class="glass-card rounded-3xl p-4 border border-slate-800">
+          <div class="flex justify-between items-center mb-3">
+            <span class="text-xs font-bold text-white uppercase tracking-wider">Top Spending Categories</span>
+            <button type="button" onclick="openExpenseCategoryModal()" class="text-xs text-indigo-400 hover:underline">Manage</button>
+          </div>
+          <div id="dailyCategoryBreakdownContainer" class="space-y-2"></div>
+        </div>
+      </section>
+
+      <!-- DAILY VIEW 2: NEW EXPENSE ENTRY & LOG -->
+      <section id="dailyEntryScreen" class="daily-screen hidden space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 id="expenseFormTitle" class="text-base font-bold text-white">Log Expense</h2>
+            <p class="text-xs text-slate-400">Capture daily transactions with account tagging</p>
+          </div>
+          <button type="button" id="cancelExpenseEditBtn" onclick="resetExpenseFormToNew()" class="hidden text-xs bg-rose-500/20 text-rose-300 border border-rose-500/30 px-2.5 py-1 rounded-xl cursor-pointer">
+            Cancel Edit
           </button>
         </div>
-      </div>
 
-      <div class="p-4 rounded-3xl border border-rose-500/20 bg-rose-500/5 space-y-2">
-        <h3 class="text-xs font-bold text-rose-400">Reset Application</h3>
-        <p class="text-[11px] text-slate-400 leading-relaxed">
-          Restore demo spreadsheet records (Home Loan, Personal Loan, Vehicle, Gold Loan Instances).
-        </p>
-        <button type="button" onclick="resetDataPrompt()" class="w-full text-xs font-semibold bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 py-2.5 rounded-xl transition active:scale-98 cursor-pointer">
-          Reset to Demo Dataset
-        </button>
-      </div>
-    </section>
+        <!-- Add Transaction Card -->
+        <div class="glass-card rounded-3xl p-5 border border-slate-800">
+          <form id="expenseForm" onsubmit="handleExpenseSubmission(event)" class="space-y-3.5">
+            <input type="hidden" id="editExpenseId" value="">
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-400 mb-1">Date *</label>
+                <input type="date" id="expDate" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:border-indigo-500 focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-400 mb-1">Amount (₹) *</label>
+                <input type="number" id="expAmount" step="any" min="0.01" placeholder="₹450" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white font-bold placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <div class="flex justify-between items-center mb-1">
+                  <label class="block text-[11px] font-semibold text-slate-400">Category *</label>
+                  <button type="button" onclick="openExpenseCategoryModal()" class="text-[10px] text-indigo-400 font-semibold cursor-pointer">+ New</button>
+                </div>
+                <select id="expCategory" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:border-indigo-500 focus:outline-none"></select>
+              </div>
+
+              <div>
+                <div class="flex justify-between items-center mb-1">
+                  <label class="block text-[11px] font-semibold text-slate-400">Payment Account *</label>
+                  <button type="button" onclick="openAccountModal()" class="text-[10px] text-cyan-400 font-semibold cursor-pointer">+ New</button>
+                </div>
+                <select id="expAccount" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:border-indigo-500 focus:outline-none"></select>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-400 mb-1">Note / Description</label>
+              <input type="text" id="expNote" placeholder="e.g. Grocery shopping at DMart, Fuel refill" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+            </div>
+
+            <button type="submit" id="btnExpenseSubmit" class="w-full bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-600 text-white font-semibold py-3 rounded-2xl text-xs tracking-wide transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 active:scale-98 cursor-pointer">
+              <i class="fa-solid fa-plus text-xs"></i> Add Transaction
+            </button>
+          </form>
+        </div>
+
+        <!-- Transaction Log Table -->
+        <div class="glass-card rounded-3xl p-4 border border-slate-800 space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold text-white uppercase tracking-wider">Transaction History</h3>
+            <span id="expenseLogCounter" class="text-[11px] text-slate-400 font-medium">0 transactions</span>
+          </div>
+
+          <div class="flex gap-2">
+            <div class="relative flex-1">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
+              <input type="text" id="expenseLogSearch" oninput="renderExpenseHistoryTable()" placeholder="Search transactions..." class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white focus:outline-none">
+            </div>
+            <select id="expenseAccountFilter" onchange="renderExpenseHistoryTable()" class="bg-slate-900 border border-slate-700 rounded-xl px-2 py-1.5 text-xs text-slate-300 focus:outline-none">
+              <option value="ALL">All Accounts</option>
+            </select>
+          </div>
+
+          <div id="expenseHistoryContainer" class="space-y-2 max-h-80 overflow-y-auto no-scrollbar pt-1"></div>
+        </div>
+      </section>
+
+    </div>
 
   </main>
 
-  <!-- ================= FLOATING ACTION BUTTON (+ NEW EMI) ================= -->
+  <!-- ================= FLOATING ACTION BUTTON (+ ADD ENTRY) ================= -->
   <div class="fixed bottom-20 right-4 z-40 max-w-md mx-auto">
-    <button type="button" onclick="openQuickNewEntry()" class="w-13 h-13 rounded-2xl bg-gradient-to-tr from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-600 text-white shadow-xl shadow-indigo-600/40 border border-indigo-400/30 flex items-center justify-center text-xl transition-transform active:scale-90 cursor-pointer" title="Add Loan Entry">
+    <button type="button" onclick="triggerFloatingAdd()" class="w-13 h-13 rounded-2xl bg-gradient-to-tr from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-600 text-white shadow-xl shadow-indigo-600/40 border border-indigo-400/30 flex items-center justify-center text-xl transition-transform active:scale-90 cursor-pointer" title="Add Entry">
       <i class="fa-solid fa-plus"></i>
     </button>
   </div>
 
-  <!-- ================= BOTTOM NAVIGATION BAR ================= -->
+  <!-- ================= DYNAMIC BOTTOM NAVIGATION BAR ================= -->
   <nav class="fixed bottom-0 left-0 right-0 z-40 bg-app-card/95 backdrop-blur-lg border-t border-app-border safe-bottom">
-    <div class="max-w-md mx-auto flex items-center justify-around py-2 px-1">
-      <button type="button" onclick="switchScreen('dashboardScreen')" id="nav-dashboardScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 active-nav transition flex-1 py-1 cursor-pointer">
-        <i class="fa-solid fa-gauge-high text-base"></i>
-        <span class="text-[10px] font-semibold">Summary</span>
-      </button>
-
-      <button type="button" onclick="switchScreen('entryScreen')" id="nav-entryScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
-        <i class="fa-solid fa-pen-to-square text-base"></i>
-        <span class="text-[10px] font-semibold">Input</span>
-      </button>
-
-      <button type="button" onclick="switchScreen('trendsScreen')" id="nav-trendsScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
-        <i class="fa-solid fa-chart-line text-base"></i>
-        <span class="text-[10px] font-semibold">Trends</span>
-      </button>
-
-      <button type="button" onclick="switchScreen('plannerScreen')" id="nav-plannerScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
-        <i class="fa-solid fa-bullseye text-base"></i>
-        <span class="text-[10px] font-semibold">Payoff</span>
-      </button>
-
-      <button type="button" onclick="switchScreen('settingsScreen')" id="nav-settingsScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
-        <i class="fa-solid fa-sliders text-base"></i>
-        <span class="text-[10px] font-semibold">Settings</span>
-      </button>
+    <div id="bottomNavRow" class="max-w-md mx-auto flex items-center justify-around py-2 px-1">
+      <!-- Injected dynamically based on active module (Debt vs Daily) -->
     </div>
   </nav>
 
-  <!-- ================= CATEGORY MANAGER MODAL ================= -->
+  <!-- ================= MODAL 1: DEBT CATEGORY MANAGER ================= -->
   <div id="categoryModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="glass-card bg-app-card w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 border border-slate-700/80 space-y-4 max-h-[85vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <div>
-          <h3 class="text-sm font-bold text-white">Manage Categories</h3>
-          <p class="text-[11px] text-slate-400">Add custom categories for loan tracking</p>
+          <h3 class="text-sm font-bold text-white">Debt Categories</h3>
+          <p class="text-[11px] text-slate-400">Add or remove loan categories</p>
         </div>
         <button type="button" onclick="closeCategoryModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center hover:text-white cursor-pointer">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
 
-      <form onsubmit="handleNewCategory(event)" class="flex gap-2">
+      <form onsubmit="handleNewDebtCategory(event)" class="flex gap-2">
         <input type="text" id="newCatInput" placeholder="e.g. Loan against FD" required class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
         <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-4 py-2 rounded-xl transition flex items-center gap-1 cursor-pointer">
           <i class="fa-solid fa-plus"></i> Add
@@ -531,20 +663,98 @@
     </div>
   </div>
 
+  <!-- ================= MODAL 2: EXPENSE CATEGORY MANAGER ================= -->
+  <div id="expenseCatModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="glass-card bg-app-card w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 border border-slate-700/80 space-y-4 max-h-[85vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <div>
+          <h3 class="text-sm font-bold text-white">Daily Spend Categories</h3>
+          <p class="text-[11px] text-slate-400">Customize spending buckets (Groceries, Fuel, Dining)</p>
+        </div>
+        <button type="button" onclick="closeExpenseCategoryModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center hover:text-white cursor-pointer">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleNewExpenseCategory(event)" class="flex gap-2">
+        <input type="text" id="newExpenseCatInput" placeholder="e.g. Subscriptions, Medicine" required class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+        <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs px-4 py-2 rounded-xl transition flex items-center gap-1 cursor-pointer">
+          <i class="fa-solid fa-plus"></i> Add
+        </button>
+      </form>
+
+      <div>
+        <span class="text-[10px] uppercase font-bold text-slate-400 block mb-2">Categories (<span id="expCatModalCount">0</span>)</span>
+        <div id="expenseCategoryBadgeContainer" class="flex flex-wrap gap-2 max-h-48 overflow-y-auto no-scrollbar p-1"></div>
+      </div>
+
+      <div class="pt-2 border-t border-slate-800 flex justify-end">
+        <button type="button" onclick="closeExpenseCategoryModal()" class="bg-slate-800 text-slate-300 text-xs font-semibold px-4 py-2 rounded-xl cursor-pointer">
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 3: ACCOUNTS MANAGER ================= -->
+  <div id="accountModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="glass-card bg-app-card w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 border border-slate-700/80 space-y-4 max-h-[85vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <div>
+          <h3 class="text-sm font-bold text-white">Payment Accounts</h3>
+          <p class="text-[11px] text-slate-400">Add Bank accounts, UPI apps, Credit Cards, or Cash</p>
+        </div>
+        <button type="button" onclick="closeAccountModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center hover:text-white cursor-pointer">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleNewAccount(event)" class="flex gap-2">
+        <input type="text" id="newAccountInput" placeholder="e.g. Axis Bank, SBI Card, Cash" required class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+        <button type="submit" class="bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-xs px-4 py-2 rounded-xl transition flex items-center gap-1 cursor-pointer">
+          <i class="fa-solid fa-plus"></i> Add
+        </button>
+      </form>
+
+      <div>
+        <span class="text-[10px] uppercase font-bold text-slate-400 block mb-2">Available Accounts (<span id="accModalCount">0</span>)</span>
+        <div id="accountBadgeContainer" class="flex flex-wrap gap-2 max-h-48 overflow-y-auto no-scrollbar p-1"></div>
+      </div>
+
+      <div class="pt-2 border-t border-slate-800 flex justify-end">
+        <button type="button" onclick="closeAccountModal()" class="bg-slate-800 text-slate-300 text-xs font-semibold px-4 py-2 rounded-xl cursor-pointer">
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification -->
   <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 bg-slate-900/95 border border-slate-700 text-white text-xs px-4 py-2.5 rounded-2xl shadow-2xl hidden z-50 flex items-center gap-2">
     <i class="fa-solid fa-circle-check text-emerald-400"></i>
     <span id="toastMsg">Action completed</span>
   </div>
 
-  <!-- ================= APP CONTROLLER LOGIC ================= -->
+  <!-- ================= APP CONTROLLER SCRIPT ================= -->
   <script>
-    const DEFAULT_CATEGORIES = [
+    // -------------------------------------------------------------
+    // DEFAULT CONFIGURATION & SEED DATA
+    // -------------------------------------------------------------
+    const DEFAULT_DEBT_CATEGORIES = [
       "Gold loan", "Vehicle loan", "Personal loan", "Home loan",
       "Electronics", "Furniture", "Gadgets", "Credit card", "Others"
     ];
 
-    const DEFAULT_DATA = [
+    const DEFAULT_EXPENSE_CATEGORIES = [
+      "Groceries", "Food & Dining", "Fuel & Transport", "Utilities & Bills",
+      "Shopping", "Health & Medical", "Entertainment", "Education", "Miscellaneous"
+    ];
+
+    const DEFAULT_ACCOUNTS = [
+      "HDFC Bank", "ICICI Bank", "SBI Bank", "Credit Card", "UPI / GPay", "Cash Wallet"
+    ];
+
+    const DEFAULT_DEBT_DATA = [
       { id: 1, month: '2026-08', metric: 'Home Loan', category: 'Home loan', balance: 3000000, emi: 35000, rate: 8.5, monthsLeft: 147, priority: 'Normal', notes: 'Asset' },
       { id: 2, month: '2026-09', metric: 'Home Loan', category: 'Home loan', balance: 2950000, emi: 35000, rate: 8.5, monthsLeft: 144, priority: 'Normal', notes: 'Asset' },
       { id: 3, month: '2026-08', metric: 'Personal Loan', category: 'Personal loan', balance: 5300000, emi: 80000, rate: 12.0, monthsLeft: 110, priority: 'High', notes: 'Priority Avalanche' },
@@ -558,11 +768,32 @@
       { id: 11, month: '2026-09', metric: 'iPhone 15 EMI', category: 'Gadgets', balance: 58500, emi: 6500, rate: 0.0, monthsLeft: 9, priority: 'Low', notes: 'No cost EMI' }
     ];
 
-    let categories = JSON.parse(localStorage.getItem('debt_categories')) || DEFAULT_CATEGORIES;
-    let debtRecords = JSON.parse(localStorage.getItem('debt_records')) || DEFAULT_DATA;
+    const DEFAULT_EXPENSE_DATA = [
+      { id: 101, date: '2026-10-01', category: 'Groceries', amount: 3200, account: 'HDFC Bank', note: 'Monthly supermarket essentials' },
+      { id: 102, date: '2026-10-02', category: 'Fuel & Transport', amount: 2000, account: 'Credit Card', note: 'Petrol pump refuel' },
+      { id: 103, date: '2026-10-03', category: 'Food & Dining', amount: 1450, account: 'UPI / GPay', note: 'Family dinner' },
+      { id: 104, date: '2026-10-04', category: 'Utilities & Bills', amount: 2800, account: 'HDFC Bank', note: 'Electricity & Wifi' },
+      { id: 105, date: '2026-10-06', category: 'Groceries', amount: 650, account: 'UPI / GPay', note: 'Vegetables & dairy' }
+    ];
+
+    // -------------------------------------------------------------
+    // STATE STORAGE
+    // -------------------------------------------------------------
+    let activeModule = 'debt'; // 'debt' or 'daily'
+
+    // Debt State
+    let categories = JSON.parse(localStorage.getItem('debt_categories')) || DEFAULT_DEBT_CATEGORIES;
+    let debtRecords = JSON.parse(localStorage.getItem('debt_records')) || DEFAULT_DEBT_DATA;
     let activeDashboardCategory = 'ALL';
 
+    // Expense State
+    let expenseCategories = JSON.parse(localStorage.getItem('expense_categories')) || DEFAULT_EXPENSE_CATEGORIES;
+    let accountsList = JSON.parse(localStorage.getItem('expense_accounts')) || DEFAULT_ACCOUNTS;
+    let expenseRecords = JSON.parse(localStorage.getItem('expense_records')) || DEFAULT_EXPENSE_DATA;
+
+    // Charts references
     let debtChart = null, emiChart = null, doughnutChart = null;
+    let dailyTrendChart = null, dailyAccountChart = null;
 
     function formatINR(val) {
       if (val === undefined || val === null || isNaN(val)) return '₹0';
@@ -580,7 +811,502 @@
       setTimeout(() => toast.classList.add('hidden'), 2600);
     }
 
-    // ================= EXACT AMORTIZATION FORMULAS =================
+    // -------------------------------------------------------------
+    // DUAL-MODE CONTROLLER (DEBT VS DAILY EXPENSES)
+    // -------------------------------------------------------------
+    function toggleAppMode(mode) {
+      activeModule = mode;
+      const btnDebt = document.getElementById('btnModeDebt');
+      const btnDaily = document.getElementById('btnModeDaily');
+      const debtContainer = document.getElementById('debtModuleContainer');
+      const dailyContainer = document.getElementById('dailyModuleContainer');
+
+      if (mode === 'daily') {
+        btnDaily.className = "flex-1 py-1.5 text-xs font-bold rounded-xl transition text-white bg-emerald-600 shadow cursor-pointer flex items-center justify-center gap-1.5";
+        btnDebt.className = "flex-1 py-1.5 text-xs font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer flex items-center justify-center gap-1.5";
+        
+        document.getElementById('modeIcon').className = "w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-cyan-400 flex items-center justify-center text-white font-bold text-sm";
+        document.getElementById('modeIcon').innerHTML = '<i class="fa-solid fa-wallet"></i>';
+        document.getElementById('appTitleText').innerHTML = 'Daily Spends Tracker <span class="text-[10px] font-semibold bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded-full border border-emerald-500/30">Day-to-Day</span>';
+        document.getElementById('appSubtitleText').innerText = 'Daily transactions, weekly & monthly trends';
+
+        debtContainer.classList.add('hidden');
+        dailyContainer.classList.remove('hidden');
+        renderBottomNav('daily');
+        switchDailyScreen('dailySummaryScreen');
+      } else {
+        btnDebt.className = "flex-1 py-1.5 text-xs font-bold rounded-xl transition text-white bg-indigo-600 shadow cursor-pointer flex items-center justify-center gap-1.5";
+        btnDaily.className = "flex-1 py-1.5 text-xs font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer flex items-center justify-center gap-1.5";
+
+        document.getElementById('modeIcon').className = "w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center text-white font-bold text-sm";
+        document.getElementById('modeIcon').innerHTML = '<i class="fa-solid fa-scale-balanced"></i>';
+        document.getElementById('appTitleText').innerHTML = 'Debt & EMI Manager <span class="text-[10px] font-semibold bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded-full border border-indigo-500/30">Commitments</span>';
+        document.getElementById('appSubtitleText').innerText = 'Long-term liabilities & predictions';
+
+        dailyContainer.classList.add('hidden');
+        debtContainer.classList.remove('hidden');
+        renderBottomNav('debt');
+        switchDebtScreen('dashboardScreen');
+      }
+    }
+
+    function renderBottomNav(mode) {
+      const container = document.getElementById('bottomNavRow');
+      if (mode === 'daily') {
+        container.innerHTML = `
+          <button type="button" onclick="switchDailyScreen('dailySummaryScreen')" id="nav-dailySummaryScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 active-nav transition flex-1 py-1 cursor-pointer">
+            <i class="fa-solid fa-chart-pie text-base"></i>
+            <span class="text-[10px] font-semibold">Trends</span>
+          </button>
+          <button type="button" onclick="switchDailyScreen('dailyEntryScreen')" id="nav-dailyEntryScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
+            <i class="fa-solid fa-plus-minus text-base"></i>
+            <span class="text-[10px] font-semibold">Transactions</span>
+          </button>
+          <button type="button" onclick="openExpenseCategoryModal()" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
+            <i class="fa-solid fa-tags text-base"></i>
+            <span class="text-[10px] font-semibold">Categories</span>
+          </button>
+          <button type="button" onclick="openAccountModal()" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
+            <i class="fa-solid fa-building-columns text-base"></i>
+            <span class="text-[10px] font-semibold">Accounts</span>
+          </button>
+        `;
+      } else {
+        container.innerHTML = `
+          <button type="button" onclick="switchDebtScreen('dashboardScreen')" id="nav-dashboardScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 active-nav transition flex-1 py-1 cursor-pointer">
+            <i class="fa-solid fa-gauge-high text-base"></i>
+            <span class="text-[10px] font-semibold">Summary</span>
+          </button>
+          <button type="button" onclick="switchDebtScreen('entryScreen')" id="nav-entryScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
+            <i class="fa-solid fa-pen-to-square text-base"></i>
+            <span class="text-[10px] font-semibold">Input</span>
+          </button>
+          <button type="button" onclick="switchDebtScreen('trendsScreen')" id="nav-trendsScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
+            <i class="fa-solid fa-chart-line text-base"></i>
+            <span class="text-[10px] font-semibold">Trends</span>
+          </button>
+          <button type="button" onclick="switchDebtScreen('plannerScreen')" id="nav-plannerScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
+            <i class="fa-solid fa-bullseye text-base"></i>
+            <span class="text-[10px] font-semibold">Payoff</span>
+          </button>
+          <button type="button" onclick="switchDebtScreen('settingsScreen')" id="nav-settingsScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
+            <i class="fa-solid fa-gear text-base"></i>
+            <span class="text-[10px] font-semibold">Settings</span>
+          </button>
+        `;
+      }
+    }
+
+    function triggerFloatingAdd() {
+      if (activeModule === 'daily') {
+        resetExpenseFormToNew();
+        switchDailyScreen('dailyEntryScreen');
+        document.getElementById('expAmount').focus();
+      } else {
+        openQuickNewEntry();
+      }
+    }
+
+    function openContextModal() {
+      if (activeModule === 'daily') {
+        openExpenseCategoryModal();
+      } else {
+        openCategoryModal();
+      }
+    }
+
+    // -------------------------------------------------------------
+    // PART 2 CONTROLLER: DAILY EXPENSES & ACCOUNTS
+    // -------------------------------------------------------------
+    function switchDailyScreen(screenId) {
+      document.querySelectorAll('.daily-screen').forEach(el => el.classList.add('hidden'));
+      const target = document.getElementById(screenId);
+      if (target) target.classList.remove('hidden');
+
+      document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active-nav'));
+      const activeNavBtn = document.getElementById('nav-' + screenId);
+      if (activeNavBtn) activeNavBtn.classList.add('active-nav');
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (screenId === 'dailySummaryScreen') renderDailySummary();
+      if (screenId === 'dailyEntryScreen') renderExpenseHistoryTable();
+    }
+
+    function saveExpenseStorage() {
+      localStorage.setItem('expense_categories', JSON.stringify(expenseCategories));
+      localStorage.setItem('expense_accounts', JSON.stringify(accountsList));
+      localStorage.setItem('expense_records', JSON.stringify(expenseRecords));
+    }
+
+    function populateExpenseElements() {
+      // 1. Expense Category Dropdown
+      const catEl = document.getElementById('expCategory');
+      const curCat = catEl.value;
+      catEl.innerHTML = '';
+      expenseCategories.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.textContent = c;
+        catEl.appendChild(opt);
+      });
+      if (curCat && expenseCategories.includes(curCat)) catEl.value = curCat;
+
+      // 2. Account Dropdowns
+      const accEl = document.getElementById('expAccount');
+      const curAcc = accEl.value;
+      accEl.innerHTML = '';
+      accountsList.forEach(a => {
+        const opt = document.createElement('option');
+        opt.value = a;
+        opt.textContent = a;
+        accEl.appendChild(opt);
+      });
+      if (curAcc && accountsList.includes(curAcc)) accEl.value = curAcc;
+
+      // Filter Dropdown
+      const filterEl = document.getElementById('expenseAccountFilter');
+      const curFilter = filterEl.value;
+      filterEl.innerHTML = '<option value="ALL">All Accounts</option>';
+      accountsList.forEach(a => {
+        const opt = document.createElement('option');
+        opt.value = a;
+        opt.textContent = a;
+        filterEl.appendChild(opt);
+      });
+      if (curFilter && (curFilter === 'ALL' || accountsList.includes(curFilter))) filterEl.value = curFilter;
+
+      renderExpenseCategoryBadges();
+      renderAccountBadges();
+    }
+
+    function handleExpenseSubmission(e) {
+      e.preventDefault();
+      const editId = document.getElementById('editExpenseId').value;
+      const date = document.getElementById('expDate').value;
+      const amount = parseFloat(document.getElementById('expAmount').value) || 0;
+      const category = document.getElementById('expCategory').value;
+      const account = document.getElementById('expAccount').value;
+      const note = document.getElementById('expNote').value.trim();
+
+      if (editId) {
+        const idx = expenseRecords.findIndex(r => r.id == editId);
+        if (idx !== -1) {
+          expenseRecords[idx] = { ...expenseRecords[idx], date, amount, category, account, note };
+          notify("Updated transaction");
+        }
+      } else {
+        const newRecord = { id: Date.now(), date, amount, category, account, note };
+        expenseRecords.push(newRecord);
+        notify(`Logged ₹${amount} for ${category}`);
+      }
+
+      saveExpenseStorage();
+      resetExpenseFormToNew();
+      renderExpenseHistoryTable();
+      renderDailySummary();
+    }
+
+    function editExpense(id) {
+      const item = expenseRecords.find(r => r.id == id);
+      if (!item) return;
+
+      switchDailyScreen('dailyEntryScreen');
+      document.getElementById('editExpenseId').value = item.id;
+      document.getElementById('expDate').value = item.date;
+      document.getElementById('expAmount').value = item.amount;
+      document.getElementById('expCategory').value = item.category;
+      document.getElementById('expAccount').value = item.account;
+      document.getElementById('expNote').value = item.note || '';
+
+      document.getElementById('expenseFormTitle').innerText = `Edit: ₹${item.amount} (${item.category})`;
+      document.getElementById('btnExpenseSubmit').innerHTML = `<i class="fa-solid fa-check text-xs"></i> Update Transaction`;
+      document.getElementById('cancelExpenseEditBtn').classList.remove('hidden');
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function resetExpenseFormToNew() {
+      document.getElementById('editExpenseId').value = '';
+      document.getElementById('expenseForm').reset();
+      document.getElementById('expDate').value = new Date().toISOString().slice(0, 10);
+      document.getElementById('expenseFormTitle').innerText = 'Log Expense';
+      document.getElementById('btnExpenseSubmit').innerHTML = `<i class="fa-solid fa-plus text-xs"></i> Add Transaction`;
+      document.getElementById('cancelExpenseEditBtn').classList.add('hidden');
+    }
+
+    function deleteExpense(id) {
+      if (confirm("Delete this transaction entry?")) {
+        expenseRecords = expenseRecords.filter(r => r.id != id);
+        saveExpenseStorage();
+        renderExpenseHistoryTable();
+        renderDailySummary();
+        notify("Transaction deleted.");
+      }
+    }
+
+    function renderExpenseHistoryTable() {
+      const container = document.getElementById('expenseHistoryContainer');
+      container.innerHTML = '';
+
+      const search = document.getElementById('expenseLogSearch').value.toLowerCase();
+      const filterAcc = document.getElementById('expenseAccountFilter').value;
+
+      let filtered = expenseRecords.filter(r => {
+        const matchesAcc = (filterAcc === 'ALL' || r.account === filterAcc);
+        const matchesSearch = !search || 
+          r.category.toLowerCase().includes(search) || 
+          r.account.toLowerCase().includes(search) || 
+          (r.note && r.note.toLowerCase().includes(search)) ||
+          r.date.includes(search);
+        return matchesAcc && matchesSearch;
+      });
+
+      filtered.sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id);
+      document.getElementById('expenseLogCounter').innerText = `${filtered.length} transactions`;
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="text-xs text-slate-500 text-center py-4">No transactions found.</div>';
+        return;
+      }
+
+      filtered.forEach(row => {
+        const itemEl = document.createElement('div');
+        itemEl.className = "p-3 rounded-2xl bg-slate-900/80 border border-slate-800 flex justify-between items-center text-xs";
+        itemEl.innerHTML = `
+          <div>
+            <div class="flex items-center gap-1.5">
+              <span class="font-bold text-white">${row.category}</span>
+              <span class="text-[10px] text-slate-400">(${row.date})</span>
+            </div>
+            <span class="text-[10px] text-slate-400"><b class="text-cyan-300">${row.account}</b> • ${row.note || 'No note'}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="font-extrabold text-emerald-400 mr-1">${formatINR(row.amount)}</span>
+            <button type="button" onclick="editExpense(${row.id})" class="text-indigo-400 hover:text-indigo-300 p-1.5 cursor-pointer" title="Edit">
+              <i class="fa-solid fa-pen-to-square"></i>
+            </button>
+            <button type="button" onclick="deleteExpense(${row.id})" class="text-slate-500 hover:text-rose-400 p-1.5 cursor-pointer" title="Delete">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
+        `;
+        container.appendChild(itemEl);
+      });
+    }
+
+    function renderDailySummary() {
+      const now = new Date();
+      const currentYearMonth = now.toISOString().slice(0, 7);
+      const todayStr = now.toISOString().slice(0, 10);
+
+      // Monthly Total
+      const monthItems = expenseRecords.filter(r => r.date.startsWith(currentYearMonth));
+      const monthTotal = monthItems.reduce((sum, item) => sum + item.amount, 0);
+
+      // Weekly Total (Last 7 Days)
+      const sevenDaysAgo = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)).toISOString().slice(0, 10);
+      const weekItems = expenseRecords.filter(r => r.date >= sevenDaysAgo && r.date <= todayStr);
+      const weekTotal = weekItems.reduce((sum, item) => sum + item.amount, 0);
+
+      // Today's Total
+      const todayItems = expenseRecords.filter(r => r.date === todayStr);
+      const todayTotal = todayItems.reduce((sum, item) => sum + item.amount, 0);
+
+      // Daily Average
+      const dayOfMonth = now.getDate();
+      const dailyAvg = dayOfMonth > 0 ? (monthTotal / dayOfMonth) : 0;
+
+      document.getElementById('dailyMonthBadge').innerText = now.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
+      document.getElementById('kpiDailyMonthTotal').innerText = formatINR(monthTotal);
+      document.getElementById('kpiDailyWeeklyTotal').innerText = formatINR(weekTotal);
+      document.getElementById('kpiDailyWeeklyCount').innerText = `${weekItems.length} payments`;
+      document.getElementById('kpiDailyTodayTotal').innerText = formatINR(todayTotal);
+      document.getElementById('kpiDailyAvgDay').innerText = `Avg ${formatINR(dailyAvg)} / day`;
+
+      // 1. Trend Chart (Last 14 days)
+      const last14Days = [];
+      const dailyTotals = [];
+      for (let i = 13; i >= 0; i--) {
+        const d = new Date(now.getTime() - (i * 24 * 60 * 60 * 1000)).toISOString().slice(0, 10);
+        last14Days.push(d.slice(5)); // MM-DD
+        const daySum = expenseRecords.filter(r => r.date === d).reduce((s, it) => s + it.amount, 0);
+        dailyTotals.push(daySum);
+      }
+
+      if (dailyTrendChart) dailyTrendChart.destroy();
+      const ctxTrend = document.getElementById('dailyTrendChart').getContext('2d');
+      dailyTrendChart = new Chart(ctxTrend, {
+        type: 'bar',
+        data: {
+          labels: last14Days,
+          datasets: [{
+            data: dailyTotals,
+            backgroundColor: '#10b981',
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 9 } } },
+            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 9 }, callback: v => '₹' + v } }
+          }
+        }
+      });
+
+      // 2. Account Breakdown Chart
+      const accMap = {};
+      monthItems.forEach(i => accMap[i.account] = (accMap[i.account] || 0) + i.amount);
+
+      if (dailyAccountChart) dailyAccountChart.destroy();
+      const ctxAcc = document.getElementById('dailyAccountChart').getContext('2d');
+      dailyAccountChart = new Chart(ctxAcc, {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(accMap).length ? Object.keys(accMap) : ['No Spends'],
+          datasets: [{
+            data: Object.values(accMap).length ? Object.values(accMap) : [1],
+            backgroundColor: ['#06b6d4', '#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'],
+            borderWidth: 2, borderColor: '#090d16'
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, color: '#94a3b8', font: { size: 10 } } } }
+        }
+      });
+
+      // 3. Category Breakdown List
+      const catMap = {};
+      monthItems.forEach(i => catMap[i.category] = (catMap[i.category] || 0) + i.amount);
+      const catContainer = document.getElementById('dailyCategoryBreakdownContainer');
+      catContainer.innerHTML = '';
+
+      const sortedCats = Object.entries(catMap).sort((a, b) => b[1] - a[1]);
+      if (sortedCats.length === 0) {
+        catContainer.innerHTML = '<div class="text-xs text-slate-500 text-center py-2">No expenses logged for this month yet.</div>';
+      } else {
+        sortedCats.forEach(([cat, val]) => {
+          const pct = monthTotal > 0 ? ((val / monthTotal) * 100).toFixed(1) : 0;
+          const rowEl = document.createElement('div');
+          rowEl.className = "flex justify-between items-center text-xs p-2 bg-slate-900/60 rounded-xl border border-slate-800";
+          rowEl.innerHTML = `
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <span class="font-bold text-white">${cat}</span>
+              <span class="text-[10px] text-slate-400">(${pct}%)</span>
+            </div>
+            <span class="font-extrabold text-slate-100">${formatINR(val)}</span>
+          `;
+          catContainer.appendChild(rowEl);
+        });
+      }
+    }
+
+    // Modal Helpers for Expense Categories & Accounts
+    function openExpenseCategoryModal() {
+      document.getElementById('expenseCatModal').classList.remove('hidden');
+      document.getElementById('newExpenseCatInput').focus();
+    }
+    function closeExpenseCategoryModal() {
+      document.getElementById('expenseCatModal').classList.add('hidden');
+    }
+    function handleNewExpenseCategory(e) {
+      e.preventDefault();
+      const input = document.getElementById('newExpenseCatInput');
+      const val = input.value.trim();
+      if (!val) return;
+      if (expenseCategories.some(c => c.toLowerCase() === val.toLowerCase())) {
+        notify("Category already exists!");
+        return;
+      }
+      expenseCategories.push(val);
+      saveExpenseStorage();
+      populateExpenseElements();
+      renderDailySummary();
+      input.value = '';
+      notify(`Added category "${val}"`);
+    }
+    function deleteExpenseCategory(name) {
+      if (confirm(`Remove expense category "${name}"?`)) {
+        expenseCategories = expenseCategories.filter(c => c !== name);
+        saveExpenseStorage();
+        populateExpenseElements();
+        renderDailySummary();
+        notify(`Removed "${name}"`);
+      }
+    }
+    function renderExpenseCategoryBadges() {
+      const container = document.getElementById('expenseCategoryBadgeContainer');
+      container.innerHTML = '';
+      document.getElementById('expCatModalCount').innerText = expenseCategories.length;
+
+      expenseCategories.forEach(cat => {
+        const isCore = DEFAULT_EXPENSE_CATEGORIES.includes(cat);
+        const badge = document.createElement('div');
+        badge.className = "flex items-center gap-1.5 bg-slate-900 border border-slate-700 px-2.5 py-1 rounded-xl text-xs text-slate-300 font-medium";
+        badge.innerHTML = `
+          <span>${cat}</span>
+          ${!isCore ? `<button type="button" onclick="deleteExpenseCategory('${cat}')" class="text-rose-400 hover:text-rose-300 ml-1 cursor-pointer"><i class="fa-solid fa-xmark text-[10px]"></i></button>` : ''}
+        `;
+        container.appendChild(badge);
+      });
+    }
+
+    function openAccountModal() {
+      document.getElementById('accountModal').classList.remove('hidden');
+      document.getElementById('newAccountInput').focus();
+    }
+    function closeAccountModal() {
+      document.getElementById('accountModal').classList.add('hidden');
+    }
+    function handleNewAccount(e) {
+      e.preventDefault();
+      const input = document.getElementById('newAccountInput');
+      const val = input.value.trim();
+      if (!val) return;
+      if (accountsList.some(a => a.toLowerCase() === val.toLowerCase())) {
+        notify("Account already exists!");
+        return;
+      }
+      accountsList.push(val);
+      saveExpenseStorage();
+      populateExpenseElements();
+      renderDailySummary();
+      input.value = '';
+      notify(`Added account "${val}"`);
+    }
+    function deleteAccount(name) {
+      if (confirm(`Remove account "${name}"?`)) {
+        accountsList = accountsList.filter(a => a !== name);
+        saveExpenseStorage();
+        populateExpenseElements();
+        renderDailySummary();
+        notify(`Removed "${name}"`);
+      }
+    }
+    function renderAccountBadges() {
+      const container = document.getElementById('accountBadgeContainer');
+      container.innerHTML = '';
+      document.getElementById('accModalCount').innerText = accountsList.length;
+
+      accountsList.forEach(acc => {
+        const isCore = DEFAULT_ACCOUNTS.includes(acc);
+        const badge = document.createElement('div');
+        badge.className = "flex items-center gap-1.5 bg-slate-900 border border-slate-700 px-2.5 py-1 rounded-xl text-xs text-slate-300 font-medium";
+        badge.innerHTML = `
+          <span>${acc}</span>
+          ${!isCore ? `<button type="button" onclick="deleteAccount('${acc}')" class="text-rose-400 hover:text-rose-300 ml-1 cursor-pointer"><i class="fa-solid fa-xmark text-[10px]"></i></button>` : ''}
+        `;
+        container.appendChild(badge);
+      });
+    }
+
+    // -------------------------------------------------------------
+    // PART 1 CONTROLLER: DEBT & EMI (PRESERVED)
+    // -------------------------------------------------------------
     function computeMonthsFromAmortization() {
       const P = parseFloat(document.getElementById('fBalance').value);
       const E = parseFloat(document.getElementById('fEmi').value);
@@ -646,14 +1372,13 @@
       notify(`Calculated Balance: ${formatINR(P)}`);
     }
 
-    function saveToStorage() {
+    function saveDebtStorage() {
       localStorage.setItem('debt_categories', JSON.stringify(categories));
       localStorage.setItem('debt_records', JSON.stringify(debtRecords));
     }
 
-    // ================= NAVIGATION =================
-    function switchScreen(screenId) {
-      document.querySelectorAll('.app-screen').forEach(el => el.classList.add('hidden'));
+    function switchDebtScreen(screenId) {
+      document.querySelectorAll('.debt-screen').forEach(el => el.classList.add('hidden'));
       const target = document.getElementById(screenId);
       if (target) target.classList.remove('hidden');
 
@@ -671,11 +1396,10 @@
 
     function openQuickNewEntry() {
       resetFormToNew();
-      switchScreen('entryScreen');
+      switchDebtScreen('entryScreen');
       document.getElementById('fMetric').focus();
     }
 
-    // ================= CATEGORY MANAGEMENT =================
     function populateCategoryElements() {
       const fCat = document.getElementById('fCategory');
       const cur = fCat.value;
@@ -751,7 +1475,7 @@
       document.getElementById('catModalCount').innerText = categories.length;
 
       categories.forEach(cat => {
-        const isCore = DEFAULT_CATEGORIES.includes(cat);
+        const isCore = DEFAULT_DEBT_CATEGORIES.includes(cat);
         const badge = document.createElement('div');
         badge.className = "flex items-center gap-1.5 bg-slate-900 border border-slate-700 px-2.5 py-1 rounded-xl text-xs text-slate-300 font-medium";
         badge.innerHTML = `
@@ -769,7 +1493,7 @@
     function closeCategoryModal() {
       document.getElementById('categoryModal').classList.add('hidden');
     }
-    function handleNewCategory(e) {
+    function handleNewDebtCategory(e) {
       e.preventDefault();
       const input = document.getElementById('newCatInput');
       const val = input.value.trim();
@@ -779,7 +1503,7 @@
         return;
       }
       categories.push(val);
-      saveToStorage();
+      saveDebtStorage();
       populateCategoryElements();
       input.value = '';
       notify(`Added "${val}"`);
@@ -788,14 +1512,13 @@
       if (confirm(`Remove custom category "${name}"?`)) {
         categories = categories.filter(c => c !== name);
         if (activeDashboardCategory === name) activeDashboardCategory = 'ALL';
-        saveToStorage();
+        saveDebtStorage();
         populateCategoryElements();
         renderDashboard();
         notify(`Removed "${name}"`);
       }
     }
 
-    // ================= DATA LOGIC & DASHBOARD =================
     function getLatestDataset(cat = 'ALL') {
       const source = (cat === 'ALL') ? debtRecords : debtRecords.filter(d => d.category === cat);
       if (source.length === 0) return { latestMonth: 'N/A', latestItems: [], prevItems: [] };
@@ -902,7 +1625,6 @@
       });
     }
 
-    // ================= ENTRY FORM, EDIT & DUPLICATE =================
     function handleFormSubmission(e) {
       e.preventDefault();
       const editId = document.getElementById('editEntryId').value;
@@ -940,7 +1662,7 @@
         notify(`Added "${metric}"`);
       }
 
-      saveToStorage();
+      saveDebtStorage();
       resetFormToNew();
       renderHistoryTable();
       renderDashboard();
@@ -950,7 +1672,7 @@
       const item = debtRecords.find(r => r.id == id);
       if (!item) return;
 
-      switchScreen('entryScreen');
+      switchDebtScreen('entryScreen');
       document.getElementById('editEntryId').value = item.id;
       document.getElementById('fMonth').value = item.month;
       document.getElementById('fMetric').value = item.metric;
@@ -973,7 +1695,7 @@
       const item = debtRecords.find(r => r.id == id);
       if (!item) return;
 
-      switchScreen('entryScreen');
+      switchDebtScreen('entryScreen');
       document.getElementById('editEntryId').value = '';
       document.getElementById('fMonth').value = item.month;
       document.getElementById('fMetric').value = `${item.metric} (Copy)`;
@@ -1001,14 +1723,14 @@
       document.getElementById('formTitle').innerText = 'Log Commitment';
       document.getElementById('formSubmitBtn').innerHTML = `<i class="fa-solid fa-floppy-disk text-xs"></i> Save Commitment`;
       document.getElementById('cancelEditBtn').classList.add('hidden');
-      document.getElementById('amortizationFeedback').innerText = `Uses exact reducing interest: n = -ln(1 - P·r/E) / ln(1+r)`;
+      document.getElementById('amortizationFeedback').innerText = `Formula: n = -ln(1 - P·r/E) / ln(1+r)`;
       document.getElementById('amortizationFeedback').className = "text-[10px] text-slate-500 px-1 italic";
     }
 
     function deleteEntry(id) {
       if (confirm("Are you sure you want to delete this entry?")) {
         debtRecords = debtRecords.filter(r => r.id != id);
-        saveToStorage();
+        saveDebtStorage();
         renderHistoryTable();
         renderDashboard();
         notify("Entry deleted.");
@@ -1065,7 +1787,6 @@
       });
     }
 
-    // ================= ANALYTICS CHARTS =================
     function renderCharts() {
       const cat = document.getElementById('trendsCategorySelect').value;
       const source = (cat === 'ALL') ? debtRecords : debtRecords.filter(d => d.category === cat);
@@ -1145,7 +1866,6 @@
       });
     }
 
-    // ================= PREDICTIONS & FORECASTS =================
     function simulateTrajectory(monthsCount) {
       const { latestMonth, latestItems } = getLatestDataset('ALL');
       if (latestItems.length === 0) return [];
@@ -1271,7 +1991,7 @@
     }
 
     function renderPayoffList() {
-      const { latestItems, prevItems } = getLatestDataset('ALL');
+      const { latestItems } = getLatestDataset('ALL');
       const container = document.getElementById('plannerListContainer');
       container.innerHTML = '';
 
@@ -1323,7 +2043,7 @@
       });
     }
 
-    // ================= EXPORT & RESET =================
+    // Export & Reset
     function exportToCSV() {
       if (debtRecords.length === 0) return notify("No data to export!");
       let csv = 'Month,Metric,Category,OutstandingBalance,MonthlyEMI,InterestRate,RemainingMonths,Priority,Notes\r\n';
@@ -1342,33 +2062,56 @@
     }
 
     function exportJSONBackup() {
-      const backup = { categories, debtRecords, exportedAt: new Date().toISOString() };
+      const backup = {
+        debtCategories: categories,
+        debtRecords,
+        expenseCategories,
+        accountsList,
+        expenseRecords,
+        exportedAt: new Date().toISOString()
+      };
       const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `Debt_Backup_${new Date().toISOString().slice(0,10)}.json`;
+      a.download = `Finance_Backup_${new Date().toISOString().slice(0,10)}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      notify("JSON backup saved!");
+      notify("All data backed up successfully!");
     }
 
     function resetDataPrompt() {
       if (confirm("Reset everything back to demo sample records?")) {
-        debtRecords = JSON.parse(JSON.stringify(DEFAULT_DATA));
-        categories = [...DEFAULT_CATEGORIES];
-        saveToStorage();
+        debtRecords = JSON.parse(JSON.stringify(DEFAULT_DEBT_DATA));
+        categories = [...DEFAULT_DEBT_CATEGORIES];
+        expenseRecords = JSON.parse(JSON.stringify(DEFAULT_EXPENSE_DATA));
+        expenseCategories = [...DEFAULT_EXPENSE_CATEGORIES];
+        accountsList = [...DEFAULT_ACCOUNTS];
+
+        saveDebtStorage();
+        saveExpenseStorage();
         populateCategoryElements();
+        populateExpenseElements();
         renderDashboard();
+        renderDailySummary();
         notify("Reset to demo data completed.");
       }
     }
 
+    // -------------------------------------------------------------
+    // INITIALIZATION
+    // -------------------------------------------------------------
     window.addEventListener('DOMContentLoaded', () => {
       document.getElementById('fMonth').value = new Date().toISOString().slice(0, 7);
+      document.getElementById('expDate').value = new Date().toISOString().slice(0, 10);
+
       populateCategoryElements();
+      populateExpenseElements();
+
+      renderBottomNav('debt');
       renderDashboard();
+      renderDailySummary();
     });
   </script>
 </body>
