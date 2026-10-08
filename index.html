@@ -76,7 +76,7 @@
 </head>
 <body class="bg-app-bg text-slate-100 min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white pb-28">
 
-  <!-- ================= TOP APP BAR WITH DUAL-MODE TOGGLE ================= -->
+  <!-- ================= TOP APP BAR WITH TRI-MODE TOGGLE ================= -->
   <header class="sticky top-0 z-30 bg-app-bg/90 backdrop-blur-md border-b border-app-border/80 px-4 py-3 safe-top">
     <div class="max-w-md mx-auto space-y-2.5">
       <div class="flex items-center justify-between">
@@ -103,13 +103,16 @@
         </div>
       </div>
 
-      <!-- MASTER DUAL-MODE SWITCHER (DEBT VS DAILY EXPENSES) -->
-      <div class="bg-slate-900/90 p-1 rounded-2xl flex border border-slate-800 shadow-inner">
-        <button type="button" id="btnModeDebt" onclick="toggleAppMode('debt')" class="flex-1 py-1.5 text-xs font-bold rounded-xl transition text-white bg-indigo-600 shadow cursor-pointer flex items-center justify-center gap-1.5">
-          <i class="fa-solid fa-receipt"></i> Debt & EMI
+      <!-- MASTER TRI-MODE SWITCHER (DEBT VS PLANNER VS DAILY SPENDS) -->
+      <div class="bg-slate-900/90 p-1 rounded-2xl flex border border-slate-800 shadow-inner gap-1">
+        <button type="button" id="btnModeDebt" onclick="toggleAppMode('debt')" class="flex-1 py-1.5 text-[11px] font-bold rounded-xl transition text-white bg-indigo-600 shadow cursor-pointer flex items-center justify-center gap-1">
+          <i class="fa-solid fa-receipt"></i> Debt
         </button>
-        <button type="button" id="btnModeDaily" onclick="toggleAppMode('daily')" class="flex-1 py-1.5 text-xs font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer flex items-center justify-center gap-1.5">
-          <i class="fa-solid fa-wallet"></i> Daily Spends
+        <button type="button" id="btnModePlanner" onclick="toggleAppMode('planner')" class="flex-1 py-1.5 text-[11px] font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer flex items-center justify-center gap-1">
+          <i class="fa-solid fa-bullseye"></i> Planner
+        </button>
+        <button type="button" id="btnModeDaily" onclick="toggleAppMode('daily')" class="flex-1 py-1.5 text-[11px] font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer flex items-center justify-center gap-1">
+          <i class="fa-solid fa-wallet"></i> Spends
         </button>
       </div>
     </div>
@@ -478,7 +481,96 @@
     </div>
 
     <!-- ************************************************************* -->
-    <!-- PART 2: DAILY TRANSACTIONS & MULTI-ACCOUNT CASHFLOW MODULE     -->
+    <!-- PART 2: MONTHLY BUDGET PLANNER MODULE (NEW COMPONENT)         -->
+    <!-- ************************************************************* -->
+    <div id="plannerModuleContainer" class="hidden space-y-4">
+      
+      <!-- PLANNER CONTROLS & MONTH SELECTOR -->
+      <div class="flex items-center justify-between px-1">
+        <div>
+          <h2 class="text-base font-bold text-white">Monthly Budget Planner</h2>
+          <p class="text-xs text-slate-400">Plan budget & track actuals in real-time</p>
+        </div>
+        <div>
+          <input type="month" id="plannerMonthSelector" onchange="renderBudgetPlanner()" class="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1 text-xs text-white outline-none">
+        </div>
+      </div>
+
+      <!-- BUDGET VS ACTUALS OVERVIEW SCORECARD -->
+      <div class="glass-card rounded-3xl p-5 shadow-xl relative overflow-hidden border border-indigo-500/30">
+        <div class="flex justify-between items-center mb-1">
+          <span class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Total Planned Budget</span>
+          <span id="plannerOverviewMonthBadge" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/25">Oct 2026</span>
+        </div>
+
+        <div class="flex items-baseline justify-between mt-1">
+          <span id="kpiTotalPlannedBudget" class="text-3xl font-extrabold text-white tracking-tight">₹0</span>
+          <span id="kpiBudgetOverallBurnBadge" class="text-xs font-bold px-2 py-0.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700">0% Used</span>
+        </div>
+
+        <!-- Overall Progress Bar -->
+        <div class="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden mt-3 border border-slate-800">
+          <div id="plannerTotalProgressBar" class="bg-indigo-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+        </div>
+
+        <!-- Metric Splits: Planned vs Spent vs Remaining -->
+        <div class="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-slate-700/60">
+          <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 uppercase font-semibold block">Actual Spent So Far</span>
+            <span id="kpiPlannerTotalActualSpent" class="text-lg font-bold text-rose-400 mt-0.5 block">₹0</span>
+            <span class="text-[10px] text-slate-500">Auto-mapped from spends</span>
+          </div>
+          <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 uppercase font-semibold block">Remaining Unspent Buffer</span>
+            <span id="kpiPlannerTotalRemainingBuffer" class="text-lg font-bold text-emerald-400 mt-0.5 block">₹0</span>
+            <span id="kpiPlannerSurplusStatus" class="text-[10px] text-slate-500">In budget</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ADD / EDIT BUDGET CATEGORY FORM -->
+      <div class="glass-card rounded-3xl p-4 border border-slate-800 space-y-3">
+        <div class="flex justify-between items-center">
+          <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-pen-ruler text-indigo-400"></i> Set Category Budget Target
+          </h3>
+          <button type="button" onclick="seedDefaultPlannedBudget()" class="text-[11px] text-indigo-400 hover:underline">
+            Load Quick Template
+          </button>
+        </div>
+
+        <form id="budgetAddForm" onsubmit="handleSaveBudgetItem(event)" class="grid grid-cols-3 gap-2">
+          <div class="col-span-2">
+            <input type="text" id="budgetCatNameInput" list="budgetCatDatalist" placeholder="Category (e.g. Grocery, EMI, Fuel)" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+            <datalist id="budgetCatDatalist"></datalist>
+          </div>
+          <div>
+            <input type="number" id="budgetCatAmountInput" min="0" step="any" placeholder="Target ₹" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 font-bold">
+          </div>
+          <div class="col-span-3">
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 rounded-xl text-xs transition active:scale-98 cursor-pointer flex items-center justify-center gap-1">
+              <i class="fa-solid fa-plus text-[10px]"></i> Save Budget Allocation
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- BUDGET CATEGORIES BREAKDOWN & PROGRESS LIST -->
+      <div class="space-y-2.5">
+        <div class="flex justify-between items-center px-1">
+          <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Category Targets & Progress</h3>
+          <span id="plannerAllocationsCount" class="text-[11px] text-slate-500 font-semibold">0 Categories</span>
+        </div>
+
+        <div id="plannerCategoryCardsContainer" class="space-y-2.5">
+          <!-- Dynamically populated via JS -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ************************************************************* -->
+    <!-- PART 3: DAILY TRANSACTIONS & MULTI-ACCOUNT CASHFLOW MODULE     -->
     <!-- ************************************************************* -->
     <div id="dailyModuleContainer" class="hidden space-y-4">
       
@@ -517,7 +609,7 @@
           </div>
         </div>
 
-        <!-- NEW: TODAY, WEEK, MONTH SPENT SUMMARY CARDS -->
+        <!-- TODAY, WEEK, MONTH SPENT SUMMARY CARDS -->
         <div class="space-y-1.5">
           <div class="flex justify-between items-center px-1">
             <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
@@ -594,7 +686,7 @@
           <form id="expenseForm" onsubmit="handleExpenseSubmission(event)" class="space-y-3.5">
             <input type="hidden" id="editExpenseId" value="">
 
-            <!-- TRANSACTION TYPE SELECTOR: EXPENSE | INCOME | TRANSFER -->
+            <!-- TRANSACTION TYPE SELECTOR -->
             <div>
               <label class="block text-[11px] font-semibold text-slate-400 mb-1.5 uppercase">Transaction Type *</label>
               <div class="bg-slate-900 p-1 rounded-2xl flex border border-slate-800 gap-1">
@@ -621,7 +713,7 @@
               </div>
             </div>
 
-            <!-- DYNAMIC ROW: FOR EXPENSE & INCOME (CATEGORY + ACCOUNT) -->
+            <!-- DYNAMIC ROW: FOR EXPENSE & INCOME -->
             <div id="rowCategoryAndAccount" class="grid grid-cols-2 gap-3">
               <div>
                 <div class="flex justify-between items-center mb-1">
@@ -640,7 +732,7 @@
               </div>
             </div>
 
-            <!-- DYNAMIC ROW: FOR TRANSFERS (FROM ACCOUNT -> TO ACCOUNT) -->
+            <!-- DYNAMIC ROW: FOR TRANSFERS -->
             <div id="rowTransferAccounts" class="hidden grid grid-cols-2 gap-3">
               <div>
                 <label class="block text-[11px] font-semibold text-rose-400 mb-1">From Account (Sender) *</label>
@@ -691,7 +783,7 @@
         </div>
       </section>
 
-      <!-- DAILY VIEW 3: DEDICATED TRENDS & GRAPHS SHEET (NEW FEATURE) -->
+      <!-- DAILY VIEW 3: DEDICATED TRENDS & GRAPHS SHEET -->
       <section id="dailyTrendsScreen" class="daily-screen hidden space-y-4">
         <div class="flex items-center justify-between px-1">
           <div>
@@ -876,7 +968,7 @@
 
     const DEFAULT_EXPENSE_CATEGORIES = [
       "Groceries", "Food & Dining", "Fuel & Transport", "Utilities & Bills",
-      "Shopping", "Health & Medical", "Entertainment", "Education", "Salary", "Bonus", "Allowance", "Investment Inflow", "Miscellaneous"
+      "Shopping", "Health & Medical", "Entertainment", "Apparel & Styling", "Education", "EMI", "Salary", "Bonus", "Allowance", "Miscellaneous"
     ];
 
     const DEFAULT_ACCOUNTS = [
@@ -910,10 +1002,21 @@
       { id: 105, type: 'Expense', date: '2026-10-05', category: 'Food & Dining', amount: 1450, account: 'UPI / GPay', toAccount: '', note: 'Family dinner' }
     ];
 
+    // Seed Monthly Budget Template (Category vs Target limit)
+    const DEFAULT_BUDGET_TEMPLATES = [
+      { category: "EMI", plannedAmount: 50000 },
+      { category: "Groceries", plannedAmount: 10000 },
+      { category: "Utilities & Bills", plannedAmount: 1000 },
+      { category: "Health & Medical", plannedAmount: 2000 },
+      { category: "Entertainment", plannedAmount: 2000 },
+      { category: "Apparel & Styling", plannedAmount: 2000 },
+      { category: "Fuel & Transport", plannedAmount: 5000 }
+    ];
+
     // -------------------------------------------------------------
     // STATE STORAGE
     // -------------------------------------------------------------
-    let activeModule = 'debt'; // 'debt' or 'daily'
+    let activeModule = 'debt'; // 'debt' | 'planner' | 'daily'
     let currentTransactionType = 'Expense';
 
     // Debt State
@@ -928,6 +1031,9 @@
       accountsList = accountsList.map(name => ({ name, initialBalance: 0 }));
     }
     let expenseRecords = JSON.parse(localStorage.getItem('expense_records')) || DEFAULT_EXPENSE_DATA;
+
+    // Monthly Budget Planner State: Map of "YYYY-MM" -> array of { category, plannedAmount }
+    let monthlyBudgets = JSON.parse(localStorage.getItem('monthly_budgets_v1')) || {};
 
     // Charts references
     let debtChart = null, emiChart = null, doughnutChart = null;
@@ -951,38 +1057,54 @@
     }
 
     // -------------------------------------------------------------
-    // DUAL-MODE CONTROLLER
+    // TRI-MODE CONTROLLER (DEBT VS PLANNER VS DAILY SPENDS)
     // -------------------------------------------------------------
     function toggleAppMode(mode) {
       activeModule = mode;
       const btnDebt = document.getElementById('btnModeDebt');
+      const btnPlanner = document.getElementById('btnModePlanner');
       const btnDaily = document.getElementById('btnModeDaily');
+
       const debtContainer = document.getElementById('debtModuleContainer');
+      const plannerContainer = document.getElementById('plannerModuleContainer');
       const dailyContainer = document.getElementById('dailyModuleContainer');
 
-      if (mode === 'daily') {
-        btnDaily.className = "flex-1 py-1.5 text-xs font-bold rounded-xl transition text-white bg-emerald-600 shadow cursor-pointer flex items-center justify-center gap-1.5";
-        btnDebt.className = "flex-1 py-1.5 text-xs font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer flex items-center justify-center gap-1.5";
-        
+      // Reset tab states
+      [btnDebt, btnPlanner, btnDaily].forEach(btn => {
+        btn.className = "flex-1 py-1.5 text-[11px] font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer flex items-center justify-center gap-1";
+      });
+
+      debtContainer.classList.add('hidden');
+      plannerContainer.classList.add('hidden');
+      dailyContainer.classList.add('hidden');
+
+      if (mode === 'planner') {
+        btnPlanner.className = "flex-1 py-1.5 text-[11px] font-bold rounded-xl transition text-white bg-indigo-600 shadow cursor-pointer flex items-center justify-center gap-1";
+        document.getElementById('modeIcon').className = "w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center text-white font-bold text-sm";
+        document.getElementById('modeIcon').innerHTML = '<i class="fa-solid fa-bullseye"></i>';
+        document.getElementById('appTitleText').innerHTML = 'Monthly Budget Planner <span class="text-[10px] font-semibold bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded-full border border-indigo-500/30">Targets</span>';
+        document.getElementById('appSubtitleText').innerText = 'Plan targets & monitor actual spend balance';
+
+        plannerContainer.classList.remove('hidden');
+        renderBottomNav('planner');
+        renderBudgetPlanner();
+      } else if (mode === 'daily') {
+        btnDaily.className = "flex-1 py-1.5 text-[11px] font-bold rounded-xl transition text-white bg-emerald-600 shadow cursor-pointer flex items-center justify-center gap-1";
         document.getElementById('modeIcon').className = "w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-cyan-400 flex items-center justify-center text-white font-bold text-sm";
         document.getElementById('modeIcon').innerHTML = '<i class="fa-solid fa-wallet"></i>';
         document.getElementById('appTitleText').innerHTML = 'Daily Spends & Cashflow <span class="text-[10px] font-semibold bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded-full border border-emerald-500/30">Live Balances</span>';
         document.getElementById('appSubtitleText').innerText = 'Income, expenses, transfers & trends';
 
-        debtContainer.classList.add('hidden');
         dailyContainer.classList.remove('hidden');
         renderBottomNav('daily');
         switchDailyScreen('dailySummaryScreen');
       } else {
-        btnDebt.className = "flex-1 py-1.5 text-xs font-bold rounded-xl transition text-white bg-indigo-600 shadow cursor-pointer flex items-center justify-center gap-1.5";
-        btnDaily.className = "flex-1 py-1.5 text-xs font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer flex items-center justify-center gap-1.5";
-
+        btnDebt.className = "flex-1 py-1.5 text-[11px] font-bold rounded-xl transition text-white bg-indigo-600 shadow cursor-pointer flex items-center justify-center gap-1";
         document.getElementById('modeIcon').className = "w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center text-white font-bold text-sm";
         document.getElementById('modeIcon').innerHTML = '<i class="fa-solid fa-scale-balanced"></i>';
         document.getElementById('appTitleText').innerHTML = 'Debt & EMI Manager <span class="text-[10px] font-semibold bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded-full border border-indigo-500/30">Commitments</span>';
         document.getElementById('appSubtitleText').innerText = 'Long-term liabilities & predictions';
 
-        dailyContainer.classList.add('hidden');
         debtContainer.classList.remove('hidden');
         renderBottomNav('debt');
         switchDebtScreen('dashboardScreen');
@@ -991,7 +1113,26 @@
 
     function renderBottomNav(mode) {
       const container = document.getElementById('bottomNavRow');
-      if (mode === 'daily') {
+      if (mode === 'planner') {
+        container.innerHTML = `
+          <button type="button" onclick="renderBudgetPlanner()" class="nav-item flex flex-col items-center gap-1 text-slate-400 active-nav transition flex-1 py-1 cursor-pointer">
+            <i class="fa-solid fa-bullseye text-base"></i>
+            <span class="text-[10px] font-semibold">Targets</span>
+          </button>
+          <button type="button" onclick="seedDefaultPlannedBudget()" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
+            <i class="fa-solid fa-wand-magic-sparkles text-base"></i>
+            <span class="text-[10px] font-semibold">Template</span>
+          </button>
+          <button type="button" onclick="toggleAppMode('daily')" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
+            <i class="fa-solid fa-wallet text-base"></i>
+            <span class="text-[10px] font-semibold">Go to Spends</span>
+          </button>
+          <button type="button" onclick="openExpenseCategoryModal()" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
+            <i class="fa-solid fa-tags text-base"></i>
+            <span class="text-[10px] font-semibold">Categories</span>
+          </button>
+        `;
+      } else if (mode === 'daily') {
         container.innerHTML = `
           <button type="button" onclick="switchDailyScreen('dailySummaryScreen')" id="nav-dailySummaryScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 active-nav transition flex-1 py-1 cursor-pointer">
             <i class="fa-solid fa-chart-pie text-base"></i>
@@ -1045,21 +1186,225 @@
         resetExpenseFormToNew();
         switchDailyScreen('dailyEntryScreen');
         document.getElementById('expAmount').focus();
+      } else if (activeModule === 'planner') {
+        document.getElementById('budgetCatNameInput').focus();
       } else {
         openQuickNewEntry();
       }
     }
 
     function openContextModal() {
-      if (activeModule === 'daily') {
-        openAccountModal();
+      if (activeModule === 'daily' || activeModule === 'planner') {
+        openExpenseCategoryModal();
       } else {
         openCategoryModal();
       }
     }
 
     // -------------------------------------------------------------
-    // PART 2: DAILY EXPENSES, INCOME & TRANSFERS CONTROLLER
+    // PART 2: MONTHLY BUDGET PLANNER CONTROLLER (NEW)
+    // -------------------------------------------------------------
+    function getSelectedPlannerMonth() {
+      const el = document.getElementById('plannerMonthSelector');
+      return el.value || new Date().toISOString().slice(0, 7);
+    }
+
+    function saveMonthlyBudgetStorage() {
+      localStorage.setItem('monthly_budgets_v1', JSON.stringify(monthlyBudgets));
+    }
+
+    function seedDefaultPlannedBudget() {
+      const monthKey = getSelectedPlannerMonth();
+      monthlyBudgets[monthKey] = JSON.parse(JSON.stringify(DEFAULT_BUDGET_TEMPLATES));
+      saveMonthlyBudgetStorage();
+      renderBudgetPlanner();
+      notify(`Budget template loaded for ${monthKey}`);
+    }
+
+    function handleSaveBudgetItem(e) {
+      e.preventDefault();
+      const monthKey = getSelectedPlannerMonth();
+      const cat = document.getElementById('budgetCatNameInput').value.trim();
+      const amt = parseFloat(document.getElementById('budgetCatAmountInput').value) || 0;
+
+      if (!cat) return;
+
+      if (!monthlyBudgets[monthKey]) {
+        monthlyBudgets[monthKey] = [];
+      }
+
+      const existingIndex = monthlyBudgets[monthKey].findIndex(b => b.category.toLowerCase() === cat.toLowerCase());
+      if (existingIndex !== -1) {
+        monthlyBudgets[monthKey][existingIndex].plannedAmount = amt;
+        notify(`Updated ${cat} budget to ${formatINR(amt)}`);
+      } else {
+        monthlyBudgets[monthKey].push({ category: cat, plannedAmount: amt });
+        notify(`Added ${cat} budget (${formatINR(amt)})`);
+      }
+
+      // Add to global expenseCategories if not already there
+      if (!expenseCategories.some(c => c.toLowerCase() === cat.toLowerCase())) {
+        expenseCategories.push(cat);
+        saveExpenseStorage();
+        populateExpenseElements();
+      }
+
+      saveMonthlyBudgetStorage();
+      document.getElementById('budgetCatNameInput').value = '';
+      document.getElementById('budgetCatAmountInput').value = '';
+      renderBudgetPlanner();
+    }
+
+    function deleteBudgetItem(categoryName) {
+      const monthKey = getSelectedPlannerMonth();
+      if (confirm(`Remove planned target for "${categoryName}" in ${monthKey}?`)) {
+        if (monthlyBudgets[monthKey]) {
+          monthlyBudgets[monthKey] = monthlyBudgets[monthKey].filter(b => b.category !== categoryName);
+          saveMonthlyBudgetStorage();
+          renderBudgetPlanner();
+          notify(`Removed ${categoryName}`);
+        }
+      }
+    }
+
+    function renderBudgetPlanner() {
+      const monthKey = getSelectedPlannerMonth();
+      
+      // Auto-initialize current month with template if blank
+      if (!monthlyBudgets[monthKey] || monthlyBudgets[monthKey].length === 0) {
+        monthlyBudgets[monthKey] = JSON.parse(JSON.stringify(DEFAULT_BUDGET_TEMPLATES));
+        saveMonthlyBudgetStorage();
+      }
+
+      const plannedList = monthlyBudgets[monthKey] || [];
+      const totalPlanned = plannedList.reduce((sum, item) => sum + item.plannedAmount, 0);
+
+      // Map Actual Spends for this month from Daily Spends
+      // (Filtered strictly for Expense type matching category and month)
+      const monthExpenses = expenseRecords.filter(r => r.date.startsWith(monthKey) && r.type === 'Expense');
+      
+      let totalActualSpent = 0;
+      const plannedCategoryCards = document.getElementById('plannerCategoryCardsContainer');
+      plannedCategoryCards.innerHTML = '';
+
+      // Populate Datalist suggestions for the input
+      const datalist = document.getElementById('budgetCatDatalist');
+      datalist.innerHTML = '';
+      expenseCategories.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c;
+        datalist.appendChild(opt);
+      });
+
+      plannedList.forEach(item => {
+        // Calculate actual spent mapped to this category
+        // Special case: "EMI" category can aggregate all EMI records or expenses tagged as EMI
+        let catActual = 0;
+        if (item.category.toLowerCase() === 'emi') {
+          catActual = monthExpenses.filter(r => r.category.toLowerCase().includes('emi')).reduce((s, it) => s + it.amount, 0);
+          // If no daily transaction logged for EMI yet, check if Debt module has logged EMI for this month
+          if (catActual === 0) {
+            const debtLogs = debtRecords.filter(d => d.month === monthKey);
+            catActual = debtLogs.reduce((s, d) => s + (d.emi || 0), 0);
+          }
+        } else {
+          catActual = monthExpenses.filter(r => r.category.toLowerCase() === item.category.toLowerCase())
+                                   .reduce((s, it) => s + it.amount, 0);
+        }
+
+        totalActualSpent += catActual;
+        const remaining = item.plannedAmount - catActual;
+        const burnPct = item.plannedAmount > 0 ? ((catActual / item.plannedAmount) * 100) : 0;
+
+        let statusColor = "bg-emerald-500 text-emerald-400";
+        let statusBadge = `<span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">In Budget</span>`;
+        if (burnPct >= 100) {
+          statusColor = "bg-rose-500 text-rose-400";
+          statusBadge = `<span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-rose-500/15 text-rose-300 border border-rose-500/30">Over Budget!</span>`;
+        } else if (burnPct >= 75) {
+          statusColor = "bg-amber-500 text-amber-400";
+          statusBadge = `<span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">75%+ Used</span>`;
+        }
+
+        const card = document.createElement('div');
+        card.className = "glass-card rounded-2xl p-4 border border-slate-800 space-y-2.5";
+        card.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs font-bold text-white tracking-tight">${item.category}</span>
+                ${statusBadge}
+              </div>
+              <span class="text-[11px] text-slate-400 font-medium mt-0.5 block">
+                Target Budget: <b class="text-slate-200">${formatINR(item.plannedAmount)}</b>
+              </span>
+            </div>
+            <div class="text-right">
+              <span class="text-xs font-extrabold ${remaining >= 0 ? 'text-emerald-400' : 'text-rose-400'} block">
+                ${remaining >= 0 ? formatINR(remaining) + ' Left' : formatINR(Math.abs(remaining)) + ' Exceeded'}
+              </span>
+              <span class="text-[10px] text-slate-500 font-semibold block">Spent: ${formatINR(catActual)} (${burnPct.toFixed(0)}%)</span>
+            </div>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden border border-slate-800/80">
+            <div class="${statusColor.split(' ')[0]} h-full rounded-full transition-all duration-300" style="width: ${Math.min(100, burnPct)}%"></div>
+          </div>
+
+          <div class="flex justify-between items-center pt-1 text-[11px] text-slate-500">
+            <span>Burn Rate: <b class="${statusColor.split(' ')[1]} font-bold">${burnPct.toFixed(1)}%</b></span>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="editBudgetItemPrompt('${item.category}', ${item.plannedAmount})" class="text-indigo-400 hover:text-indigo-300 font-semibold cursor-pointer">
+                Edit
+              </button>
+              <button type="button" onclick="deleteBudgetItem('${item.category}')" class="text-rose-500 hover:text-rose-400 cursor-pointer">
+                <i class="fa-solid fa-trash-can text-xs"></i>
+              </button>
+            </div>
+          </div>
+        `;
+        plannedCategoryCards.appendChild(card);
+      });
+
+      // Update Overview Scorecards
+      const totalRemaining = totalPlanned - totalActualSpent;
+      const totalBurnPct = totalPlanned > 0 ? ((totalActualSpent / totalPlanned) * 100) : 0;
+
+      const dateObj = new Date(monthKey + '-01');
+      document.getElementById('plannerOverviewMonthBadge').innerText = dateObj.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
+      document.getElementById('kpiTotalPlannedBudget').innerText = formatINR(totalPlanned);
+      document.getElementById('kpiPlannerTotalActualSpent').innerText = formatINR(totalActualSpent);
+      document.getElementById('kpiPlannerTotalRemainingBuffer').innerText = (totalRemaining >= 0 ? '' : '-') + formatINR(Math.abs(totalRemaining));
+      document.getElementById('kpiPlannerTotalRemainingBuffer').className = `text-lg font-bold mt-0.5 block ${totalRemaining >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+
+      document.getElementById('kpiBudgetOverallBurnBadge').innerText = `${totalBurnPct.toFixed(0)}% Used`;
+      document.getElementById('plannerTotalProgressBar').style.width = `${Math.min(100, totalBurnPct)}%`;
+      document.getElementById('plannerTotalProgressBar').className = `${totalBurnPct > 100 ? 'bg-rose-500' : (totalBurnPct > 75 ? 'bg-amber-500' : 'bg-indigo-500')} h-full rounded-full transition-all duration-500`;
+
+      document.getElementById('kpiPlannerSurplusStatus').innerText = totalRemaining >= 0 ? `${formatINR(totalRemaining)} unspent surplus` : 'Over monthly budget limit';
+      document.getElementById('plannerAllocationsCount').innerText = `${plannedList.length} Categories`;
+    }
+
+    function editBudgetItemPrompt(cat, currentAmt) {
+      const newAmt = prompt(`Update monthly budget limit for ${cat}:`, currentAmt);
+      if (newAmt !== null) {
+        const parsed = parseFloat(newAmt);
+        if (!isNaN(parsed) && parsed >= 0) {
+          const monthKey = getSelectedPlannerMonth();
+          const target = monthlyBudgets[monthKey].find(b => b.category === cat);
+          if (target) {
+            target.plannedAmount = parsed;
+            saveMonthlyBudgetStorage();
+            renderBudgetPlanner();
+            notify(`Updated ${cat} budget`);
+          }
+        }
+      }
+    }
+
+    // -------------------------------------------------------------
+    // PART 3: DAILY SPENDS CONTROLLER (PRESERVED & SYNCED)
     // -------------------------------------------------------------
     function setTransactionType(type) {
       currentTransactionType = type;
@@ -1213,6 +1558,7 @@
       resetExpenseFormToNew();
       renderExpenseHistoryTable();
       renderDailySummary();
+      renderBudgetPlanner(); // Instantly sync planner!
     }
 
     function editExpense(id) {
@@ -1257,6 +1603,7 @@
         saveExpenseStorage();
         renderExpenseHistoryTable();
         renderDailySummary();
+        renderBudgetPlanner();
         notify("Transaction deleted.");
       }
     }
@@ -1335,7 +1682,6 @@
       });
     }
 
-    // ================= DAILY SUMMARY & SPEND SUMMARY (TODAY/WEEK/MONTH) =================
     function renderDailySummary() {
       const now = new Date();
       const currentYearMonth = now.toISOString().slice(0, 7);
@@ -1426,7 +1772,6 @@
       }
     }
 
-    // ================= DEDICATED DAILY TRENDS & GRAPHS ENGINE =================
     function renderDailyTrendsCharts() {
       const now = new Date();
 
@@ -1572,6 +1917,7 @@
       saveExpenseStorage();
       populateExpenseElements();
       renderDailySummary();
+      renderBudgetPlanner();
       input.value = '';
       notify(`Added "${val}"`);
     }
@@ -1581,6 +1927,7 @@
         saveExpenseStorage();
         populateExpenseElements();
         renderDailySummary();
+        renderBudgetPlanner();
         notify(`Removed "${name}"`);
       }
     }
@@ -2407,16 +2754,19 @@
 
     // Export & Reset
     function exportToCSV() {
-      if (debtRecords.length === 0) return notify("No data to export!");
-      let csv = 'Month,Metric,Category,OutstandingBalance,MonthlyEMI,InterestRate,RemainingMonths,Priority,Notes\r\n';
+      if (debtRecords.length === 0 && expenseRecords.length === 0) return notify("No data to export!");
+      let csv = 'Module,DateOrMonth,Title,Category,Amount,Account,Rate,TenorLeft,Notes\r\n';
       debtRecords.forEach(r => {
-        csv += `"${r.month}","${r.metric}","${r.category}",${r.balance},${r.emi},${r.rate || 0},${r.monthsLeft || ''},"${r.priority}","${r.notes || ''}"\r\n`;
+        csv += `"Debt","${r.month}","${r.metric}","${r.category}",${r.balance},"",${r.rate || 0},${r.monthsLeft || ''},"${r.notes || ''}"\r\n`;
+      });
+      expenseRecords.forEach(r => {
+        csv += `"Daily","${r.date}","${r.type}","${r.category}",${r.amount},"${r.account}","","","${r.note || ''}"\r\n`;
       });
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `Debt_Summary_${new Date().toISOString().slice(0,10)}.csv`;
+      a.download = `Finance_Portfolio_${new Date().toISOString().slice(0,10)}.csv`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -2430,6 +2780,7 @@
         expenseCategories,
         accountsList,
         expenseRecords,
+        monthlyBudgets,
         exportedAt: new Date().toISOString()
       };
       const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
@@ -2450,13 +2801,18 @@
         expenseRecords = JSON.parse(JSON.stringify(DEFAULT_EXPENSE_DATA));
         expenseCategories = [...DEFAULT_EXPENSE_CATEGORIES];
         accountsList = [...DEFAULT_ACCOUNTS];
+        monthlyBudgets = {};
 
         saveDebtStorage();
         saveExpenseStorage();
+        saveMonthlyBudgetStorage();
+
         populateCategoryElements();
         populateExpenseElements();
+
         renderDashboard();
         renderDailySummary();
+        renderBudgetPlanner();
         notify("Reset to demo data completed.");
       }
     }
@@ -2465,8 +2821,10 @@
     // INITIALIZATION
     // -------------------------------------------------------------
     window.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('fMonth').value = new Date().toISOString().slice(0, 7);
+      const currentMonth = new Date().toISOString().slice(0, 7);
+      document.getElementById('fMonth').value = currentMonth;
       document.getElementById('expDate').value = new Date().toISOString().slice(0, 10);
+      document.getElementById('plannerMonthSelector').value = currentMonth;
 
       populateCategoryElements();
       populateExpenseElements();
@@ -2474,6 +2832,7 @@
       renderBottomNav('debt');
       renderDashboard();
       renderDailySummary();
+      renderBudgetPlanner();
     });
   </script>
 </body>
