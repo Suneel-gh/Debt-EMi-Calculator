@@ -76,20 +76,20 @@
 </head>
 <body class="bg-app-bg text-slate-100 min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white pb-28">
 
-  <!-- ================= TOP APP BAR WITH TRI-MODE TOGGLE (PLANNER -> SPENDS -> DEBT) ================= -->
+  <!-- ================= TOP APP BAR WITH FLOW: SPENDS -> PLANNER -> DEBT ================= -->
   <header class="sticky top-0 z-30 bg-app-bg/90 backdrop-blur-md border-b border-app-border/80 px-4 py-3 safe-top">
     <div class="max-w-md mx-auto space-y-2.5">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2.5">
-          <div id="modeIcon" class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center text-white font-bold text-sm">
-            <i class="fa-solid fa-bullseye"></i>
+          <div id="modeIcon" class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-cyan-400 flex items-center justify-center text-white font-bold text-sm">
+            <i class="fa-solid fa-wallet"></i>
           </div>
           <div>
             <h1 id="appTitleText" class="text-sm font-bold tracking-tight text-white flex items-center gap-1.5">
-              Monthly Budget Planner
-              <span id="appBadgeText" class="text-[10px] font-semibold bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded-full border border-indigo-500/30">Targets</span>
+              Daily Spends & Cashflow
+              <span id="appBadgeText" class="text-[10px] font-semibold bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded-full border border-emerald-500/30">Live Balances</span>
             </h1>
-            <p id="appSubtitleText" class="text-[11px] text-slate-400">Plan budget & track actual spend balance</p>
+            <p id="appSubtitleText" class="text-[11px] text-slate-400">Income, expenses, transfers & trends</p>
           </div>
         </div>
         
@@ -103,16 +103,16 @@
         </div>
       </div>
 
-      <!-- MASTER TRI-MODE SWITCHER -->
+      <!-- MASTER TRI-MODE SWITCHER (ORDER: SPENDS -> PLANNER -> DEBT) -->
       <div class="bg-slate-900/90 p-1 rounded-2xl flex border border-slate-800 shadow-inner gap-1">
-        <button type="button" id="btnModePlanner" onclick="toggleAppMode('planner')" class="flex-1 py-1.5 text-[11px] font-bold rounded-xl transition text-white bg-indigo-600 shadow cursor-pointer flex items-center justify-center gap-1">
-          <i class="fa-solid fa-bullseye"></i> Planner
-        </button>
-        <button type="button" id="btnModeDaily" onclick="toggleAppMode('daily')" class="flex-1 py-1.5 text-[11px] font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer flex items-center justify-center gap-1">
+        <button type="button" id="btnModeDaily" onclick="toggleAppMode('daily')" class="flex-1 py-1.5 text-[11px] font-bold rounded-xl transition text-white bg-emerald-600 shadow cursor-pointer flex items-center justify-center gap-1">
           <i class="fa-solid fa-wallet"></i> Spends
         </button>
+        <button type="button" id="btnModePlanner" onclick="toggleAppMode('planner')" class="flex-1 py-1.5 text-[11px] font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer flex items-center justify-center gap-1">
+          <i class="fa-solid fa-bullseye"></i> Planner
+        </button>
         <button type="button" id="btnModeDebt" onclick="toggleAppMode('debt')" class="flex-1 py-1.5 text-[11px] font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer flex items-center justify-center gap-1">
-          <i class="fa-solid fa-receipt"></i> Debt
+          <i class="fa-solid fa-receipt"></i> Debt / EMI
         </button>
       </div>
     </div>
@@ -122,149 +122,9 @@
   <main class="max-w-md mx-auto w-full px-4 pt-3 flex-1">
 
     <!-- ************************************************************* -->
-    <!-- MODULE 1: MONTHLY BUDGET PLANNER                              -->
+    <!-- MODULE 1: DAILY SPENDS & MULTI-ACCOUNT TRANSACTIONS (DEFAULT) -->
     <!-- ************************************************************* -->
-    <div id="plannerModuleContainer" class="space-y-4">
-
-      <!-- PLANNER VIEW 1: TARGETS SETUP & INPUT (INPUT FIRST) -->
-      <section id="plannerInputScreen" class="planner-screen space-y-4">
-        <div class="flex items-center justify-between px-1">
-          <div>
-            <h2 class="text-base font-bold text-white">Budget Allocations</h2>
-            <p class="text-xs text-slate-400">Configure planned spending targets</p>
-          </div>
-          <div>
-            <input type="month" id="plannerMonthSelector" onchange="onPlannerMonthChanged()" class="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1 text-xs text-white outline-none cursor-pointer">
-          </div>
-        </div>
-
-        <!-- ADD / EDIT BUDGET CATEGORY FORM -->
-        <div class="glass-card rounded-3xl p-4 border border-slate-800 space-y-3">
-          <div class="flex justify-between items-center">
-            <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-              <i class="fa-solid fa-pen-ruler text-indigo-400"></i> Set Category Target
-            </h3>
-            <button type="button" onclick="seedDefaultPlannedBudget()" class="text-[11px] text-indigo-400 hover:underline">
-              Load Quick Template
-            </button>
-          </div>
-
-          <form id="budgetAddForm" onsubmit="handleSaveBudgetItem(event)" class="grid grid-cols-3 gap-2">
-            <div class="col-span-2">
-              <input type="text" id="budgetCatNameInput" list="budgetCatDatalist" placeholder="Category (e.g. Groceries, Fuel)" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500">
-              <datalist id="budgetCatDatalist"></datalist>
-            </div>
-            <div>
-              <input type="number" id="budgetCatAmountInput" min="0" step="any" placeholder="Target ₹" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 font-bold">
-            </div>
-            <div class="col-span-3">
-              <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl text-xs transition active:scale-98 cursor-pointer flex items-center justify-center gap-1">
-                <i class="fa-solid fa-plus text-[10px]"></i> Save Budget Target
-              </button>
-            </div>
-          </form>
-        </div>
-
-        <!-- BUDGET ALLOCATION CARDS -->
-        <div class="space-y-2.5">
-          <div class="flex justify-between items-center px-1">
-            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Planned Allocations</h3>
-            <span id="plannerAllocationsCount" class="text-[11px] text-slate-500 font-semibold">0 Categories</span>
-          </div>
-
-          <div id="plannerCategoryCardsContainer" class="space-y-2.5"></div>
-        </div>
-      </section>
-
-      <!-- PLANNER VIEW 2: MONTH STATUS & VARIANCE DASHBOARD (WITH DYNAMIC MONTH SELECTOR) -->
-      <section id="plannerDashboardScreen" class="planner-screen hidden space-y-4">
-        <div class="flex items-center justify-between px-1">
-          <div>
-            <h2 class="text-base font-bold text-white">Budget vs. Actual Status</h2>
-            <p class="text-xs text-slate-400">Track variance & remaining buffer</p>
-          </div>
-          <div>
-            <input type="month" id="plannerDashMonthSelector" onchange="onPlannerDashMonthChanged()" class="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1 text-xs text-white outline-none cursor-pointer">
-          </div>
-        </div>
-
-        <!-- OVERVIEW SCORECARD -->
-        <div class="glass-card rounded-3xl p-5 shadow-xl relative overflow-hidden border border-indigo-500/30">
-          <div class="flex justify-between items-center mb-1">
-            <span class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Total Planned Budget</span>
-            <span id="plannerOverviewMonthBadge" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/25">Oct 2026</span>
-          </div>
-
-          <div class="flex items-baseline justify-between mt-1">
-            <span id="kpiTotalPlannedBudget" class="text-3xl font-extrabold text-white tracking-tight">₹0</span>
-            <span id="kpiBudgetOverallBurnBadge" class="text-xs font-bold px-2 py-0.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700">0% Used</span>
-          </div>
-
-          <!-- Overall Progress Bar -->
-          <div class="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden mt-3 border border-slate-800">
-            <div id="plannerTotalProgressBar" class="bg-indigo-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
-          </div>
-
-          <div class="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-slate-700/60">
-            <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
-              <span class="text-[10px] text-slate-400 uppercase font-semibold block">Actual Spent So Far</span>
-              <span id="kpiPlannerTotalActualSpent" class="text-lg font-bold text-rose-400 mt-0.5 block">₹0</span>
-              <span class="text-[10px] text-slate-500">Auto-mapped from spends</span>
-            </div>
-            <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
-              <span class="text-[10px] text-slate-400 uppercase font-semibold block">Remaining Unspent Buffer</span>
-              <span id="kpiPlannerTotalRemainingBuffer" class="text-lg font-bold text-emerald-400 mt-0.5 block">₹0</span>
-              <span id="kpiPlannerSurplusStatus" class="text-[10px] text-slate-500">In budget</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Burn Breakdown List -->
-        <div class="space-y-2.5">
-          <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider px-1">Category Variance & Burn Status</h3>
-          <div id="plannerDashboardProgressList" class="space-y-2.5"></div>
-        </div>
-      </section>
-
-      <!-- PLANNER VIEW 3: MULTI-MONTH PROGRESS / HISTORY -->
-      <section id="plannerHistoryScreen" class="planner-screen hidden space-y-4">
-        <div class="px-1">
-          <h2 class="text-base font-bold text-white">Multi-Month Budget Progress</h2>
-          <p class="text-xs text-slate-400">Month-over-month planned vs. actual trends</p>
-        </div>
-
-        <!-- Comparative Chart -->
-        <div class="glass-card rounded-3xl p-4 border border-slate-800">
-          <span class="text-xs font-bold text-slate-200 block mb-2">Planned Target vs. Actual Expense Outflow</span>
-          <div class="h-48 relative"><canvas id="plannerMultiMonthChart"></canvas></div>
-        </div>
-
-        <!-- Monthly Variance Table -->
-        <div class="glass-card rounded-3xl p-4 border border-slate-800 space-y-3">
-          <h3 class="text-xs font-bold text-white uppercase tracking-wider">Historical Monthly Summary</h3>
-          <div class="overflow-x-auto no-scrollbar">
-            <table class="w-full text-left text-xs text-slate-300">
-              <thead class="bg-slate-900/80 text-[10px] uppercase font-semibold text-slate-400 border-b border-slate-800">
-                <tr>
-                  <th class="py-2.5 px-2.5">Month</th>
-                  <th class="py-2.5 px-2.5 text-right">Planned</th>
-                  <th class="py-2.5 px-2.5 text-right">Actual Spent</th>
-                  <th class="py-2.5 px-2.5 text-right">Remaining</th>
-                  <th class="py-2.5 px-2.5 text-center">Status</th>
-                </tr>
-              </thead>
-              <tbody id="plannerMultiMonthTableBody" class="divide-y divide-slate-800/60 font-medium"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-    </div>
-
-    <!-- ************************************************************* -->
-    <!-- MODULE 2: DAILY SPENDS & MULTI-ACCOUNT TRANSACTIONS           -->
-    <!-- ************************************************************* -->
-    <div id="dailyModuleContainer" class="hidden space-y-4">
+    <div id="dailyModuleContainer" class="space-y-4">
 
       <!-- SPENDS VIEW 1: TRANSACTIONS ENTRY & HISTORY (INPUT FIRST) -->
       <section id="dailyEntryScreen" class="daily-screen space-y-4">
@@ -298,7 +158,7 @@
               </div>
             </div>
 
-            <!-- DATE & AMOUNT (DATE IS FULLY EDITABLE FOR BACKDATED LOGS) -->
+            <!-- DATE & AMOUNT (DATE PICKER UNLOCKED FOR HISTORICAL LOGGING) -->
             <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="block text-[11px] font-semibold text-slate-400 mb-1">Date *</label>
@@ -310,7 +170,7 @@
               </div>
             </div>
 
-            <!-- DYNAMIC ROW: EXPENSE & INCOME (CATEGORIES ISOLATED PROPERLY) -->
+            <!-- DYNAMIC ROW: EXPENSE & INCOME (CATEGORIES ISOLATED) -->
             <div id="rowCategoryAndAccount" class="grid grid-cols-2 gap-3">
               <div>
                 <div class="flex justify-between items-center mb-1">
@@ -329,7 +189,7 @@
               </div>
             </div>
 
-            <!-- DYNAMIC ROW: FOR TRANSFERS -->
+            <!-- DYNAMIC ROW: FOR TRANSFERS (FIXED: NO HIDDEN REQUIRED CONFLICTS) -->
             <div id="rowTransferAccounts" class="hidden grid grid-cols-2 gap-3">
               <div>
                 <label class="block text-[11px] font-semibold text-rose-400 mb-1">From Account (Sender) *</label>
@@ -341,9 +201,11 @@
               </div>
             </div>
 
+            <!-- NOTE WITH AUTO-SUGGESTIONS FROM HISTORICAL ENTRIES -->
             <div>
-              <label class="block text-[11px] font-semibold text-slate-400 mb-1">Note / Description</label>
-              <input type="text" id="expNote" placeholder="e.g. Monthly salary, Grocery shopping, or Bank transfer" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+              <label class="block text-[11px] font-semibold text-slate-400 mb-1">Note / Description (with suggestions)</label>
+              <input type="text" id="expNote" list="expNoteDatalist" placeholder="e.g. mobile, grocery, fuel, lunch" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+              <datalist id="expNoteDatalist"></datalist>
             </div>
 
             <button type="submit" id="btnExpenseSubmit" class="w-full bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-600 text-white font-semibold py-3 rounded-2xl text-xs tracking-wide transition shadow-lg shadow-rose-600/30 flex items-center justify-center gap-2 active:scale-98 cursor-pointer">
@@ -520,6 +382,146 @@
         <div class="glass-card rounded-3xl p-4 border border-slate-800">
           <span class="text-xs font-bold text-slate-200 block mb-2">Outflow Distribution by Account</span>
           <div class="h-56 relative flex items-center justify-center"><canvas id="dailyAccountDoughnutChart"></canvas></div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ************************************************************* -->
+    <!-- MODULE 2: MONTHLY BUDGET PLANNER                              -->
+    <!-- ************************************************************* -->
+    <div id="plannerModuleContainer" class="hidden space-y-4">
+
+      <!-- PLANNER VIEW 1: TARGETS SETUP & INPUT (INPUT FIRST) -->
+      <section id="plannerInputScreen" class="planner-screen space-y-4">
+        <div class="flex items-center justify-between px-1">
+          <div>
+            <h2 class="text-base font-bold text-white">Budget Allocations</h2>
+            <p class="text-xs text-slate-400">Configure planned spending targets</p>
+          </div>
+          <div>
+            <input type="month" id="plannerMonthSelector" onchange="onPlannerMonthChanged()" class="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1 text-xs text-white outline-none cursor-pointer">
+          </div>
+        </div>
+
+        <!-- ADD / EDIT BUDGET CATEGORY FORM -->
+        <div class="glass-card rounded-3xl p-4 border border-slate-800 space-y-3">
+          <div class="flex justify-between items-center">
+            <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+              <i class="fa-solid fa-pen-ruler text-indigo-400"></i> Set Category Target
+            </h3>
+            <button type="button" onclick="seedDefaultPlannedBudget()" class="text-[11px] text-indigo-400 hover:underline">
+              Load Quick Template
+            </button>
+          </div>
+
+          <form id="budgetAddForm" onsubmit="handleSaveBudgetItem(event)" class="grid grid-cols-3 gap-2">
+            <div class="col-span-2">
+              <input type="text" id="budgetCatNameInput" list="budgetCatDatalist" placeholder="Category (e.g. Groceries, Fuel)" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+              <datalist id="budgetCatDatalist"></datalist>
+            </div>
+            <div>
+              <input type="number" id="budgetCatAmountInput" min="0" step="any" placeholder="Target ₹" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 font-bold">
+            </div>
+            <div class="col-span-3">
+              <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl text-xs transition active:scale-98 cursor-pointer flex items-center justify-center gap-1">
+                <i class="fa-solid fa-plus text-[10px]"></i> Save Budget Target
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- BUDGET ALLOCATION CARDS -->
+        <div class="space-y-2.5">
+          <div class="flex justify-between items-center px-1">
+            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Planned Allocations</h3>
+            <span id="plannerAllocationsCount" class="text-[11px] text-slate-500 font-semibold">0 Categories</span>
+          </div>
+
+          <div id="plannerCategoryCardsContainer" class="space-y-2.5"></div>
+        </div>
+      </section>
+
+      <!-- PLANNER VIEW 2: MONTH STATUS & VARIANCE DASHBOARD -->
+      <section id="plannerDashboardScreen" class="planner-screen hidden space-y-4">
+        <div class="flex items-center justify-between px-1">
+          <div>
+            <h2 class="text-base font-bold text-white">Budget vs. Actual Status</h2>
+            <p class="text-xs text-slate-400">Track variance & remaining buffer</p>
+          </div>
+          <div>
+            <input type="month" id="plannerDashMonthSelector" onchange="onPlannerDashMonthChanged()" class="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1 text-xs text-white outline-none cursor-pointer">
+          </div>
+        </div>
+
+        <!-- OVERVIEW SCORECARD -->
+        <div class="glass-card rounded-3xl p-5 shadow-xl relative overflow-hidden border border-indigo-500/30">
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Total Planned Budget</span>
+            <span id="plannerOverviewMonthBadge" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/25">Oct 2026</span>
+          </div>
+
+          <div class="flex items-baseline justify-between mt-1">
+            <span id="kpiTotalPlannedBudget" class="text-3xl font-extrabold text-white tracking-tight">₹0</span>
+            <span id="kpiBudgetOverallBurnBadge" class="text-xs font-bold px-2 py-0.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700">0% Used</span>
+          </div>
+
+          <!-- Overall Progress Bar -->
+          <div class="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden mt-3 border border-slate-800">
+            <div id="plannerTotalProgressBar" class="bg-indigo-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-slate-700/60">
+            <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
+              <span class="text-[10px] text-slate-400 uppercase font-semibold block">Actual Spent So Far</span>
+              <span id="kpiPlannerTotalActualSpent" class="text-lg font-bold text-rose-400 mt-0.5 block">₹0</span>
+              <span class="text-[10px] text-slate-500">Auto-mapped from spends</span>
+            </div>
+            <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
+              <span class="text-[10px] text-slate-400 uppercase font-semibold block">Remaining Unspent Buffer</span>
+              <span id="kpiPlannerTotalRemainingBuffer" class="text-lg font-bold text-emerald-400 mt-0.5 block">₹0</span>
+              <span id="kpiPlannerSurplusStatus" class="text-[10px] text-slate-500">In budget</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Burn Breakdown List -->
+        <div class="space-y-2.5">
+          <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider px-1">Category Variance & Burn Status</h3>
+          <div id="plannerDashboardProgressList" class="space-y-2.5"></div>
+        </div>
+      </section>
+
+      <!-- PLANNER VIEW 3: MULTI-MONTH PROGRESS / HISTORY -->
+      <section id="plannerHistoryScreen" class="planner-screen hidden space-y-4">
+        <div class="px-1">
+          <h2 class="text-base font-bold text-white">Multi-Month Budget Progress</h2>
+          <p class="text-xs text-slate-400">Month-over-month planned vs. actual trends</p>
+        </div>
+
+        <!-- Comparative Chart -->
+        <div class="glass-card rounded-3xl p-4 border border-slate-800">
+          <span class="text-xs font-bold text-slate-200 block mb-2">Planned Target vs. Actual Expense Outflow</span>
+          <div class="h-48 relative"><canvas id="plannerMultiMonthChart"></canvas></div>
+        </div>
+
+        <!-- Monthly Variance Table -->
+        <div class="glass-card rounded-3xl p-4 border border-slate-800 space-y-3">
+          <h3 class="text-xs font-bold text-white uppercase tracking-wider">Historical Monthly Summary</h3>
+          <div class="overflow-x-auto no-scrollbar">
+            <table class="w-full text-left text-xs text-slate-300">
+              <thead class="bg-slate-900/80 text-[10px] uppercase font-semibold text-slate-400 border-b border-slate-800">
+                <tr>
+                  <th class="py-2.5 px-2.5">Month</th>
+                  <th class="py-2.5 px-2.5 text-right">Planned</th>
+                  <th class="py-2.5 px-2.5 text-right">Actual Spent</th>
+                  <th class="py-2.5 px-2.5 text-right">Remaining</th>
+                  <th class="py-2.5 px-2.5 text-center">Status</th>
+                </tr>
+              </thead>
+              <tbody id="plannerMultiMonthTableBody" class="divide-y divide-slate-800/60 font-medium"></tbody>
+            </table>
+          </div>
         </div>
       </section>
 
@@ -1028,13 +1030,13 @@
       "Electronics", "Furniture", "Gadgets", "Credit card", "Others"
     ];
 
-    // PURE EXPENSE CATEGORIES ONLY (NO SALARY/BONUS HERE)
+    // PURE EXPENSE CATEGORIES ONLY
     const DEFAULT_EXPENSE_CATEGORIES = [
       "Groceries", "Food & Dining", "Fuel & Transport", "Utilities & Bills",
       "Shopping", "Health & Medical", "Entertainment", "Apparel & Styling", "Education", "EMI", "Miscellaneous"
     ];
 
-    // PURE INCOME CATEGORIES ONLY (NO EXPENSES HERE)
+    // PURE INCOME CATEGORIES ONLY
     const DEFAULT_INCOME_CATEGORIES = [
       "Salary", "Bonus", "Allowance", "Investment Inflow", "Freelance", "Rental Income", "Cashback"
     ];
@@ -1083,7 +1085,7 @@
     // -------------------------------------------------------------
     // STATE STORAGE
     // -------------------------------------------------------------
-    let activeModule = 'planner'; // Default to Planner (Requirement 1)
+    let activeModule = 'daily'; // Landing Page: Daily Spends (Requirement 1)
     let currentTransactionType = 'Expense';
     let currentCatModalType = 'Expense';
 
@@ -1127,7 +1129,7 @@
     }
 
     // -------------------------------------------------------------
-    // TRI-MODE CONTROLLER (REORDERED: REQUIREMENT 1)
+    // TRI-MODE CONTROLLER (ORDER: SPENDS -> PLANNER -> DEBT)
     // -------------------------------------------------------------
     function toggleAppMode(mode) {
       activeModule = mode;
@@ -1147,17 +1149,7 @@
       plannerContainer.classList.add('hidden');
       dailyContainer.classList.add('hidden');
 
-      if (mode === 'planner') {
-        btnPlanner.className = "flex-1 py-1.5 text-[11px] font-bold rounded-xl transition text-white bg-indigo-600 shadow cursor-pointer flex items-center justify-center gap-1";
-        document.getElementById('modeIcon').className = "w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center text-white font-bold text-sm";
-        document.getElementById('modeIcon').innerHTML = '<i class="fa-solid fa-bullseye"></i>';
-        document.getElementById('appTitleText').innerHTML = 'Monthly Budget Planner <span class="text-[10px] font-semibold bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded-full border border-indigo-500/30">Targets</span>';
-        document.getElementById('appSubtitleText').innerText = 'Plan budget & track actual spend balance';
-
-        plannerContainer.classList.remove('hidden');
-        renderBottomNav('planner');
-        switchPlannerScreen('plannerInputScreen'); // Input first (Requirement 4)
-      } else if (mode === 'daily') {
+      if (mode === 'daily') {
         btnDaily.className = "flex-1 py-1.5 text-[11px] font-bold rounded-xl transition text-white bg-emerald-600 shadow cursor-pointer flex items-center justify-center gap-1";
         document.getElementById('modeIcon').className = "w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-cyan-400 flex items-center justify-center text-white font-bold text-sm";
         document.getElementById('modeIcon').innerHTML = '<i class="fa-solid fa-wallet"></i>';
@@ -1166,7 +1158,17 @@
 
         dailyContainer.classList.remove('hidden');
         renderBottomNav('daily');
-        switchDailyScreen('dailyEntryScreen'); // Input first (Requirement 4)
+        switchDailyScreen('dailyEntryScreen'); // Input first
+      } else if (mode === 'planner') {
+        btnPlanner.className = "flex-1 py-1.5 text-[11px] font-bold rounded-xl transition text-white bg-indigo-600 shadow cursor-pointer flex items-center justify-center gap-1";
+        document.getElementById('modeIcon').className = "w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center text-white font-bold text-sm";
+        document.getElementById('modeIcon').innerHTML = '<i class="fa-solid fa-bullseye"></i>';
+        document.getElementById('appTitleText').innerHTML = 'Monthly Budget Planner <span class="text-[10px] font-semibold bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded-full border border-indigo-500/30">Targets</span>';
+        document.getElementById('appSubtitleText').innerText = 'Plan budget & track actual spend balance';
+
+        plannerContainer.classList.remove('hidden');
+        renderBottomNav('planner');
+        switchPlannerScreen('plannerInputScreen'); // Input first
       } else {
         btnDebt.className = "flex-1 py-1.5 text-[11px] font-bold rounded-xl transition text-white bg-indigo-600 shadow cursor-pointer flex items-center justify-center gap-1";
         document.getElementById('modeIcon').className = "w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center text-white font-bold text-sm";
@@ -1176,33 +1178,14 @@
 
         debtContainer.classList.remove('hidden');
         renderBottomNav('debt');
-        switchDebtScreen('entryScreen'); // Input first (Requirement 4)
+        switchDebtScreen('entryScreen'); // Input first
       }
     }
 
-    // BOTTOM NAVIGATION: ALWAYS INPUT FIRST, DASHBOARD SECOND (REQUIREMENT 4)
+    // BOTTOM NAVIGATION: ALWAYS INPUT FIRST, DASHBOARD SECOND
     function renderBottomNav(mode) {
       const container = document.getElementById('bottomNavRow');
-      if (mode === 'planner') {
-        container.innerHTML = `
-          <button type="button" onclick="switchPlannerScreen('plannerInputScreen')" id="nav-plannerInputScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 active-nav transition flex-1 py-1 cursor-pointer">
-            <i class="fa-solid fa-pen-ruler text-base"></i>
-            <span class="text-[10px] font-semibold">Targets</span>
-          </button>
-          <button type="button" onclick="switchPlannerScreen('plannerDashboardScreen')" id="nav-plannerDashboardScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
-            <i class="fa-solid fa-gauge-high text-base"></i>
-            <span class="text-[10px] font-semibold">Status</span>
-          </button>
-          <button type="button" onclick="switchPlannerScreen('plannerHistoryScreen')" id="nav-plannerHistoryScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
-            <i class="fa-solid fa-chart-column text-base"></i>
-            <span class="text-[10px] font-semibold">Progress</span>
-          </button>
-          <button type="button" onclick="openExpenseCategoryModal()" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
-            <i class="fa-solid fa-tags text-base"></i>
-            <span class="text-[10px] font-semibold">Categories</span>
-          </button>
-        `;
-      } else if (mode === 'daily') {
+      if (mode === 'daily') {
         container.innerHTML = `
           <button type="button" onclick="switchDailyScreen('dailyEntryScreen')" id="nav-dailyEntryScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 active-nav transition flex-1 py-1 cursor-pointer">
             <i class="fa-solid fa-plus-minus text-base"></i>
@@ -1223,6 +1206,25 @@
           <button type="button" onclick="openAccountModal()" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
             <i class="fa-solid fa-building-columns text-base"></i>
             <span class="text-[10px] font-semibold">Accounts</span>
+          </button>
+        `;
+      } else if (mode === 'planner') {
+        container.innerHTML = `
+          <button type="button" onclick="switchPlannerScreen('plannerInputScreen')" id="nav-plannerInputScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 active-nav transition flex-1 py-1 cursor-pointer">
+            <i class="fa-solid fa-pen-ruler text-base"></i>
+            <span class="text-[10px] font-semibold">Targets</span>
+          </button>
+          <button type="button" onclick="switchPlannerScreen('plannerDashboardScreen')" id="nav-plannerDashboardScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
+            <i class="fa-solid fa-gauge-high text-base"></i>
+            <span class="text-[10px] font-semibold">Status</span>
+          </button>
+          <button type="button" onclick="switchPlannerScreen('plannerHistoryScreen')" id="nav-plannerHistoryScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
+            <i class="fa-solid fa-chart-column text-base"></i>
+            <span class="text-[10px] font-semibold">Progress</span>
+          </button>
+          <button type="button" onclick="openExpenseCategoryModal()" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
+            <i class="fa-solid fa-tags text-base"></i>
+            <span class="text-[10px] font-semibold">Categories</span>
           </button>
         `;
       } else {
@@ -1350,7 +1352,6 @@
         notify(`Added ${cat} budget (${formatINR(amt)})`);
       }
 
-      // CRITICAL REQUIREMENT 3: AUTOMATIC REFLECTION IN EXPENSE CATEGORIES
       if (!expenseCategories.some(c => c.toLowerCase() === cat.toLowerCase())) {
         expenseCategories.push(cat);
         saveExpenseStorage();
@@ -1499,7 +1500,6 @@
       document.getElementById('kpiPlannerSurplusStatus').innerText = totalRemaining >= 0 ? `${formatINR(totalRemaining)} unspent surplus` : 'Over budget limit';
     }
 
-    // MULTI-MONTH PROGRESS COMPARISON (REQUIREMENT 2)
     function renderPlannerMultiMonthHistory() {
       const monthsList = Object.keys(monthlyBudgets).sort();
       const tbody = document.getElementById('plannerMultiMonthTableBody');
@@ -1545,7 +1545,6 @@
         tbody.appendChild(tr);
       });
 
-      // Chart
       if (plannerMultiMonthChart) plannerMultiMonthChart.destroy();
       const ctxMulti = document.getElementById('plannerMultiMonthChart').getContext('2d');
       plannerMultiMonthChart = new Chart(ctxMulti, {
@@ -1568,8 +1567,25 @@
       });
     }
 
+    function editBudgetItemPrompt(cat, currentAmt) {
+      const newAmt = prompt(`Update monthly budget limit for ${cat}:`, currentAmt);
+      if (newAmt !== null) {
+        const parsed = parseFloat(newAmt);
+        if (!isNaN(parsed) && parsed >= 0) {
+          const monthKey = getSelectedPlannerMonth();
+          const target = monthlyBudgets[monthKey].find(b => b.category === cat);
+          if (target) {
+            target.plannedAmount = parsed;
+            saveMonthlyBudgetStorage();
+            renderBudgetPlanner();
+            notify(`Updated ${cat} budget`);
+          }
+        }
+      }
+    }
+
     // -------------------------------------------------------------
-    // PART 3: DAILY SPENDS CONTROLLER (INDEPENDENT INCOME VS EXPENSE)
+    // PART 3: DAILY SPENDS CONTROLLER (INDEPENDENT CATEGORIES & TRANSFER FIX)
     // -------------------------------------------------------------
     function setTransactionType(type) {
       currentTransactionType = type;
@@ -1580,52 +1596,69 @@
       const rowTransfer = document.getElementById('rowTransferAccounts');
       const submitBtn = document.getElementById('btnExpenseSubmit');
 
+      const expCatSelect = document.getElementById('expCategory');
+      const expAccSelect = document.getElementById('expAccount');
+      const trfFromSelect = document.getElementById('expTransferFrom');
+      const trfToSelect = document.getElementById('expTransferTo');
+
       [bExp, bInc, bTrf].forEach(btn => {
         btn.className = "flex-1 py-2 text-xs font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer";
       });
 
-      // Populate Categories dynamically based strictly on Transaction Type (Requirement 3)
-      const catEl = document.getElementById('expCategory');
-      catEl.innerHTML = '';
+      expCatSelect.innerHTML = '';
 
-      if (type === 'Income') {
-        bInc.className = "flex-1 py-2 text-xs font-bold rounded-xl transition text-white bg-emerald-600 shadow cursor-pointer";
-        rowNormal.classList.remove('hidden');
-        rowTransfer.classList.add('hidden');
-        document.getElementById('lblCategory').innerText = 'Income Category *';
-        document.getElementById('lblAccount').innerText = 'Deposit Account *';
-        submitBtn.className = "w-full bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-600 text-white font-semibold py-3 rounded-2xl text-xs tracking-wide transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 active:scale-98 cursor-pointer";
-        submitBtn.innerHTML = '<i class="fa-solid fa-plus text-xs"></i> Record Income';
-
-        // STRICT INCOME CATEGORIES (Requirement 3)
-        incomeCategories.forEach(c => {
-          const opt = document.createElement('option');
-          opt.value = c;
-          opt.textContent = c;
-          catEl.appendChild(opt);
-        });
-      } else if (type === 'Transfer') {
+      if (type === 'Transfer') {
         bTrf.className = "flex-1 py-2 text-xs font-bold rounded-xl transition text-white bg-cyan-600 shadow cursor-pointer";
         rowNormal.classList.add('hidden');
         rowTransfer.classList.remove('hidden');
+
+        // CRITICAL FIX: Disable required on hidden selects so browser doesn't block submission!
+        expCatSelect.removeAttribute('required');
+        expAccSelect.removeAttribute('required');
+        trfFromSelect.setAttribute('required', 'required');
+        trfToSelect.setAttribute('required', 'required');
+
         submitBtn.className = "w-full bg-gradient-to-r from-cyan-600 to-blue-500 hover:from-cyan-500 hover:to-blue-600 text-white font-semibold py-3 rounded-2xl text-xs tracking-wide transition shadow-lg shadow-cyan-600/30 flex items-center justify-center gap-2 active:scale-98 cursor-pointer";
         submitBtn.innerHTML = '<i class="fa-solid fa-arrow-right-arrow-left text-xs"></i> Record Account Transfer';
       } else {
-        bExp.className = "flex-1 py-2 text-xs font-bold rounded-xl transition text-white bg-rose-600 shadow cursor-pointer";
         rowNormal.classList.remove('hidden');
         rowTransfer.classList.add('hidden');
-        document.getElementById('lblCategory').innerText = 'Expense Category *';
-        document.getElementById('lblAccount').innerText = 'Payment Account *';
-        submitBtn.className = "w-full bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-600 text-white font-semibold py-3 rounded-2xl text-xs tracking-wide transition shadow-lg shadow-rose-600/30 flex items-center justify-center gap-2 active:scale-98 cursor-pointer";
-        submitBtn.innerHTML = '<i class="fa-solid fa-plus text-xs"></i> Record Expense';
 
-        // STRICT EXPENSE CATEGORIES ONLY (Requirement 3)
-        expenseCategories.forEach(c => {
-          const opt = document.createElement('option');
-          opt.value = c;
-          opt.textContent = c;
-          catEl.appendChild(opt);
-        });
+        // Restore required attributes to visible selects
+        expCatSelect.setAttribute('required', 'required');
+        expAccSelect.setAttribute('required', 'required');
+        trfFromSelect.removeAttribute('required');
+        trfToSelect.removeAttribute('required');
+
+        if (type === 'Income') {
+          bInc.className = "flex-1 py-2 text-xs font-bold rounded-xl transition text-white bg-emerald-600 shadow cursor-pointer";
+          document.getElementById('lblCategory').innerText = 'Income Category *';
+          document.getElementById('lblAccount').innerText = 'Deposit Account *';
+          submitBtn.className = "w-full bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-600 text-white font-semibold py-3 rounded-2xl text-xs tracking-wide transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 active:scale-98 cursor-pointer";
+          submitBtn.innerHTML = '<i class="fa-solid fa-plus text-xs"></i> Record Income';
+
+          // STRICT INCOME CATEGORIES (Requirement 3)
+          incomeCategories.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c;
+            opt.textContent = c;
+            expCatSelect.appendChild(opt);
+          });
+        } else {
+          bExp.className = "flex-1 py-2 text-xs font-bold rounded-xl transition text-white bg-rose-600 shadow cursor-pointer";
+          document.getElementById('lblCategory').innerText = 'Expense Category *';
+          document.getElementById('lblAccount').innerText = 'Payment Account *';
+          submitBtn.className = "w-full bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-600 text-white font-semibold py-3 rounded-2xl text-xs tracking-wide transition shadow-lg shadow-rose-600/30 flex items-center justify-center gap-2 active:scale-98 cursor-pointer";
+          submitBtn.innerHTML = '<i class="fa-solid fa-plus text-xs"></i> Record Expense';
+
+          // STRICT EXPENSE CATEGORIES ONLY (Requirement 3)
+          expenseCategories.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c;
+            opt.textContent = c;
+            expCatSelect.appendChild(opt);
+          });
+        }
       }
     }
 
@@ -1656,6 +1689,19 @@
       localStorage.setItem('expense_records', JSON.stringify(expenseRecords));
     }
 
+    // Refresh historical note autocomplete suggestions
+    function refreshNoteSuggestions() {
+      const datalist = document.getElementById('expNoteDatalist');
+      if (!datalist) return;
+      datalist.innerHTML = '';
+      const uniqueNotes = [...new Set(expenseRecords.map(r => r.note).filter(Boolean))];
+      uniqueNotes.forEach(note => {
+        const opt = document.createElement('option');
+        opt.value = note;
+        datalist.appendChild(opt);
+      });
+    }
+
     function populateExpenseElements() {
       setTransactionType(currentTransactionType);
 
@@ -1675,6 +1721,7 @@
 
       renderExpenseCategoryBadges();
       renderAccountBadges();
+      refreshNoteSuggestions();
     }
 
     function calculateAccountBalances() {
@@ -1713,6 +1760,10 @@
         category = 'Transfer';
         account = document.getElementById('expTransferFrom').value;
         toAccount = document.getElementById('expTransferTo').value;
+        if (!account || !toAccount) {
+          notify("Please select both accounts!");
+          return;
+        }
         if (account === toAccount) {
           notify("Sender and receiver accounts cannot be the same!");
           return;
@@ -1733,6 +1784,20 @@
         const newRecord = { id: Date.now(), type: currentTransactionType, date, amount, category, account, toAccount, note };
         expenseRecords.push(newRecord);
         notify(`Recorded ${currentTransactionType}: ${formatINR(amount)}`);
+
+        // AUTOMATIC PLANNER CREATION FOR NEW CATEGORIES IN SPENDS (REQUIREMENT)
+        if (currentTransactionType === 'Expense' && category) {
+          const monthKey = date ? date.slice(0, 7) : new Date().toISOString().slice(0, 7);
+          if (!monthlyBudgets[monthKey]) {
+            monthlyBudgets[monthKey] = JSON.parse(JSON.stringify(DEFAULT_BUDGET_TEMPLATES));
+          }
+          const existsInPlanner = monthlyBudgets[monthKey].some(b => b.category.toLowerCase() === category.toLowerCase());
+          if (!existsInPlanner) {
+            monthlyBudgets[monthKey].push({ category: category, plannedAmount: amount });
+            saveMonthlyBudgetStorage();
+            notify(`Auto-added "${category}" to ${monthKey} Planner with budget ₹${amount}`);
+          }
+        }
       }
 
       saveExpenseStorage();
@@ -1740,6 +1805,7 @@
       renderExpenseHistoryTable();
       renderDailySummary();
       renderBudgetPlanner();
+      refreshNoteSuggestions();
     }
 
     function editExpense(id) {
@@ -1785,6 +1851,7 @@
         renderExpenseHistoryTable();
         renderDailySummary();
         renderBudgetPlanner();
+        refreshNoteSuggestions();
         notify("Transaction deleted.");
       }
     }
@@ -2856,7 +2923,7 @@
           labels: Object.keys(catMap),
           datasets: [{
             data: Object.values(catMap),
-            backgroundColor: ['#6366f1', '#06b6d4', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#f43f5e', '#3b82f6', '#64748b'],
+            backgroundColor: ['#6366f1', '#06b6d4', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#f43f5e', '#3b82f6'],
             borderWidth: 2, borderColor: '#090d16'
           }]
         },
@@ -3112,7 +3179,7 @@
     }
 
     // -------------------------------------------------------------
-    // INITIALIZATION (DEFAULTS TO PLANNER FIRST: REQUIREMENT 1 & 4)
+    // INITIALIZATION (LANDING PAGE: SPENDS)
     // -------------------------------------------------------------
     window.addEventListener('DOMContentLoaded', () => {
       const currentMonth = new Date().toISOString().slice(0, 7);
@@ -3126,7 +3193,8 @@
       populateCategoryElements();
       populateExpenseElements();
 
-      toggleAppMode('planner'); // Planner first (Requirement 1)
+      // LANDING PAGE: SPENDS MODULE (REQUIREMENT 1)
+      toggleAppMode('daily');
     });
   </script>
 </body>
