@@ -77,7 +77,7 @@
 </head>
 <body class="bg-app-bg text-slate-100 min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white pb-24">
 
-  <!-- ================= 4-DIGIT SECURITY PIN LOCK GATE (SETTINGS INTEGRATED) ================= -->
+  <!-- ================= 4-DIGIT SECURITY PIN LOCK GATE ================= -->
   <div id="pinLockScreen" class="fixed inset-0 z-50 bg-[#070a12] flex flex-col items-center justify-center p-6 hidden">
     <div class="w-full max-w-xs space-y-6 text-center">
       <div class="w-16 h-16 rounded-3xl bg-indigo-600/20 text-indigo-400 mx-auto flex items-center justify-center text-2xl border border-indigo-500/30">
@@ -93,7 +93,6 @@
         <div id="pinDot2" class="w-3.5 h-3.5 rounded-full border border-slate-600"></div>
         <div id="pinDot3" class="w-3.5 h-3.5 rounded-full border border-slate-600"></div>
       </div>
-      <!-- Numeric Keypad -->
       <div class="grid grid-cols-3 gap-3 pt-2">
         <button type="button" onclick="handlePinKey('1')" class="h-14 rounded-2xl bg-slate-900 border border-slate-800 text-lg font-bold active:scale-95 text-white">1</button>
         <button type="button" onclick="handlePinKey('2')" class="h-14 rounded-2xl bg-slate-900 border border-slate-800 text-lg font-bold active:scale-95 text-white">2</button>
@@ -132,14 +131,13 @@
           <button type="button" onclick="openContextModal()" class="w-8 h-8 rounded-full bg-slate-800/90 border border-slate-700/80 flex items-center justify-center text-slate-300 hover:text-white transition active:scale-95" title="Settings & Categories">
             <i class="fa-solid fa-sliders text-xs"></i>
           </button>
-          <!-- Direct Access to App Settings Page -->
           <button type="button" onclick="openGlobalSettings()" class="w-8 h-8 rounded-full bg-slate-800/90 border border-slate-700/80 flex items-center justify-center text-slate-300 hover:text-white transition active:scale-95" title="App Settings">
             <i class="fa-solid fa-gear text-xs"></i>
           </button>
         </div>
       </div>
 
-      <!-- MASTER TRI-MODE SWITCHER (ORDER: SPENDS -> PLANNER -> DEBT) -->
+      <!-- MASTER TRI-MODE SWITCHER KEY -->
       <div class="bg-slate-900/95 p-1 rounded-2xl flex border border-slate-800 shadow-inner gap-1">
         <button type="button" id="btnModeDaily" onclick="toggleAppMode('daily')" class="flex-1 py-2 text-[11px] font-extrabold rounded-xl transition text-white bg-gradient-to-r from-emerald-500 to-teal-500 shadow-md shadow-emerald-500/25 cursor-pointer flex items-center justify-center gap-1.5 active:scale-95">
           <i class="fa-solid fa-wallet text-xs"></i> Spends
@@ -157,14 +155,9 @@
   <!-- ================= MAIN VIEWPORT CONTAINER ================= -->
   <main class="max-w-md mx-auto w-full px-4 pt-3 flex-1">
 
-    <!-- ************************************************************* -->
-    <!-- MODULE 1: DAILY SPENDS (DEFAULT LANDING MODULE)               -->
-    <!-- ************************************************************* -->
+    <!-- MODULE 1: DAILY SPENDS (DEFAULT) -->
     <div id="dailyModuleContainer" class="space-y-4">
-
-      <!-- SPENDS VIEW 1: FULL-PAGE TRANSACTION FEED (NEWEST AT TOP) -->
       <section id="dailyEntryScreen" class="daily-screen space-y-3.5">
-        <!-- Month Filter & Quick Search Header -->
         <div class="glass-card rounded-2xl p-3 border border-slate-800 flex items-center justify-between gap-2">
           <div class="flex items-center gap-2 flex-1">
             <i class="fa-solid fa-magnifying-glass text-slate-400 text-xs"></i>
@@ -173,7 +166,6 @@
           <input type="month" id="dailyFeedMonthSelector" onchange="onDailyFeedMonthChanged()" class="bg-slate-900 border border-slate-700 text-indigo-300 font-semibold rounded-xl px-2.5 py-1 text-xs outline-none cursor-pointer">
         </div>
 
-        <!-- Filter Pills for Type -->
         <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
           <button type="button" onclick="setSpendFeedFilter('ALL')" id="feedFilter-ALL" class="px-3 py-1 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-md shadow-indigo-600/30 cursor-pointer">All Types</button>
           <button type="button" onclick="setSpendFeedFilter('Expense')" id="feedFilter-Expense" class="px-3 py-1 rounded-xl text-xs font-semibold bg-slate-800/80 text-rose-300 hover:text-white cursor-pointer border border-rose-500/30">Expenses</button>
@@ -186,11 +178,10 @@
           <span id="expenseLogCounter" class="text-indigo-300 font-mono">0 items</span>
         </div>
 
-        <!-- Full-Page Feed Container -->
         <div id="expenseHistoryContainer" class="space-y-2.5 pb-6"></div>
       </section>
 
-      <!-- SPENDS VIEW 2: SUMMARY DASHBOARD -->
+      <!-- SPENDS SUMMARY -->
       <section id="dailySummaryScreen" class="daily-screen hidden space-y-4">
         <div class="flex items-center justify-between px-1">
           <div>
@@ -202,7 +193,6 @@
           </div>
         </div>
 
-        <!-- Net Wealth Card -->
         <div class="glass-card rounded-3xl p-5 shadow-xl relative overflow-hidden border border-emerald-500/30">
           <div class="flex justify-between items-center mb-1">
             <span class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Net Liquid Wealth</span>
@@ -233,7 +223,6 @@
           </div>
         </div>
 
-        <!-- Spending Summary Breakdown -->
         <div class="space-y-1.5">
           <div class="flex justify-between items-center px-1">
             <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
@@ -248,13 +237,11 @@
               <span id="kpiSummaryTodaySpent" class="text-base font-black text-white mt-0.5 block">₹0</span>
               <span id="kpiSummaryTodayCount" class="text-[9px] text-slate-500 block">0 spends</span>
             </div>
-
             <div class="glass-card rounded-2xl p-3 border border-slate-800">
               <span class="text-[10px] font-semibold text-slate-400 uppercase block">Week Spent</span>
               <span id="kpiSummaryWeekSpent" class="text-base font-black text-rose-400 mt-0.5 block">₹0</span>
               <span id="kpiSummaryWeekCount" class="text-[9px] text-slate-500 block">Last 7 days</span>
             </div>
-
             <div class="glass-card rounded-2xl p-3 border border-slate-800">
               <span class="text-[10px] font-semibold text-slate-400 uppercase block">Month Spent</span>
               <span id="kpiSummaryMonthSpent" class="text-base font-black text-slate-100 mt-0.5 block">₹0</span>
@@ -263,14 +250,13 @@
           </div>
         </div>
 
-        <!-- Live Balances -->
         <div class="glass-card rounded-3xl p-4 border border-slate-800 space-y-3">
           <div class="flex justify-between items-center">
             <div>
               <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
                 <i class="fa-solid fa-building-columns text-cyan-400"></i> Live Account Balances
               </h3>
-              <p class="text-[11px] text-slate-400">Reconciled with starting balances</p>
+              <p class="text-[11px] text-slate-400">Reconciled with transfers & starting balances</p>
             </div>
             <button type="button" onclick="openAccountModal()" class="text-xs text-cyan-400 hover:underline flex items-center gap-1 font-semibold cursor-pointer">
               <i class="fa-solid fa-pen-to-square text-[10px]"></i> Edit Balances
@@ -279,7 +265,6 @@
           <div id="liveAccountBalancesContainer" class="grid grid-cols-2 gap-2.5"></div>
         </div>
 
-        <!-- Categories List -->
         <div class="glass-card rounded-3xl p-4 border border-slate-800">
           <div class="flex justify-between items-center mb-3">
             <span class="text-xs font-bold text-white uppercase tracking-wider">Top Spending Categories</span>
@@ -289,35 +274,15 @@
         </div>
       </section>
 
-      <!-- SPENDS VIEW 3: DEDICATED TRENDS -->
+      <!-- SPENDS TRENDS -->
       <section id="dailyTrendsScreen" class="daily-screen hidden space-y-4">
-        <div class="flex items-center justify-between px-1">
-          <div>
-            <h2 class="text-base font-bold text-white">Daily Spending Analytics</h2>
-            <p class="text-xs text-slate-400">Weekly, monthly & drilldown trajectory</p>
-          </div>
-          <span class="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full font-semibold border border-emerald-500/20">Interactive</span>
-        </div>
-
         <div class="glass-card rounded-3xl p-4 border border-slate-800">
-          <div class="flex justify-between items-center mb-2">
-            <div>
-              <span class="text-xs font-bold text-slate-200">Weekly Spending Trajectory</span>
-              <p class="text-[10px] text-slate-400">Rolling 6-week outflow</p>
-            </div>
-            <span class="text-[10px] text-rose-400 font-semibold bg-rose-500/10 px-2 py-0.5 rounded-full">Weekly Expense</span>
-          </div>
+          <span class="text-xs font-bold text-slate-200 block mb-2">Weekly Spending Trajectory</span>
           <div class="h-48 relative"><canvas id="dailyWeeklyBarChart"></canvas></div>
         </div>
 
         <div class="glass-card rounded-3xl p-4 border border-slate-800">
-          <div class="flex justify-between items-center mb-2">
-            <div>
-              <span class="text-xs font-bold text-slate-200">Monthly Cashflow: Inflow vs Outflow</span>
-              <p class="text-[10px] text-slate-400">Last 6 months comparison</p>
-            </div>
-            <span class="text-[10px] text-cyan-300 font-semibold bg-cyan-500/10 px-2 py-0.5 rounded-full">Cashflow</span>
-          </div>
+          <span class="text-xs font-bold text-slate-200 block mb-2">Monthly Cashflow (Income vs Expense)</span>
           <div class="h-48 relative"><canvas id="dailyMonthlyCompareChart"></canvas></div>
         </div>
 
@@ -328,15 +293,6 @@
 
         <!-- MoM Drilldown Card -->
         <div class="glass-card rounded-3xl p-4 border border-indigo-500/40 space-y-3">
-          <div class="flex justify-between items-center">
-            <div>
-              <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                <i class="fa-solid fa-chart-column text-indigo-400"></i> MoM Category / Account Drilldown
-              </h3>
-              <p class="text-[10px] text-slate-400">Pick any target below to view month-over-month trajectory</p>
-            </div>
-          </div>
-
           <div class="grid grid-cols-2 gap-2">
             <select id="trendDrillType" onchange="onDrillFilterChanged()" class="bg-slate-900 border border-slate-700 rounded-xl px-2 py-1.5 text-xs text-white outline-none">
               <option value="Category">Drilldown by Category</option>
@@ -344,21 +300,18 @@
             </select>
             <select id="trendDrillTarget" onchange="renderMoMDrillChart()" class="bg-slate-900 border border-slate-700 rounded-xl px-2 py-1.5 text-xs text-white outline-none"></select>
           </div>
-
           <div class="h-48 relative mt-2"><canvas id="dailyMoMDrillChart"></canvas></div>
         </div>
       </section>
 
-      <!-- SPENDS VIEW 4: CALENDAR MATRIX -->
+      <!-- SPENDS CALENDAR MATRIX -->
       <section id="dailyCalendarScreen" class="daily-screen hidden space-y-4">
         <div class="flex items-center justify-between px-1">
           <div>
             <h2 class="text-base font-bold text-white">Daily Spends Calendar</h2>
             <p class="text-xs text-slate-400">Tap any day to see category-wise breakdown</p>
           </div>
-          <div>
-            <input type="month" id="calendarMonthSelector" onchange="renderSpendCalendarMatrix()" class="bg-slate-900 border border-slate-700 text-indigo-300 font-semibold rounded-xl px-2.5 py-1 text-xs outline-none cursor-pointer">
-          </div>
+          <input type="month" id="calendarMonthSelector" onchange="renderSpendCalendarMatrix()" class="bg-slate-900 border border-slate-700 text-indigo-300 font-semibold rounded-xl px-2.5 py-1 text-xs outline-none cursor-pointer">
         </div>
 
         <div class="glass-card rounded-3xl p-4 border border-slate-800 space-y-3">
@@ -368,7 +321,6 @@
           <div id="calendarDaysGrid" class="grid grid-cols-7 gap-1.5 pt-1"></div>
         </div>
 
-        <!-- Day Breakdown Drawer -->
         <div id="calendarDayBreakdownBox" class="glass-card rounded-3xl p-4 border border-indigo-500/40 hidden space-y-3">
           <div class="flex justify-between items-center border-b border-slate-800 pb-2">
             <div>
@@ -382,24 +334,17 @@
           <div id="calendarDayItemsList" class="space-y-2 max-h-48 overflow-y-auto no-scrollbar"></div>
         </div>
       </section>
-
     </div>
 
-    <!-- ************************************************************* -->
-    <!-- MODULE 2: MONTHLY BUDGET PLANNER                              -->
-    <!-- ************************************************************* -->
+    <!-- MODULE 2: MONTHLY BUDGET PLANNER -->
     <div id="plannerModuleContainer" class="hidden space-y-4">
-
-      <!-- PLANNER VIEW 1: TARGETS SETUP & INPUT -->
       <section id="plannerInputScreen" class="planner-screen space-y-4">
         <div class="flex items-center justify-between px-1">
           <div>
             <h2 class="text-base font-bold text-white">Budget Allocations</h2>
-            <p class="text-xs text-slate-400">Configure planned spending targets</p>
+            <p class="text-xs text-slate-400">Auto-carries forward across consecutive months</p>
           </div>
-          <div>
-            <input type="month" id="plannerMonthSelector" onchange="onPlannerMonthChanged()" class="bg-slate-900 border border-slate-700 text-purple-400 font-semibold rounded-xl px-2.5 py-1 text-xs outline-none cursor-pointer">
-          </div>
+          <input type="month" id="plannerMonthSelector" onchange="onPlannerMonthChanged()" class="bg-slate-900 border border-slate-700 text-purple-400 font-semibold rounded-xl px-2.5 py-1 text-xs outline-none cursor-pointer">
         </div>
 
         <div class="glass-card rounded-3xl p-4 border border-slate-800 space-y-3">
@@ -432,19 +377,16 @@
         </div>
       </section>
 
-      <!-- PLANNER VIEW 2: MONTH STATUS & VARIANCE DASHBOARD -->
+      <!-- PLANNER DASHBOARD -->
       <section id="plannerDashboardScreen" class="planner-screen hidden space-y-4">
         <div class="flex items-center justify-between px-1">
           <div>
             <h2 class="text-base font-bold text-white">Budget vs. Actual Status</h2>
             <p class="text-xs text-slate-400">Track variance & remaining buffer</p>
           </div>
-          <div>
-            <input type="month" id="plannerDashMonthSelector" onchange="onPlannerDashMonthChanged()" class="bg-slate-900 border border-slate-700 text-purple-400 font-semibold rounded-xl px-2.5 py-1 text-xs outline-none cursor-pointer">
-          </div>
+          <input type="month" id="plannerDashMonthSelector" onchange="onPlannerDashMonthChanged()" class="bg-slate-900 border border-slate-700 text-purple-400 font-semibold rounded-xl px-2.5 py-1 text-xs outline-none cursor-pointer">
         </div>
 
-        <!-- Scorecard -->
         <div class="glass-card rounded-3xl p-5 shadow-xl relative overflow-hidden border border-purple-500/30">
           <div class="flex justify-between items-center mb-1">
             <span class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Total Planned Budget</span>
@@ -456,7 +398,6 @@
             <span id="kpiBudgetOverallBurnBadge" class="text-xs font-bold px-2 py-0.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700">0% Used</span>
           </div>
 
-          <!-- Overall Progress Bar -->
           <div class="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden mt-3 border border-slate-800">
             <div id="plannerTotalProgressBar" class="bg-purple-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
           </div>
@@ -481,13 +422,8 @@
         </div>
       </section>
 
-      <!-- PLANNER VIEW 3: MULTI-MONTH PROGRESS / HISTORY -->
+      <!-- PLANNER MULTI-MONTH PROGRESS -->
       <section id="plannerHistoryScreen" class="planner-screen hidden space-y-4">
-        <div class="px-1">
-          <h2 class="text-base font-bold text-white">Multi-Month Budget Progress</h2>
-          <p class="text-xs text-slate-400">Month-over-month planned vs. actual trends</p>
-        </div>
-
         <div class="glass-card rounded-3xl p-4 border border-slate-800">
           <span class="text-xs font-bold text-slate-200 block mb-2">Planned Target vs. Actual Expense Outflow</span>
           <div class="h-48 relative"><canvas id="plannerMultiMonthChart"></canvas></div>
@@ -511,20 +447,15 @@
           </div>
         </div>
       </section>
-
     </div>
 
-    <!-- ************************************************************* -->
-    <!-- MODULE 3: DEBT & EMI MANAGER                                  -->
-    <!-- ************************************************************* -->
+    <!-- MODULE 3: DEBT & EMI MANAGER (WITH AMORTIZATION FORWARD-ROLL) -->
     <div id="debtModuleContainer" class="hidden space-y-4">
-      
-      <!-- DEBT VIEW 1: COMMITMENTS FEED / HISTORY -->
       <section id="entryScreen" class="debt-screen space-y-4">
         <div class="flex items-center justify-between px-1">
           <div>
             <h2 class="text-base font-bold text-white">Commitments & Loans</h2>
-            <p class="text-xs text-slate-400">Active liabilities & reduction logs</p>
+            <p class="text-xs text-slate-400">Consecutive months auto-amortize</p>
           </div>
           <button type="button" onclick="openDebtPopupModal()" class="text-xs font-semibold bg-gradient-to-r from-amber-500 to-rose-500 text-white px-3 py-1.5 rounded-xl transition flex items-center gap-1 active:scale-95 cursor-pointer shadow-md shadow-rose-500/20">
             <i class="fa-solid fa-plus text-[10px]"></i> Log Loan
@@ -544,16 +475,14 @@
         <div id="historyTableContainer" class="space-y-2.5 pb-6"></div>
       </section>
 
-      <!-- DEBT VIEW 2: EXECUTIVE SUMMARY -->
+      <!-- DEBT DASHBOARD -->
       <section id="dashboardScreen" class="debt-screen hidden space-y-4">
         <div class="flex items-center justify-between px-1">
           <div>
             <h2 class="text-base font-bold text-white">Executive Debt Summary</h2>
             <p class="text-xs text-slate-400">Total liabilities & burn rate</p>
           </div>
-          <div>
-            <input type="month" id="debtDashMonthSelector" onchange="onDebtDashMonthChanged()" class="bg-slate-900 border border-slate-700 text-amber-400 font-semibold rounded-xl px-2.5 py-1 text-xs outline-none cursor-pointer">
-          </div>
+          <input type="month" id="debtDashMonthSelector" onchange="onDebtDashMonthChanged()" class="bg-slate-900 border border-slate-700 text-amber-400 font-semibold rounded-xl px-2.5 py-1 text-xs outline-none cursor-pointer">
         </div>
 
         <div class="glass-card rounded-3xl p-5 shadow-xl relative overflow-hidden border border-amber-500/30">
@@ -561,11 +490,11 @@
             <span class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Total Outstanding Debt</span>
             <span id="dashMonthBadge" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/25">Oct 2026</span>
           </div>
-          
+
           <div class="flex items-baseline gap-2 mt-1">
             <span id="kpiTotalDebt" class="text-3xl font-black text-white tracking-tight">₹0</span>
           </div>
-          
+
           <div id="kpiReductionRow" class="flex items-center gap-1.5 mt-2 text-xs font-medium text-emerald-400">
             <i class="fa-solid fa-circle-arrow-down text-xs"></i>
             <span id="kpiReductionText">₹0 reduced vs previous month</span>
@@ -604,18 +533,8 @@
         </div>
       </section>
 
-      <!-- DEBT VIEW 3: TRENDS -->
+      <!-- DEBT TRENDS -->
       <section id="trendsScreen" class="debt-screen hidden space-y-4">
-        <div class="flex items-center justify-between px-1">
-          <div>
-            <h2 class="text-base font-bold text-white">Debt Analytics</h2>
-            <p class="text-xs text-slate-400">Historical performance & breakdown</p>
-          </div>
-          <select id="trendsCategorySelect" onchange="renderCharts()" class="bg-slate-800 border border-slate-700 text-slate-300 text-xs rounded-xl px-2.5 py-1.5 outline-none">
-            <option value="ALL">All Categories</option>
-          </select>
-        </div>
-
         <div class="glass-card rounded-3xl p-4 border border-slate-800">
           <span class="text-xs font-bold text-slate-200 block mb-2">Total Outstanding Trajectory</span>
           <div class="h-52 relative"><canvas id="debtTrendChart"></canvas></div>
@@ -632,101 +551,32 @@
         </div>
       </section>
 
-      <!-- DEBT VIEW 4: PAYOFF PLANNER -->
+      <!-- DEBT PAYOFF -->
       <section id="plannerScreen" class="debt-screen hidden space-y-4">
         <div class="space-y-2.5">
-          <div class="flex items-center justify-between px-1">
-            <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-              <i class="fa-solid fa-chart-line text-indigo-400"></i> Milestone Forecasts
-            </h2>
-            <span class="text-[10px] text-slate-500">Compounding Amortization</span>
-          </div>
-
+          <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider px-1">Milestone Forecasts</h2>
           <div class="grid grid-cols-2 gap-3">
-            <div class="glass-card rounded-3xl p-4 border border-indigo-500/30 relative overflow-hidden">
-              <div class="flex justify-between items-center text-[11px] font-semibold text-indigo-300">
-                <span>Next 6 Months</span>
-                <span id="forecastDate6M" class="text-[10px] bg-indigo-500/20 px-1.5 py-0.5 rounded text-indigo-200">--</span>
-              </div>
-              <div class="mt-2">
-                <span class="text-[10px] uppercase text-slate-400 block font-medium">Est. Outstanding</span>
-                <span id="forecastDebt6M" class="text-lg font-black text-white block mt-0.5">₹0</span>
-                <span id="forecastDrop6M" class="text-[10px] text-emerald-400 font-semibold block mt-0.5">↓ 0% drop</span>
-              </div>
-              <div class="mt-3 pt-2 border-t border-slate-800/80 flex justify-between items-center text-[10px]">
-                <span class="text-slate-400">Monthly EMI:</span>
-                <span id="forecastEmi6M" class="font-bold text-slate-200">₹0</span>
-              </div>
+            <div class="glass-card rounded-3xl p-4 border border-indigo-500/30">
+              <span class="text-[10px] text-indigo-300 uppercase font-semibold">Next 6 Months</span>
+              <span id="forecastDebt6M" class="text-lg font-black text-white block mt-1">₹0</span>
+              <span id="forecastDrop6M" class="text-[10px] text-emerald-400 block">↓ 0% drop</span>
             </div>
-
-            <div class="glass-card rounded-3xl p-4 border border-cyan-500/30 relative overflow-hidden">
-              <div class="flex justify-between items-center text-[11px] font-semibold text-cyan-300">
-                <span>Next 1 Year</span>
-                <span id="forecastDate1Y" class="text-[10px] bg-cyan-500/20 px-1.5 py-0.5 rounded text-cyan-200">--</span>
-              </div>
-              <div class="mt-2">
-                <span class="text-[10px] uppercase text-slate-400 block font-medium">Est. Outstanding</span>
-                <span id="forecastDebt1Y" class="text-lg font-black text-white block mt-0.5">₹0</span>
-                <span id="forecastDrop1Y" class="text-[10px] text-emerald-400 font-semibold block mt-0.5">↓ 0% drop</span>
-              </div>
-              <div class="mt-3 pt-2 border-t border-slate-800/80 flex justify-between items-center text-[10px]">
-                <span class="text-slate-400">Monthly EMI:</span>
-                <span id="forecastEmi1Y" class="font-bold text-slate-200">₹0</span>
-              </div>
+            <div class="glass-card rounded-3xl p-4 border border-cyan-500/30">
+              <span class="text-[10px] text-cyan-300 uppercase font-semibold">Next 1 Year</span>
+              <span id="forecastDebt1Y" class="text-lg font-black text-white block mt-1">₹0</span>
+              <span id="forecastDrop1Y" class="text-[10px] text-emerald-400 block">↓ 0% drop</span>
             </div>
-          </div>
-        </div>
-
-        <div class="glass-card rounded-3xl p-4 border border-slate-800 space-y-3">
-          <div class="flex justify-between items-center">
-            <div>
-              <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                <i class="fa-solid fa-calendar-days text-indigo-400"></i> Next 5 Months Trajectory
-              </h3>
-              <p class="text-[11px] text-slate-400">Scheduled principal and tenor progress</p>
-            </div>
-          </div>
-
-          <div class="overflow-x-auto no-scrollbar">
-            <table class="w-full text-left text-xs text-slate-300">
-              <thead class="bg-slate-900/80 text-[10px] uppercase font-semibold text-slate-400 border-b border-slate-800">
-                <tr>
-                  <th class="py-2.5 px-2.5">Month</th>
-                  <th class="py-2.5 px-2.5 text-right">Projected Balance</th>
-                  <th class="py-2.5 px-2.5 text-right">Committed EMI</th>
-                  <th class="py-2.5 px-2.5 text-center">Active</th>
-                </tr>
-              </thead>
-              <tbody id="forecast5MonthsTbody" class="divide-y divide-slate-800/60 font-medium"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3 pt-2">
-          <div class="bg-slate-900/80 p-3 rounded-2xl border border-slate-800">
-            <span class="text-[10px] text-slate-400 font-semibold uppercase">Months Saved</span>
-            <span id="simMonthsSaved" class="text-base font-black text-emerald-400 mt-0.5 block">--</span>
-          </div>
-          <div class="bg-slate-900/80 p-3 rounded-2xl border border-slate-800">
-            <span class="text-[10px] text-slate-400 font-semibold uppercase">Debt-Free Date</span>
-            <span id="simNewFinishDate" class="text-base font-black text-indigo-300 mt-0.5 block">--</span>
           </div>
         </div>
 
         <div class="space-y-2.5">
-          <div class="flex justify-between items-center px-1">
-            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Per-Loan Avalanche Priority</h3>
-            <span class="text-[10px] text-indigo-400">Ranked by APR</span>
-          </div>
+          <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider px-1">Per-Loan Payoff Target</h3>
           <div id="plannerListContainer" class="space-y-2.5"></div>
         </div>
       </section>
-
     </div>
 
-    <!-- ************************************************************* -->
-    <!-- DEDICATED SETTINGS VIEW (GEAR ICON INTEGRATED: REQUIREMENT)    -->
-    <!-- ************************************************************* -->
+    <!-- DEDICATED SETTINGS VIEW -->
     <div id="settingsModuleContainer" class="hidden space-y-4">
       <div class="flex items-center justify-between px-1">
         <div>
@@ -738,7 +588,7 @@
         </button>
       </div>
 
-      <!-- 1. Passcode Lock Feature -->
+      <!-- Passcode Lock -->
       <div class="glass-card rounded-3xl p-4 border border-slate-800 space-y-3">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2.5">
@@ -747,7 +597,7 @@
             </div>
             <div>
               <h3 class="text-xs font-bold text-white">4-Digit Security PIN</h3>
-              <p class="text-[10px] text-slate-400">Lock app when launching</p>
+              <p class="text-[10px] text-slate-400">Lock app on startup</p>
             </div>
           </div>
           <button type="button" id="btnTogglePinSetting" onclick="togglePinSecuritySetting()" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700 active:scale-95">
@@ -756,7 +606,7 @@
         </div>
       </div>
 
-      <!-- 2. Export & Backup Data -->
+      <!-- Export & Backup Data -->
       <div class="glass-card rounded-3xl p-5 border border-slate-800 space-y-3">
         <h3 class="text-xs font-bold text-white uppercase tracking-wider">Data Export & Backup</h3>
         <p class="text-[11px] text-slate-400">Download spreadsheet CSV or save full JSON snapshot</p>
@@ -772,10 +622,9 @@
         </div>
       </div>
 
-      <!-- 3. Useful Preferences Fields -->
+      <!-- Preferences -->
       <div class="glass-card rounded-3xl p-4 border border-slate-800 space-y-3">
         <h3 class="text-xs font-bold text-white uppercase tracking-wider">Preferences</h3>
-        
         <div class="flex items-center justify-between text-xs">
           <div>
             <span class="text-white font-medium block">Default Landing Screen</span>
@@ -786,14 +635,6 @@
             <option value="planner">Planner</option>
             <option value="debt">Debt / EMI</option>
           </select>
-        </div>
-
-        <div class="flex items-center justify-between text-xs pt-2 border-t border-slate-800">
-          <div>
-            <span class="text-white font-medium block">Currency Format</span>
-            <span class="text-[10px] text-slate-400">Number grouping notation</span>
-          </div>
-          <span class="text-xs text-indigo-300 font-semibold bg-indigo-500/10 px-2 py-0.5 rounded-lg">₹ INR (Lakh/Crore)</span>
         </div>
       </div>
     </div>
@@ -807,12 +648,12 @@
     </button>
   </div>
 
-  <!-- ================= DYNAMIC BOTTOM NAVIGATION BAR ================= -->
+  <!-- ================= BOTTOM NAVIGATION BAR ================= -->
   <nav id="globalBottomNav" class="fixed bottom-0 left-0 right-0 z-40 bg-app-card/95 backdrop-blur-lg border-t border-slate-800/80 safe-bottom">
     <div id="bottomNavRow" class="max-w-md mx-auto flex items-center justify-around py-2 px-1"></div>
   </nav>
 
-  <!-- ================= FULL-PAGE SHEET MODAL: LOG TRANSACTION (POSITIONED TOP FOR KEYBOARD) ================= -->
+  <!-- ================= FULL-PAGE SHEET MODAL: LOG TRANSACTION ================= -->
   <div id="spendPopupModal" class="fixed inset-0 z-50 bg-[#070a12] hidden flex flex-col justify-start overflow-y-auto safe-top pb-10">
     <div class="w-full max-w-md mx-auto p-4 space-y-4">
       <div class="flex justify-between items-center border-b border-slate-800/80 pb-3">
@@ -822,7 +663,7 @@
           </button>
           <div>
             <h3 id="spendModalTitle" class="text-sm font-bold text-white">Log Transaction</h3>
-            <p class="text-[11px] text-slate-400">Top-aligned for mobile keyboard clearance</p>
+            <p class="text-[11px] text-slate-400">Positioned top for mobile keypad clearance</p>
           </div>
         </div>
         <button type="button" onclick="closeSpendPopupModal()" class="text-xs text-slate-400 hover:text-white font-semibold">
@@ -833,7 +674,6 @@
       <form id="expenseForm" onsubmit="handleExpenseSubmission(event)" class="space-y-4">
         <input type="hidden" id="editExpenseId" value="">
 
-        <!-- Transaction Type Switcher -->
         <div>
           <div class="bg-slate-900 p-1.5 rounded-2xl flex border border-slate-800 gap-1">
             <button type="button" id="tabTypeExpense" onclick="setTransactionType('Expense')" class="flex-1 py-2 text-xs font-bold rounded-xl transition text-white bg-rose-600 shadow cursor-pointer">
@@ -848,7 +688,6 @@
           </div>
         </div>
 
-        <!-- Amount & Date -->
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-[11px] font-semibold text-slate-300 mb-1">Amount (₹) *</label>
@@ -860,7 +699,6 @@
           </div>
         </div>
 
-        <!-- Dynamic Row: Expense & Income -->
         <div id="rowCategoryAndAccount" class="grid grid-cols-2 gap-3">
           <div>
             <div class="flex justify-between items-center mb-1">
@@ -879,7 +717,6 @@
           </div>
         </div>
 
-        <!-- Dynamic Row: For Transfers -->
         <div id="rowTransferAccounts" class="hidden grid grid-cols-2 gap-3">
           <div>
             <label class="block text-[11px] font-semibold text-rose-400 mb-1">From Account (Sender) *</label>
@@ -891,11 +728,9 @@
           </div>
         </div>
 
-        <!-- Note with Strict Starts-With Autocomplete -->
         <div class="relative">
           <label class="block text-[11px] font-semibold text-slate-300 mb-1">Note / Description (strict prefix autocomplete)</label>
-          <input type="text" id="expNote" autocomplete="off" oninput="handleNotePrefixInput(this.value)" placeholder="e.g. mobile recharge, grocery, fuel" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-3 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
-          
+          <input type="text" id="expNote" autocomplete="off" oninput="handleNotePrefixInput(this.value)" placeholder="e.g. mobile, grocery, fuel" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-3 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
           <div id="noteSuggestionBox" class="absolute left-0 right-0 top-full mt-1 bg-slate-900/98 backdrop-blur-md border border-slate-700 rounded-xl shadow-2xl z-50 max-h-44 overflow-y-auto hidden divide-y divide-slate-800"></div>
         </div>
 
@@ -906,7 +741,7 @@
     </div>
   </div>
 
-  <!-- ================= MODAL: LOG DEBT / EMI COMMITMENT ================= -->
+  <!-- ================= FULL-PAGE SHEET MODAL: LOG DEBT / EMI COMMITMENT ================= -->
   <div id="debtPopupModal" class="fixed inset-0 z-50 bg-[#070a12] hidden flex flex-col justify-start overflow-y-auto safe-top pb-10">
     <div class="w-full max-w-md mx-auto p-4 space-y-4">
       <div class="flex justify-between items-center border-b border-slate-800/80 pb-3">
@@ -972,7 +807,7 @@
           </div>
           <div>
             <label class="block text-[11px] font-semibold text-indigo-300 mb-1">Months Left</label>
-            <input type="number" id="fMonthsLeft" min="1" max="600" placeholder="93" class="w-full bg-slate-900 border border-indigo-500/40 rounded-xl px-2 py-2.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none font-semibold">
+            <input type="number" id="fMonthsLeft" min="1" max="600" placeholder="93" class="w-full bg-slate-900 border border-indigo-500/40 rounded-xl px-2.5 py-2.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none font-semibold">
           </div>
         </div>
 
@@ -1007,9 +842,9 @@
     </div>
   </div>
 
-  <!-- ================= MODAL: DEBT CATEGORIES ================= -->
+  <!-- MODAL: DEBT CATEGORIES -->
   <div id="categoryModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="glass-modal w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 border border-slate-700/80 space-y-4 max-h-[85vh] overflow-y-auto">
+    <div class="glass-card w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 border border-slate-700/80 space-y-4 max-h-[85vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <div>
           <h3 class="text-sm font-bold text-white">Debt Categories</h3>
@@ -1040,9 +875,9 @@
     </div>
   </div>
 
-  <!-- ================= MODAL: EXPENSE & INCOME CATEGORY MANAGER (SEPARATE TABS) ================= -->
+  <!-- MODAL: EXPENSE & INCOME CATEGORY MANAGER (SEPARATE TABS) -->
   <div id="expenseCatModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="glass-modal w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 border border-slate-700/80 space-y-4 max-h-[85vh] overflow-y-auto">
+    <div class="glass-card w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 border border-slate-700/80 space-y-4 max-h-[85vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <div>
           <h3 class="text-sm font-bold text-white">Categories Manager</h3>
@@ -1082,9 +917,9 @@
     </div>
   </div>
 
-  <!-- ================= MODAL: ACCOUNTS & STARTING BALANCES ================= -->
+  <!-- MODAL: ACCOUNTS & STARTING BALANCES -->
   <div id="accountModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="glass-modal w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 border border-slate-700/80 space-y-4 max-h-[85vh] overflow-y-auto">
+    <div class="glass-card w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 border border-slate-700/80 space-y-4 max-h-[85vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <div>
           <h3 class="text-sm font-bold text-white">Accounts & Starting Balances</h3>
@@ -1131,13 +966,11 @@
       "Electronics", "Furniture", "Gadgets", "Credit card", "Others"
     ];
 
-    // PURE EXPENSE CATEGORIES ONLY
     const DEFAULT_EXPENSE_CATEGORIES = [
       "Groceries", "Food & Dining", "Fuel & Transport", "Utilities & Bills",
       "Shopping", "Health & Medical", "Entertainment", "Apparel & Styling", "Education", "EMI", "Miscellaneous"
     ];
 
-    // PURE INCOME CATEGORIES ONLY
     const DEFAULT_INCOME_CATEGORIES = [
       "Salary", "Bonus", "Allowance", "Investment Inflow", "Freelance", "Rental Income", "Cashback"
     ];
@@ -1183,8 +1016,8 @@
       { category: "Fuel & Transport", plannedAmount: 5000 }
     ];
 
-    // State Storage (100% Intact Keys)
-    let activeModule = 'daily';
+    // State Storage (Preserving 100% of user data)
+    let activeModule = localStorage.getItem('app_default_landing') || 'daily';
     let currentTransactionType = 'Expense';
     let currentCatModalType = 'Expense';
     let currentSpendFeedFilter = 'ALL';
@@ -1203,7 +1036,7 @@
 
     let monthlyBudgets = JSON.parse(localStorage.getItem('monthly_budgets_v1')) || {};
 
-    // Security Pin State
+    // PIN Lock State
     let appSecurityPin = localStorage.getItem('app_security_pin') || '';
     let enteredPin = '';
 
@@ -1228,6 +1061,84 @@
       document.getElementById('toastMsg').innerText = text;
       toast.classList.remove('hidden');
       setTimeout(() => toast.classList.add('hidden'), 2600);
+    }
+
+    // -------------------------------------------------------------
+    // AUTOMATIC AMORTIZATION ENGINE FOR CONSECUTIVE MONTHS (NEW)
+    // -------------------------------------------------------------
+    // Given previous month balance B, rate r (APR), EMI E, and remaining months n:
+    // Calculates amortized balance for the consecutive month.
+    function calculateNextMonthAmortization(balance, rate, emi, monthsLeft) {
+      const P = parseFloat(balance) || 0;
+      const r = ((parseFloat(rate) || 0) / 100) / 12;
+      const E = parseFloat(emi) || 0;
+      const n = parseInt(monthsLeft) || 1;
+
+      if (P <= 0) return { newBalance: 0, newMonthsLeft: 0 };
+
+      let interest = 0;
+      let principalPaid = 0;
+
+      if (r === 0) {
+        principalPaid = Math.min(P, E);
+      } else {
+        interest = P * r;
+        principalPaid = Math.min(P, Math.max(0, E - interest));
+      }
+
+      const newBalance = Math.max(0, Math.round(P - principalPaid));
+      const newMonthsLeft = Math.max(0, n - 1);
+
+      return { newBalance, newMonthsLeft };
+    }
+
+    // Helper: Finds the preceding chronological month (e.g., '2026-10' -> '2026-09')
+    function getPreviousMonthString(monthStr) {
+      const [year, month] = monthStr.split('-').map(Number);
+      const d = new Date(year, month - 2, 1);
+      return d.toISOString().slice(0, 7);
+    }
+
+    // Resolves all loans for a given month. If an active loan hasn't been logged yet in
+    // a consecutive month, it automatically projects its balance forward.
+    function getLoansForMonth(targetMonth) {
+      const existing = debtRecords.filter(d => d.month === targetMonth);
+      const existingNames = new Set(existing.map(d => d.metric.toLowerCase()));
+
+      const allUniqueLoanNames = [...new Set(debtRecords.map(d => d.metric))];
+      const autoProjected = [];
+
+      allUniqueLoanNames.forEach(name => {
+        if (!existingNames.has(name.toLowerCase())) {
+          // Find the most recent recorded status for this loan
+          const history = debtRecords.filter(d => d.metric.toLowerCase() === name.toLowerCase() && d.month < targetMonth)
+                                     .sort((a, b) => b.month.localeCompare(a.month));
+
+          if (history.length > 0) {
+            const lastLog = history[0];
+            if (lastLog.balance > 0) {
+              const amort = calculateNextMonthAmortization(lastLog.balance, lastLog.rate, lastLog.emi, lastLog.monthsLeft);
+              if (amort.newBalance > 0) {
+                autoProjected.push({
+                  id: 'auto_' + lastLog.id + '_' + targetMonth,
+                  month: targetMonth,
+                  metric: lastLog.metric,
+                  category: lastLog.category,
+                  balance: amort.newBalance,
+                  emi: lastLog.emi,
+                  rate: lastLog.rate,
+                  monthsLeft: amort.newMonthsLeft,
+                  priority: lastLog.priority,
+                  notes: lastLog.notes,
+                  isAutoProjected: true
+                });
+              }
+            }
+          }
+        }
+      });
+
+      return [...existing, ...autoProjected];
     }
 
     // -------------------------------------------------------------
@@ -1300,7 +1211,6 @@
       document.getElementById('globalFloatingBtnContainer').classList.add('hidden');
       document.getElementById('globalBottomNav').classList.add('hidden');
 
-      // Sync settings values
       const btnPin = document.getElementById('btnTogglePinSetting');
       if (appSecurityPin && appSecurityPin.length === 4) {
         btnPin.innerText = 'Enabled (Click to Change/Disable)';
@@ -1352,2198 +1262,7 @@
     }
 
     // -------------------------------------------------------------
-    // TRI-MODE SWITCHER (ORDER: SPENDS -> PLANNER -> DEBT)
-    // -------------------------------------------------------------
-    function toggleAppMode(mode) {
-      activeModule = mode;
-      const btnDebt = document.getElementById('btnModeDebt');
-      const btnPlanner = document.getElementById('btnModePlanner');
-      const btnDaily = document.getElementById('btnModeDaily');
-
-      const debtContainer = document.getElementById('debtModuleContainer');
-      const plannerContainer = document.getElementById('plannerModuleContainer');
-      const dailyContainer = document.getElementById('dailyModuleContainer');
-
-      document.getElementById('settingsModuleContainer').classList.add('hidden');
-      document.getElementById('globalFloatingBtnContainer').classList.remove('hidden');
-      document.getElementById('globalBottomNav').classList.remove('hidden');
-
-      // Reset styles
-      [btnDebt, btnPlanner, btnDaily].forEach(btn => {
-        btn.className = "flex-1 py-2 text-[11px] font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer flex items-center justify-center gap-1.5 active:scale-95";
-      });
-
-      debtContainer.classList.add('hidden');
-      plannerContainer.classList.add('hidden');
-      dailyContainer.classList.add('hidden');
-
-      if (mode === 'daily') {
-        btnDaily.className = "flex-1 py-2 text-[11px] font-extrabold rounded-xl transition text-white bg-gradient-to-r from-emerald-500 to-teal-500 shadow-md shadow-emerald-500/25 cursor-pointer flex items-center justify-center gap-1.5 active:scale-95";
-        document.getElementById('modeIcon').className = "w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 via-teal-500 to-cyan-400 flex items-center justify-center text-white font-bold text-base shadow-lg shadow-emerald-500/25";
-        document.getElementById('modeIcon').innerHTML = '<i class="fa-solid fa-wallet"></i>';
-        document.getElementById('appTitleText').innerHTML = 'Daily Spends <span class="text-[10px] font-semibold bg-emerald-500/15 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30">Live Feed</span>';
-        document.getElementById('appSubtitleText').innerText = 'Income, expenses, transfers & trends';
-
-        dailyContainer.classList.remove('hidden');
-        renderBottomNav('daily');
-        switchDailyScreen('dailyEntryScreen');
-      } else if (mode === 'planner') {
-        btnPlanner.className = "flex-1 py-2 text-[11px] font-extrabold rounded-xl transition text-white bg-gradient-to-r from-purple-600 to-indigo-600 shadow-md shadow-indigo-600/30 cursor-pointer flex items-center justify-center gap-1.5 active:scale-95";
-        document.getElementById('modeIcon').className = "w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-400 flex items-center justify-center text-white font-bold text-base shadow-lg shadow-indigo-500/30";
-        document.getElementById('modeIcon').innerHTML = '<i class="fa-solid fa-bullseye"></i>';
-        document.getElementById('appTitleText').innerHTML = 'Monthly Budget Planner <span class="text-[10px] font-semibold bg-purple-500/15 text-purple-300 px-2 py-0.5 rounded-full border border-purple-500/30">Targets</span>';
-        document.getElementById('appSubtitleText').innerText = 'Plan budget & track actual spend balance';
-
-        plannerContainer.classList.remove('hidden');
-        renderBottomNav('planner');
-        switchPlannerScreen('plannerInputScreen');
-      } else {
-        btnDebt.className = "flex-1 py-2 text-[11px] font-extrabold rounded-xl transition text-white bg-gradient-to-r from-amber-500 to-rose-500 shadow-md shadow-rose-500/20 cursor-pointer flex items-center justify-center gap-1.5 active:scale-95";
-        document.getElementById('modeIcon').className = "w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 flex items-center justify-center text-white font-bold text-base shadow-lg shadow-rose-500/25";
-        document.getElementById('modeIcon').innerHTML = '<i class="fa-solid fa-scale-balanced"></i>';
-        document.getElementById('appTitleText').innerHTML = 'Debt & EMI Manager <span class="text-[10px] font-semibold bg-amber-500/15 text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/30">Commitments</span>';
-        document.getElementById('appSubtitleText').innerText = 'Long-term liabilities & predictions';
-
-        debtContainer.classList.remove('hidden');
-        renderBottomNav('debt');
-        switchDebtScreen('entryScreen');
-      }
-    }
-
-    function renderBottomNav(mode) {
-      const container = document.getElementById('bottomNavRow');
-      if (mode === 'daily') {
-        container.innerHTML = `
-          <button type="button" onclick="switchDailyScreen('dailyEntryScreen')" id="nav-dailyEntryScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 active-nav transition flex-1 py-1 cursor-pointer">
-            <i class="fa-solid fa-list-check text-base"></i>
-            <span class="text-[10px] font-semibold">Feed</span>
-          </button>
-          <button type="button" onclick="switchDailyScreen('dailySummaryScreen')" id="nav-dailySummaryScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
-            <i class="fa-solid fa-chart-pie text-base"></i>
-            <span class="text-[10px] font-semibold">Summary</span>
-          </button>
-          <button type="button" onclick="switchDailyScreen('dailyTrendsScreen')" id="nav-dailyTrendsScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
-            <i class="fa-solid fa-chart-line text-base"></i>
-            <span class="text-[10px] font-semibold">Trends</span>
-          </button>
-          <button type="button" onclick="switchDailyScreen('dailyCalendarScreen')" id="nav-dailyCalendarScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
-            <i class="fa-regular fa-calendar-days text-base"></i>
-            <span class="text-[10px] font-semibold">Calendar</span>
-          </button>
-          <button type="button" onclick="openAccountModal()" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
-            <i class="fa-solid fa-building-columns text-base"></i>
-            <span class="text-[10px] font-semibold">Accounts</span>
-          </button>
-        `;
-      } else if (mode === 'planner') {
-        container.innerHTML = `
-          <button type="button" onclick="switchPlannerScreen('plannerInputScreen')" id="nav-plannerInputScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 active-nav transition flex-1 py-1 cursor-pointer">
-            <i class="fa-solid fa-pen-ruler text-base"></i>
-            <span class="text-[10px] font-semibold">Targets</span>
-          </button>
-          <button type="button" onclick="switchPlannerScreen('plannerDashboardScreen')" id="nav-plannerDashboardScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
-            <i class="fa-solid fa-gauge-high text-base"></i>
-            <span class="text-[10px] font-semibold">Status</span>
-          </button>
-          <button type="button" onclick="switchPlannerScreen('plannerHistoryScreen')" id="nav-plannerHistoryScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
-            <i class="fa-solid fa-chart-column text-base"></i>
-            <span class="text-[10px] font-semibold">Progress</span>
-          </button>
-          <button type="button" onclick="openExpenseCategoryModal()" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
-            <i class="fa-solid fa-tags text-base"></i>
-            <span class="text-[10px] font-semibold">Categories</span>
-          </button>
-        `;
-      } else {
-        container.innerHTML = `
-          <button type="button" onclick="switchDebtScreen('entryScreen')" id="nav-entryScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 active-nav transition flex-1 py-1 cursor-pointer">
-            <i class="fa-solid fa-list-ul text-base"></i>
-            <span class="text-[10px] font-semibold">Loans</span>
-          </button>
-          <button type="button" onclick="switchDebtScreen('dashboardScreen')" id="nav-dashboardScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
-            <i class="fa-solid fa-gauge-high text-base"></i>
-            <span class="text-[10px] font-semibold">Summary</span>
-          </button>
-          <button type="button" onclick="switchDebtScreen('trendsScreen')" id="nav-trendsScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
-            <i class="fa-solid fa-chart-line text-base"></i>
-            <span class="text-[10px] font-semibold">Trends</span>
-          </button>
-          <button type="button" onclick="switchDebtScreen('plannerScreen')" id="nav-plannerScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
-            <i class="fa-solid fa-bullseye text-base"></i>
-            <span class="text-[10px] font-semibold">Payoff</span>
-          </button>
-          <button type="button" onclick="switchDebtScreen('settingsScreen')" id="nav-settingsScreen" class="nav-item flex flex-col items-center gap-1 text-slate-400 transition flex-1 py-1 cursor-pointer">
-            <i class="fa-solid fa-gear text-base"></i>
-            <span class="text-[10px] font-semibold">Settings</span>
-          </button>
-        `;
-      }
-    }
-
-    function triggerFloatingAdd() {
-      if (activeModule === 'daily') {
-        openSpendPopupModal();
-      } else if (activeModule === 'planner') {
-        switchPlannerScreen('plannerInputScreen');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        document.getElementById('budgetCatNameInput').focus();
-      } else {
-        openDebtPopupModal();
-      }
-    }
-
-    function openContextModal() {
-      if (activeModule === 'daily' || activeModule === 'planner') {
-        openExpenseCategoryModal();
-      } else {
-        openCategoryModal();
-      }
-    }
-
-    // -------------------------------------------------------------
-    // PART 2: MONTHLY BUDGET PLANNER (CONSECUTIVE MONTH AUTO-INHERIT)
-    // -------------------------------------------------------------
-    function switchPlannerScreen(screenId) {
-      document.querySelectorAll('.planner-screen').forEach(el => el.classList.add('hidden'));
-      const target = document.getElementById(screenId);
-      if (target) target.classList.remove('hidden');
-
-      document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active-nav'));
-      const activeNavBtn = document.getElementById('nav-' + screenId);
-      if (activeNavBtn) activeNavBtn.classList.add('active-nav');
-
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-
-      if (screenId === 'plannerInputScreen') renderBudgetPlanner();
-      if (screenId === 'plannerDashboardScreen') renderPlannerDashboard();
-      if (screenId === 'plannerHistoryScreen') renderPlannerMultiMonthHistory();
-    }
-
-    function getSelectedPlannerMonth() {
-      const el = document.getElementById('plannerMonthSelector');
-      return el.value || new Date().toISOString().slice(0, 7);
-    }
-
-    function onPlannerMonthChanged() {
-      const m = getSelectedPlannerMonth();
-      document.getElementById('plannerDashMonthSelector').value = m;
-      renderBudgetPlanner();
-    }
-
-    function onPlannerDashMonthChanged() {
-      const m = document.getElementById('plannerDashMonthSelector').value;
-      document.getElementById('plannerMonthSelector').value = m;
-      renderPlannerDashboard();
-    }
-
-    function saveMonthlyBudgetStorage() {
-      localStorage.setItem('monthly_budgets_v1', JSON.stringify(monthlyBudgets));
-    }
-
-    // Helper: Finds the most recent existing budget to carry forward into new consecutive months
-    function getLatestConfiguredBudget() {
-      const existingMonths = Object.keys(monthlyBudgets).sort();
-      if (existingMonths.length > 0) {
-        const lastMonth = existingMonths[existingMonths.length - 1];
-        if (monthlyBudgets[lastMonth] && monthlyBudgets[lastMonth].length > 0) {
-          return JSON.parse(JSON.stringify(monthlyBudgets[lastMonth]));
-        }
-      }
-      return JSON.parse(JSON.stringify(DEFAULT_BUDGET_TEMPLATES));
-    }
-
-    function handleSaveBudgetItem(e) {
-      e.preventDefault();
-      const monthKey = getSelectedPlannerMonth();
-      const cat = document.getElementById('budgetCatNameInput').value.trim();
-      const amt = parseFloat(document.getElementById('budgetCatAmountInput').value) || 0;
-
-      if (!cat) return;
-
-      if (!monthlyBudgets[monthKey]) {
-        monthlyBudgets[monthKey] = getLatestConfiguredBudget();
-      }
-
-      const existingIndex = monthlyBudgets[monthKey].findIndex(b => b.category.toLowerCase() === cat.toLowerCase());
-      if (existingIndex !== -1) {
-        monthlyBudgets[monthKey][existingIndex].plannedAmount = amt;
-        notify(`Updated ${cat} budget to ${formatINR(amt)}`);
-      } else {
-        monthlyBudgets[monthKey].push({ category: cat, plannedAmount: amt });
-        notify(`Added ${cat} budget (${formatINR(amt)})`);
-      }
-
-      if (!expenseCategories.some(c => c.toLowerCase() === cat.toLowerCase())) {
-        expenseCategories.push(cat);
-        saveExpenseStorage();
-        populateExpenseElements();
-      }
-
-      saveMonthlyBudgetStorage();
-      document.getElementById('budgetCatNameInput').value = '';
-      document.getElementById('budgetCatAmountInput').value = '';
-      renderBudgetPlanner();
-    }
-
-    function deleteBudgetItem(categoryName) {
-      const monthKey = getSelectedPlannerMonth();
-      if (confirm(`Remove planned target for "${categoryName}" in ${monthKey}?`)) {
-        if (monthlyBudgets[monthKey]) {
-          monthlyBudgets[monthKey] = monthlyBudgets[monthKey].filter(b => b.category !== categoryName);
-          saveMonthlyBudgetStorage();
-          renderBudgetPlanner();
-          notify(`Removed ${categoryName}`);
-        }
-      }
-    }
-
-    function renderBudgetPlanner() {
-      const monthKey = getSelectedPlannerMonth();
-      
-      // AUTO-INHERIT: Carry forward consecutive budget from previous configured month
-      if (!monthlyBudgets[monthKey] || monthlyBudgets[monthKey].length === 0) {
-        monthlyBudgets[monthKey] = getLatestConfiguredBudget();
-        saveMonthlyBudgetStorage();
-      }
-
-      const plannedList = monthlyBudgets[monthKey] || [];
-      const plannedCategoryCards = document.getElementById('plannerCategoryCardsContainer');
-      plannedCategoryCards.innerHTML = '';
-
-      const datalist = document.getElementById('budgetCatDatalist');
-      datalist.innerHTML = '';
-      expenseCategories.forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c;
-        datalist.appendChild(opt);
-      });
-
-      plannedList.forEach(item => {
-        const card = document.createElement('div');
-        card.className = "glass-card rounded-2xl p-4 border border-slate-800 flex justify-between items-center";
-        card.innerHTML = `
-          <div>
-            <span class="text-xs font-bold text-white block">${item.category}</span>
-            <span class="text-[11px] text-slate-400">Target: <b class="text-purple-300 font-extrabold">${formatINR(item.plannedAmount)}</b></span>
-          </div>
-          <div class="flex items-center gap-2">
-            <button type="button" onclick="editBudgetItemPrompt('${item.category}', ${item.plannedAmount})" class="text-indigo-400 hover:text-indigo-300 font-semibold p-1 cursor-pointer text-xs">
-              <i class="fa-solid fa-pen-to-square"></i>
-            </button>
-            <button type="button" onclick="deleteBudgetItem('${item.category}')" class="text-rose-500 hover:text-rose-400 p-1 cursor-pointer text-xs">
-              <i class="fa-solid fa-trash-can"></i>
-            </button>
-          </div>
-        `;
-        plannedCategoryCards.appendChild(card);
-      });
-
-      document.getElementById('plannerAllocationsCount').innerText = `${plannedList.length} Categories`;
-    }
-
-    function renderPlannerDashboard() {
-      const monthKey = document.getElementById('plannerDashMonthSelector').value || getSelectedPlannerMonth();
-      
-      if (!monthlyBudgets[monthKey] || monthlyBudgets[monthKey].length === 0) {
-        monthlyBudgets[monthKey] = getLatestConfiguredBudget();
-        saveMonthlyBudgetStorage();
-      }
-
-      const plannedList = monthlyBudgets[monthKey] || [];
-      const totalPlanned = plannedList.reduce((sum, item) => sum + item.plannedAmount, 0);
-
-      const monthExpenses = expenseRecords.filter(r => r.date.startsWith(monthKey) && r.type === 'Expense');
-      let totalActualSpent = 0;
-      const progressListContainer = document.getElementById('plannerDashboardProgressList');
-      progressListContainer.innerHTML = '';
-
-      plannedList.forEach(item => {
-        let catActual = 0;
-        if (item.category.toLowerCase() === 'emi') {
-          catActual = monthExpenses.filter(r => r.category.toLowerCase().includes('emi')).reduce((s, it) => s + it.amount, 0);
-          if (catActual === 0) {
-            const debtLogs = debtRecords.filter(d => d.month === monthKey);
-            catActual = debtLogs.reduce((s, d) => s + (d.emi || 0), 0);
-          }
-        } else {
-          catActual = monthExpenses.filter(r => r.category.toLowerCase() === item.category.toLowerCase())
-                                   .reduce((s, it) => s + it.amount, 0);
-        }
-
-        totalActualSpent += catActual;
-        const remaining = item.plannedAmount - catActual;
-        const burnPct = item.plannedAmount > 0 ? ((catActual / item.plannedAmount) * 100) : 0;
-
-        let statusColor = "bg-emerald-500 text-emerald-400";
-        let statusBadge = `<span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">In Budget</span>`;
-        if (burnPct >= 100) {
-          statusColor = "bg-rose-500 text-rose-400";
-          statusBadge = `<span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-rose-500/15 text-rose-300 border border-rose-500/30">Over Budget!</span>`;
-        } else if (burnPct >= 75) {
-          statusColor = "bg-amber-500 text-amber-400";
-          statusBadge = `<span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">75%+ Used</span>`;
-        }
-
-        const card = document.createElement('div');
-        card.className = "glass-card rounded-2xl p-4 border border-slate-800 space-y-2";
-        card.innerHTML = `
-          <div class="flex justify-between items-start">
-            <div>
-              <div class="flex items-center gap-1.5">
-                <span class="text-xs font-bold text-white">${item.category}</span>
-                ${statusBadge}
-              </div>
-              <span class="text-[11px] text-slate-400 mt-0.5 block">
-                Target: <b class="text-slate-200">${formatINR(item.plannedAmount)}</b>
-              </span>
-            </div>
-            <div class="text-right">
-              <span class="text-xs font-extrabold ${remaining >= 0 ? 'text-emerald-400' : 'text-rose-400'} block">
-                ${remaining >= 0 ? formatINR(remaining) + ' Left' : formatINR(Math.abs(remaining)) + ' Exceeded'}
-              </span>
-              <span class="text-[10px] text-slate-500 font-semibold block">Spent: ${formatINR(catActual)} (${burnPct.toFixed(0)}%)</span>
-            </div>
-          </div>
-
-          <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden border border-slate-800/80">
-            <div class="${statusColor.split(' ')[0]} h-full rounded-full transition-all duration-300" style="width: ${Math.min(100, burnPct)}%"></div>
-          </div>
-        `;
-        progressListContainer.appendChild(card);
-      });
-
-      const totalRemaining = totalPlanned - totalActualSpent;
-      const totalBurnPct = totalPlanned > 0 ? ((totalActualSpent / totalPlanned) * 100) : 0;
-
-      const dateObj = new Date(monthKey + '-01');
-      document.getElementById('plannerOverviewMonthBadge').innerText = dateObj.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
-      document.getElementById('kpiTotalPlannedBudget').innerText = formatINR(totalPlanned);
-      document.getElementById('kpiPlannerTotalActualSpent').innerText = formatINR(totalActualSpent);
-      document.getElementById('kpiPlannerTotalRemainingBuffer').innerText = (totalRemaining >= 0 ? '' : '-') + formatINR(Math.abs(totalRemaining));
-      document.getElementById('kpiPlannerTotalRemainingBuffer').className = `text-lg font-bold mt-0.5 block ${totalRemaining >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
-
-      document.getElementById('kpiBudgetOverallBurnBadge').innerText = `${totalBurnPct.toFixed(0)}% Used`;
-      document.getElementById('plannerTotalProgressBar').style.width = `${Math.min(100, totalBurnPct)}%`;
-      document.getElementById('plannerTotalProgressBar').className = `${totalBurnPct > 100 ? 'bg-rose-500' : (totalBurnPct > 75 ? 'bg-amber-500' : 'bg-purple-500')} h-full rounded-full transition-all duration-500`;
-      document.getElementById('kpiPlannerSurplusStatus').innerText = totalRemaining >= 0 ? `${formatINR(totalRemaining)} unspent surplus` : 'Over budget limit';
-    }
-
-    function renderPlannerMultiMonthHistory() {
-      const monthsList = Object.keys(monthlyBudgets).sort();
-      const tbody = document.getElementById('plannerMultiMonthTableBody');
-      tbody.innerHTML = '';
-
-      if (monthsList.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="py-4 text-center text-slate-500">No monthly plans recorded yet.</td></tr>';
-        return;
-      }
-
-      const labels = [];
-      const plannedSeries = [];
-      const actualSeries = [];
-
-      monthsList.forEach(mKey => {
-        const plans = monthlyBudgets[mKey] || [];
-        const plannedSum = plans.reduce((s, it) => s + it.plannedAmount, 0);
-
-        const expSum = expenseRecords.filter(r => r.date.startsWith(mKey) && r.type === 'Expense')
-                                    .reduce((s, it) => s + it.amount, 0);
-
-        const remaining = plannedSum - expSum;
-        const dObj = new Date(mKey + '-01');
-        const monthLabel = dObj.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' });
-
-        labels.push(monthLabel);
-        plannedSeries.push(plannedSum);
-        actualSeries.push(expSum);
-
-        const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-900/40";
-        tr.innerHTML = `
-          <td class="py-2.5 px-2.5 font-bold text-white">${monthLabel}</td>
-          <td class="py-2.5 px-2.5 text-right font-medium text-slate-300">${formatINR(plannedSum)}</td>
-          <td class="py-2.5 px-2.5 text-right font-bold text-rose-400">${formatINR(expSum)}</td>
-          <td class="py-2.5 px-2.5 text-right font-bold ${remaining >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${formatINR(remaining)}</td>
-          <td class="py-2.5 px-2.5 text-center">
-            <span class="text-[9px] px-1.5 py-0.5 rounded-full font-bold ${remaining >= 0 ? 'bg-emerald-500/15 text-emerald-300' : 'bg-rose-500/15 text-rose-300'}">
-              ${remaining >= 0 ? 'Surplus' : 'Deficit'}
-            </span>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      if (plannerMultiMonthChart) plannerMultiMonthChart.destroy();
-      const ctxMulti = document.getElementById('plannerMultiMonthChart').getContext('2d');
-      plannerMultiMonthChart = new Chart(ctxMulti, {
-        type: 'bar',
-        data: {
-          labels,
-          datasets: [
-            { label: 'Planned Target', data: plannedSeries, backgroundColor: '#8b5cf6', borderRadius: 4 },
-            { label: 'Actual Outflow', data: actualSeries, backgroundColor: '#f43f5e', borderRadius: 4 }
-          ]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { position: 'top', labels: { boxWidth: 10, color: '#94a3b8', font: { size: 10 } } } },
-          scales: {
-            x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } },
-            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 }, callback: v => '₹' + v } }
-          }
-        }
-      });
-    }
-
-    function editBudgetItemPrompt(cat, currentAmt) {
-      const newAmt = prompt(`Update monthly budget limit for ${cat}:`, currentAmt);
-      if (newAmt !== null) {
-        const parsed = parseFloat(newAmt);
-        if (!isNaN(parsed) && parsed >= 0) {
-          const monthKey = getSelectedPlannerMonth();
-          const target = monthlyBudgets[monthKey].find(b => b.category === cat);
-          if (target) {
-            target.plannedAmount = parsed;
-            saveMonthlyBudgetStorage();
-            renderBudgetPlanner();
-            notify(`Updated ${cat} budget`);
-          }
-        }
-      }
-    }
-
-    // -------------------------------------------------------------
-    // PART 3: DAILY SPENDS CONTROLLER & FULL-PAGE MODAL
-    // -------------------------------------------------------------
-    function openSpendPopupModal() {
-      resetExpenseFormToNew();
-      document.getElementById('spendModalTitle').innerText = 'Log Transaction';
-      document.getElementById('spendPopupModal').classList.remove('hidden');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      document.getElementById('expAmount').focus();
-    }
-
-    function closeSpendPopupModal() {
-      document.getElementById('spendPopupModal').classList.add('hidden');
-      document.getElementById('noteSuggestionBox').classList.add('hidden');
-    }
-
-    function setSpendFeedFilter(type) {
-      currentSpendFeedFilter = type;
-      ['ALL', 'Expense', 'Income', 'Transfer'].forEach(t => {
-        const btn = document.getElementById('feedFilter-' + t);
-        if (btn) {
-          if (t === type) {
-            btn.className = "px-3 py-1 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow cursor-pointer";
-          } else {
-            btn.className = "px-3 py-1 rounded-xl text-xs font-semibold bg-slate-800 text-slate-400 hover:text-white cursor-pointer border border-slate-700/60";
-          }
-        }
-      });
-      renderExpenseHistoryTable();
-    }
-
-    function onDailyFeedMonthChanged() {
-      renderExpenseHistoryTable();
-    }
-
-    function setTransactionType(type) {
-      currentTransactionType = type;
-      const bExp = document.getElementById('tabTypeExpense');
-      const bInc = document.getElementById('tabTypeIncome');
-      const bTrf = document.getElementById('tabTypeTransfer');
-      const rowNormal = document.getElementById('rowCategoryAndAccount');
-      const rowTransfer = document.getElementById('rowTransferAccounts');
-      const submitBtn = document.getElementById('btnExpenseSubmit');
-
-      const expCatSelect = document.getElementById('expCategory');
-      const expAccSelect = document.getElementById('expAccount');
-      const trfFromSelect = document.getElementById('expTransferFrom');
-      const trfToSelect = document.getElementById('expTransferTo');
-
-      [bExp, bInc, bTrf].forEach(btn => {
-        btn.className = "flex-1 py-2 text-xs font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer";
-      });
-
-      expCatSelect.innerHTML = '';
-
-      if (type === 'Transfer') {
-        bTrf.className = "flex-1 py-2 text-xs font-bold rounded-xl transition text-white bg-cyan-600 shadow cursor-pointer";
-        rowNormal.classList.add('hidden');
-        rowTransfer.classList.remove('hidden');
-
-        expCatSelect.removeAttribute('required');
-        expAccSelect.removeAttribute('required');
-        trfFromSelect.setAttribute('required', 'required');
-        trfToSelect.setAttribute('required', 'required');
-
-        submitBtn.className = "w-full bg-gradient-to-r from-cyan-600 to-blue-500 hover:from-cyan-500 hover:to-blue-600 text-white font-semibold py-3.5 rounded-2xl text-xs tracking-wide transition shadow-lg shadow-cyan-600/30 flex items-center justify-center gap-2 active:scale-98 cursor-pointer mt-4";
-        submitBtn.innerHTML = '<i class="fa-solid fa-arrow-right-arrow-left text-xs"></i> Record Account Transfer';
-      } else {
-        rowNormal.classList.remove('hidden');
-        rowTransfer.classList.add('hidden');
-
-        expCatSelect.setAttribute('required', 'required');
-        expAccSelect.setAttribute('required', 'required');
-        trfFromSelect.removeAttribute('required');
-        trfToSelect.removeAttribute('required');
-
-        if (type === 'Income') {
-          bInc.className = "flex-1 py-2 text-xs font-bold rounded-xl transition text-white bg-emerald-600 shadow cursor-pointer";
-          document.getElementById('lblCategory').innerText = 'Income Category *';
-          document.getElementById('lblAccount').innerText = 'Deposit Account *';
-          submitBtn.className = "w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-semibold py-3.5 rounded-2xl text-xs tracking-wide transition shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 active:scale-98 cursor-pointer mt-4";
-          submitBtn.innerHTML = '<i class="fa-solid fa-plus text-xs"></i> Record Income';
-
-          incomeCategories.forEach(c => {
-            const opt = document.createElement('option');
-            opt.value = c;
-            opt.textContent = c;
-            expCatSelect.appendChild(opt);
-          });
-        } else {
-          bExp.className = "flex-1 py-2 text-xs font-bold rounded-xl transition text-white bg-rose-600 shadow cursor-pointer";
-          document.getElementById('lblCategory').innerText = 'Expense Category *';
-          document.getElementById('lblAccount').innerText = 'Payment Account *';
-          submitBtn.className = "w-full bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-600 text-white font-semibold py-3.5 rounded-2xl text-xs tracking-wide transition shadow-lg shadow-rose-600/30 flex items-center justify-center gap-2 active:scale-98 cursor-pointer mt-4";
-          submitBtn.innerHTML = '<i class="fa-solid fa-plus text-xs"></i> Record Expense';
-
-          expenseCategories.forEach(c => {
-            const opt = document.createElement('option');
-            opt.value = c;
-            opt.textContent = c;
-            expCatSelect.appendChild(opt);
-          });
-        }
-      }
-    }
-
-    function switchDailyScreen(screenId) {
-      document.querySelectorAll('.daily-screen').forEach(el => el.classList.add('hidden'));
-      const target = document.getElementById(screenId);
-      if (target) target.classList.remove('hidden');
-
-      document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active-nav'));
-      const activeNavBtn = document.getElementById('nav-' + screenId);
-      if (activeNavBtn) activeNavBtn.classList.add('active-nav');
-
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-
-      if (screenId === 'dailyEntryScreen') renderExpenseHistoryTable();
-      if (screenId === 'dailySummaryScreen') renderDailySummary();
-      if (screenId === 'dailyTrendsScreen') {
-        renderDailyTrendsCharts();
-        onDrillFilterChanged();
-      }
-      if (screenId === 'dailyCalendarScreen') renderSpendCalendarMatrix();
-    }
-
-    function onDailyDashMonthChanged() {
-      renderDailySummary();
-    }
-
-    function saveExpenseStorage() {
-      localStorage.setItem('expense_categories', JSON.stringify(expenseCategories));
-      localStorage.setItem('income_categories', JSON.stringify(incomeCategories));
-      localStorage.setItem('expense_accounts', JSON.stringify(accountsList));
-      localStorage.setItem('expense_records', JSON.stringify(expenseRecords));
-    }
-
-    function populateExpenseElements() {
-      setTransactionType(currentTransactionType);
-
-      ['expAccount', 'expTransferFrom', 'expTransferTo'].forEach(id => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        const curVal = el.value;
-        el.innerHTML = '';
-        accountsList.forEach(a => {
-          const opt = document.createElement('option');
-          opt.value = a.name;
-          opt.textContent = a.name;
-          el.appendChild(opt);
-        });
-        if (curVal) el.value = curVal;
-      });
-
-      renderExpenseCategoryBadges();
-      renderAccountBadges();
-    }
-
-    function calculateAccountBalances() {
-      const balanceMap = {};
-      accountsList.forEach(acc => {
-        balanceMap[acc.name] = parseFloat(acc.initialBalance) || 0;
-      });
-
-      expenseRecords.forEach(r => {
-        const amt = parseFloat(r.amount) || 0;
-        if (r.type === 'Income') {
-          if (balanceMap[r.account] !== undefined) balanceMap[r.account] += amt;
-        } else if (r.type === 'Expense') {
-          if (balanceMap[r.account] !== undefined) balanceMap[r.account] -= amt;
-        } else if (r.type === 'Transfer') {
-          if (balanceMap[r.account] !== undefined) balanceMap[r.account] -= amt;
-          if (balanceMap[r.toAccount] !== undefined) balanceMap[r.toAccount] += amt;
-        }
-      });
-
-      return balanceMap;
-    }
-
-    function handleExpenseSubmission(e) {
-      e.preventDefault();
-      const editId = document.getElementById('editExpenseId').value;
-      const date = document.getElementById('expDate').value;
-      const amount = parseFloat(document.getElementById('expAmount').value) || 0;
-      const note = document.getElementById('expNote').value.trim();
-
-      let category = '';
-      let account = '';
-      let toAccount = '';
-
-      if (currentTransactionType === 'Transfer') {
-        category = 'Transfer';
-        account = document.getElementById('expTransferFrom').value;
-        toAccount = document.getElementById('expTransferTo').value;
-        if (!account || !toAccount) {
-          notify("Please pick both accounts!");
-          return;
-        }
-        if (account === toAccount) {
-          notify("Sender and receiver accounts cannot be the same!");
-          return;
-        }
-      } else {
-        category = document.getElementById('expCategory').value;
-        account = document.getElementById('expAccount').value;
-        toAccount = '';
-      }
-
-      if (editId) {
-        const idx = expenseRecords.findIndex(r => r.id == editId);
-        if (idx !== -1) {
-          expenseRecords[idx] = { ...expenseRecords[idx], type: currentTransactionType, date, amount, category, account, toAccount, note };
-          notify("Updated transaction");
-        }
-      } else {
-        const newRecord = { id: Date.now(), type: currentTransactionType, date, amount, category, account, toAccount, note };
-        expenseRecords.push(newRecord);
-        notify(`Recorded ${currentTransactionType}: ${formatINR(amount)}`);
-
-        // Consecutive Planner Auto-Add
-        if (currentTransactionType === 'Expense' && category) {
-          const monthKey = date ? date.slice(0, 7) : new Date().toISOString().slice(0, 7);
-          if (!monthlyBudgets[monthKey]) {
-            monthlyBudgets[monthKey] = getLatestConfiguredBudget();
-          }
-          const existsInPlanner = monthlyBudgets[monthKey].some(b => b.category.toLowerCase() === category.toLowerCase());
-          if (!existsInPlanner) {
-            monthlyBudgets[monthKey].push({ category: category, plannedAmount: amount });
-            saveMonthlyBudgetStorage();
-            notify(`Added "${category}" to Planner (₹${amount})`);
-          }
-        }
-      }
-
-      saveExpenseStorage();
-      closeSpendPopupModal();
-      renderExpenseHistoryTable();
-      renderDailySummary();
-      renderBudgetPlanner();
-    }
-
-    function editExpense(id) {
-      const item = expenseRecords.find(r => r.id == id);
-      if (!item) return;
-
-      openSpendPopupModal();
-      document.getElementById('spendModalTitle').innerText = `Edit ${item.type}: ${formatINR(item.amount)}`;
-      document.getElementById('editExpenseId').value = item.id;
-      setTransactionType(item.type || 'Expense');
-
-      document.getElementById('expDate').value = item.date;
-      document.getElementById('expAmount').value = item.amount;
-      document.getElementById('expNote').value = item.note || '';
-
-      if (item.type === 'Transfer') {
-        document.getElementById('expTransferFrom').value = item.account;
-        document.getElementById('expTransferTo').value = item.toAccount;
-      } else {
-        document.getElementById('expCategory').value = item.category;
-        document.getElementById('expAccount').value = item.account;
-      }
-    }
-
-    function resetExpenseFormToNew() {
-      document.getElementById('editExpenseId').value = '';
-      document.getElementById('expenseForm').reset();
-      document.getElementById('expDate').value = new Date().toISOString().slice(0, 10);
-      setTransactionType('Expense');
-    }
-
-    function deleteExpense(id) {
-      if (confirm("Delete this transaction entry?")) {
-        expenseRecords = expenseRecords.filter(r => r.id != id);
-        saveExpenseStorage();
-        renderExpenseHistoryTable();
-        renderDailySummary();
-        renderBudgetPlanner();
-        notify("Transaction deleted.");
-      }
-    }
-
-    function renderExpenseHistoryTable() {
-      const container = document.getElementById('expenseHistoryContainer');
-      container.innerHTML = '';
-
-      const search = document.getElementById('expenseLogSearch').value.toLowerCase();
-      const filterType = currentSpendFeedFilter;
-      const selectedMonth = document.getElementById('dailyFeedMonthSelector').value || null;
-
-      let filtered = expenseRecords.filter(r => {
-        const matchesMonth = !selectedMonth || r.date.startsWith(selectedMonth);
-        const matchesType = (filterType === 'ALL' || r.type === filterType);
-        const matchesSearch = !search || 
-          r.category.toLowerCase().includes(search) || 
-          r.account.toLowerCase().includes(search) || 
-          (r.toAccount && r.toAccount.toLowerCase().includes(search)) ||
-          (r.note && r.note.toLowerCase().includes(search)) ||
-          r.date.includes(search);
-        return matchesMonth && matchesType && matchesSearch;
-      });
-
-      filtered.sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id);
-      document.getElementById('expenseLogCounter').innerText = `${filtered.length} entries`;
-
-      if (filtered.length === 0) {
-        container.innerHTML = '<div class="glass-card rounded-2xl p-6 text-center text-slate-500 text-xs">No transactions recorded for this month. Tap + to add.</div>';
-        return;
-      }
-
-      filtered.forEach(row => {
-        let typeBadge = '';
-        let amountDisplay = '';
-
-        if (row.type === 'Income') {
-          typeBadge = '<span class="text-[9px] uppercase font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">Income</span>';
-          amountDisplay = `<span class="font-black text-emerald-400 text-sm tracking-tight">+${formatINR(row.amount)}</span>`;
-        } else if (row.type === 'Transfer') {
-          typeBadge = '<span class="text-[9px] uppercase font-bold px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">Transfer</span>';
-          amountDisplay = `<span class="font-black text-cyan-300 text-sm tracking-tight">⇄ ${formatINR(row.amount)}</span>`;
-        } else {
-          typeBadge = '<span class="text-[9px] uppercase font-bold px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/30">Expense</span>';
-          amountDisplay = `<span class="font-black text-rose-400 text-sm tracking-tight">-${formatINR(row.amount)}</span>`;
-        }
-
-        const itemEl = document.createElement('div');
-        itemEl.className = "glass-card rounded-2xl p-3.5 border border-slate-800 flex justify-between items-center text-xs";
-        
-        let accountText = `<span class="text-slate-400"><i class="fa-solid fa-wallet text-[10px] text-slate-500 mr-1"></i>${row.account}</span>`;
-        if (row.type === 'Transfer') {
-          accountText = `<span class="text-slate-400"><b class="text-rose-400">${row.account}</b> ➔ <b class="text-emerald-400">${row.toAccount}</b></span>`;
-        }
-
-        itemEl.innerHTML = `
-          <div class="space-y-1">
-            <div class="flex items-center gap-2">
-              ${typeBadge}
-              <span class="font-bold text-white text-xs">${row.category}</span>
-              <span class="text-[10px] text-slate-400 font-mono">(${row.date})</span>
-            </div>
-            <div class="text-[11px] text-slate-300 flex items-center gap-2">
-              ${accountText}
-              ${row.note ? `<span class="text-slate-400 font-medium">• ${row.note}</span>` : ''}
-            </div>
-          </div>
-          <div class="flex items-center gap-2 text-right">
-            <div>${amountDisplay}</div>
-            <button type="button" onclick="editExpense(${row.id})" class="text-indigo-400 hover:text-indigo-300 p-1.5 cursor-pointer" title="Edit">
-              <i class="fa-solid fa-pen-to-square"></i>
-            </button>
-            <button type="button" onclick="deleteExpense(${row.id})" class="text-slate-500 hover:text-rose-400 p-1.5 cursor-pointer" title="Delete">
-              <i class="fa-solid fa-trash-can"></i>
-            </button>
-          </div>
-        `;
-        container.appendChild(itemEl);
-      });
-    }
-
-    function renderDailySummary() {
-      const selectedMonthKey = document.getElementById('dailyDashMonthSelector').value || new Date().toISOString().slice(0, 7);
-      const now = new Date();
-      const todayStr = now.toISOString().slice(0, 10);
-
-      const monthRecords = expenseRecords.filter(r => r.date.startsWith(selectedMonthKey));
-      const monthIncome = monthRecords.filter(r => r.type === 'Income').reduce((s, it) => s + it.amount, 0);
-      const monthExpense = monthRecords.filter(r => r.type === 'Expense').reduce((s, it) => s + it.amount, 0);
-      const monthSavings = monthIncome - monthExpense;
-
-      const todayRecords = expenseRecords.filter(r => r.date === todayStr && r.type === 'Expense');
-      const todaySpent = todayRecords.reduce((s, it) => s + it.amount, 0);
-
-      const sevenDaysAgo = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)).toISOString().slice(0, 10);
-      const weekRecords = expenseRecords.filter(r => r.date >= sevenDaysAgo && r.date <= todayStr && r.type === 'Expense');
-      const weekSpent = weekRecords.reduce((s, it) => s + it.amount, 0);
-
-      const dayCount = 30;
-      const dailyAvg = (monthExpense / dayCount);
-
-      const balanceMap = calculateAccountBalances();
-      let totalLiquidWealth = 0;
-      Object.values(balanceMap).forEach(b => totalLiquidWealth += b);
-
-      const dObj = new Date(selectedMonthKey + '-01');
-      document.getElementById('dailyMonthBadge').innerText = dObj.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
-      document.getElementById('kpiNetLiquidWealth').innerText = formatINR(totalLiquidWealth);
-      document.getElementById('kpiDailyMonthIncome').innerText = formatINR(monthIncome);
-      document.getElementById('kpiDailyMonthExpense').innerText = formatINR(monthExpense);
-      document.getElementById('kpiDailyMonthSavings').innerText = (monthSavings >= 0 ? '+' : '') + formatINR(monthSavings);
-      document.getElementById('kpiDailyMonthSavings').className = `text-sm font-bold mt-0.5 block ${monthSavings >= 0 ? 'text-cyan-300' : 'text-rose-400'}`;
-
-      document.getElementById('kpiSummaryTodaySpent').innerText = formatINR(todaySpent);
-      document.getElementById('kpiSummaryTodayCount').innerText = `${todayRecords.length} spend${todayRecords.length === 1 ? '' : 's'}`;
-
-      document.getElementById('kpiSummaryWeekSpent').innerText = formatINR(weekSpent);
-      document.getElementById('kpiSummaryWeekCount').innerText = `${weekRecords.length} spend${weekRecords.length === 1 ? '' : 's'}`;
-
-      document.getElementById('kpiSummaryMonthSpent').innerText = formatINR(monthExpense);
-      document.getElementById('kpiSummaryMonthAvg').innerText = `Avg ${formatINR(dailyAvg)}/d`;
-
-      const balancesContainer = document.getElementById('liveAccountBalancesContainer');
-      balancesContainer.innerHTML = '';
-      accountsList.forEach(acc => {
-        const bal = balanceMap[acc.name] || 0;
-        const card = document.createElement('div');
-        card.className = "bg-slate-900/70 p-3 rounded-2xl border border-slate-800 flex flex-col justify-between";
-        card.innerHTML = `
-          <div class="flex items-center justify-between text-[11px] text-slate-400 font-semibold">
-            <span class="truncate">${acc.name}</span>
-            <i class="fa-solid fa-wallet text-cyan-400/60 text-xs"></i>
-          </div>
-          <span class="text-sm font-extrabold ${bal >= 0 ? 'text-white' : 'text-rose-400'} mt-1.5 block">${formatINR(bal)}</span>
-        `;
-        balancesContainer.appendChild(card);
-      });
-
-      const catMap = {};
-      monthRecords.filter(r => r.type === 'Expense').forEach(i => catMap[i.category] = (catMap[i.category] || 0) + i.amount);
-      const catContainer = document.getElementById('dailyCategoryBreakdownContainer');
-      catContainer.innerHTML = '';
-
-      const sortedCats = Object.entries(catMap).sort((a, b) => b[1] - a[1]);
-      if (sortedCats.length === 0) {
-        catContainer.innerHTML = '<div class="text-xs text-slate-500 text-center py-2">No expenses logged for this month yet.</div>';
-      } else {
-        sortedCats.forEach(([cat, val]) => {
-          const pct = monthExpense > 0 ? ((val / monthExpense) * 100).toFixed(1) : 0;
-          const rowEl = document.createElement('div');
-          rowEl.className = "flex justify-between items-center text-xs p-2 bg-slate-900/60 rounded-xl border border-slate-800";
-          rowEl.innerHTML = `
-            <div class="flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-rose-400"></span>
-              <span class="font-bold text-white">${cat}</span>
-              <span class="text-[10px] text-slate-400">(${pct}%)</span>
-            </div>
-            <span class="font-extrabold text-slate-100">${formatINR(val)}</span>
-          `;
-          catContainer.appendChild(rowEl);
-        });
-      }
-    }
-
-    function renderDailyTrendsCharts() {
-      const now = new Date();
-
-      const weekLabels = [];
-      const weeklyTotals = [];
-      for (let w = 5; w >= 0; w--) {
-        const start = new Date(now.getTime() - ((w * 7 + 6) * 24 * 60 * 60 * 1000)).toISOString().slice(0, 10);
-        const end = new Date(now.getTime() - (w * 7 * 24 * 60 * 60 * 1000)).toISOString().slice(0, 10);
-        weekLabels.push(`W-${w === 0 ? 'Curr' : w}`);
-        const sum = expenseRecords.filter(r => r.date >= start && r.date <= end && r.type === 'Expense')
-                                  .reduce((s, it) => s + it.amount, 0);
-        weeklyTotals.push(sum);
-      }
-
-      if (dailyWeeklyBarChart) dailyWeeklyBarChart.destroy();
-      const ctxWeekly = document.getElementById('dailyWeeklyBarChart').getContext('2d');
-      dailyWeeklyBarChart = new Chart(ctxWeekly, {
-        type: 'bar',
-        data: {
-          labels: weekLabels,
-          datasets: [{
-            label: 'Weekly Expense (₹)',
-            data: weeklyTotals,
-            backgroundColor: '#f43f5e',
-            borderRadius: 6
-          }]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } },
-            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 }, callback: v => '₹' + v } }
-          }
-        }
-      });
-
-      const monthLabels = [];
-      const monthIncomes = [];
-      const monthExpenses = [];
-      for (let m = 5; m >= 0; m--) {
-        const d = new Date(now.getFullYear(), now.getMonth() - m, 1);
-        const key = d.toISOString().slice(0, 7);
-        monthLabels.push(d.toLocaleDateString('en-IN', { month: 'short' }));
-
-        const inc = expenseRecords.filter(r => r.date.startsWith(key) && r.type === 'Income').reduce((s, it) => s + it.amount, 0);
-        const exp = expenseRecords.filter(r => r.date.startsWith(key) && r.type === 'Expense').reduce((s, it) => s + it.amount, 0);
-        monthIncomes.push(inc);
-        monthExpenses.push(exp);
-      }
-
-      if (dailyMonthlyCompareChart) dailyMonthlyCompareChart.destroy();
-      const ctxCompare = document.getElementById('dailyMonthlyCompareChart').getContext('2d');
-      dailyMonthlyCompareChart = new Chart(ctxCompare, {
-        type: 'bar',
-        data: {
-          labels: monthLabels,
-          datasets: [
-            { label: 'Income', data: monthIncomes, backgroundColor: '#10b981', borderRadius: 4 },
-            { label: 'Expense', data: monthExpenses, backgroundColor: '#f43f5e', borderRadius: 4 }
-          ]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: {
-            legend: { position: 'top', labels: { boxWidth: 10, color: '#94a3b8', font: { size: 10 } } }
-          },
-          scales: {
-            x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } },
-            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 }, callback: v => '₹' + v } }
-          }
-        }
-      });
-
-      const currentYearMonth = document.getElementById('dailyDashMonthSelector').value || now.toISOString().slice(0, 7);
-      const catMap = {};
-      expenseRecords.filter(r => r.type === 'Expense' && r.date.startsWith(currentYearMonth))
-                    .forEach(i => catMap[i.category] = (catMap[i.category] || 0) + i.amount);
-
-      if (dailyCategoryDoughnutChart) dailyCategoryDoughnutChart.destroy();
-      const ctxCat = document.getElementById('dailyCategoryDoughnutChart').getContext('2d');
-      dailyCategoryDoughnutChart = new Chart(ctxCat, {
-        type: 'doughnut',
-        data: {
-          labels: Object.keys(catMap).length ? Object.keys(catMap) : ['No Expenses'],
-          datasets: [{
-            data: Object.values(catMap).length ? Object.values(catMap) : [1],
-            backgroundColor: ['#f43f5e', '#6366f1', '#06b6d4', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#3b82f6'],
-            borderWidth: 2, borderColor: '#090d16'
-          }]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, color: '#94a3b8', font: { size: 10 } } } }
-        }
-      });
-    }
-
-    function onDrillFilterChanged() {
-      const type = document.getElementById('trendDrillType').value;
-      const select = document.getElementById('trendDrillTarget');
-      select.innerHTML = '';
-
-      if (type === 'Category') {
-        expenseCategories.forEach(cat => {
-          const opt = document.createElement('option');
-          opt.value = cat;
-          opt.textContent = cat;
-          select.appendChild(opt);
-        });
-      } else {
-        accountsList.forEach(acc => {
-          const opt = document.createElement('option');
-          opt.value = acc.name;
-          opt.textContent = acc.name;
-          select.appendChild(opt);
-        });
-      }
-
-      renderMoMDrillChart();
-    }
-
-    function renderMoMDrillChart() {
-      const drillType = document.getElementById('trendDrillType').value;
-      const target = document.getElementById('trendDrillTarget').value;
-      const now = new Date();
-
-      const labels = [];
-      const dataValues = [];
-
-      for (let m = 5; m >= 0; m--) {
-        const d = new Date(now.getFullYear(), now.getMonth() - m, 1);
-        const key = d.toISOString().slice(0, 7);
-        labels.push(d.toLocaleDateString('en-IN', { month: 'short' }));
-
-        let sum = 0;
-        if (drillType === 'Category') {
-          sum = expenseRecords.filter(r => r.date.startsWith(key) && r.category === target && r.type === 'Expense')
-                              .reduce((s, it) => s + it.amount, 0);
-        } else {
-          sum = expenseRecords.filter(r => r.date.startsWith(key) && (r.account === target || r.toAccount === target))
-                              .reduce((s, it) => s + it.amount, 0);
-        }
-        dataValues.push(sum);
-      }
-
-      if (dailyMoMDrillChart) dailyMoMDrillChart.destroy();
-      const ctx = document.getElementById('dailyMoMDrillChart').getContext('2d');
-      dailyMoMDrillChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels,
-          datasets: [{
-            label: `${target} (${drillType})`,
-            data: dataValues,
-            borderColor: '#6366f1',
-            backgroundColor: 'rgba(99, 102, 241, 0.15)',
-            borderWidth: 2,
-            tension: 0.35,
-            fill: true,
-            pointBackgroundColor: '#6366f1'
-          }]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { position: 'top', labels: { boxWidth: 10, color: '#94a3b8', font: { size: 10 } } } },
-          scales: {
-            x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } },
-            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 }, callback: v => '₹' + v } }
-          }
-        }
-      });
-    }
-
-    // ================= INTERACTIVE SPENDS CALENDAR MATRIX =================
-    function renderSpendCalendarMatrix() {
-      const selectedMonthKey = document.getElementById('calendarMonthSelector').value || new Date().toISOString().slice(0, 7);
-      const grid = document.getElementById('calendarDaysGrid');
-      grid.innerHTML = '';
-
-      const [yearStr, monthStr] = selectedMonthKey.split('-');
-      const year = parseInt(yearStr);
-      const month = parseInt(monthStr) - 1;
-
-      const firstDayIndex = new Date(year, month, 1).getDay();
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-      for (let i = 0; i < firstDayIndex; i++) {
-        const pad = document.createElement('div');
-        pad.className = "h-12 rounded-xl bg-slate-900/20 border border-transparent opacity-20";
-        grid.appendChild(pad);
-      }
-
-      const todayStr = new Date().toISOString().slice(0, 10);
-
-      for (let day = 1; day <= daysInMonth; day++) {
-        const dayStr = day < 10 ? `0${day}` : `${day}`;
-        const dateKey = `${selectedMonthKey}-${dayStr}`;
-
-        const daySpends = expenseRecords.filter(r => r.date === dateKey && r.type === 'Expense');
-        const dayTotal = daySpends.reduce((s, it) => s + it.amount, 0);
-
-        const cell = document.createElement('button');
-        cell.type = 'button';
-        cell.onclick = () => openCalendarDayDetails(dateKey, dayTotal, daySpends);
-
-        const isToday = (dateKey === todayStr);
-
-        cell.className = `h-14 rounded-xl p-1 flex flex-col justify-between text-left transition active:scale-95 border ${
-          isToday ? 'border-indigo-500 bg-indigo-950/40' : 'border-slate-800 bg-slate-900/60 hover:border-slate-700'
-        } ${dayTotal > 0 ? 'shadow-md shadow-rose-950/20' : ''}`;
-
-        cell.innerHTML = `
-          <span class="text-[10px] font-bold ${isToday ? 'text-indigo-400' : 'text-slate-400'}">${day}</span>
-          ${dayTotal > 0 
-            ? `<span class="text-[9px] font-extrabold text-rose-400 truncate tracking-tight">₹${dayTotal >= 1000 ? (dayTotal/1000).toFixed(1)+'k' : dayTotal}</span>` 
-            : `<span class="text-[8px] text-slate-600">-</span>`}
-        `;
-        grid.appendChild(cell);
-      }
-    }
-
-    function openCalendarDayDetails(dateKey, total, items) {
-      const box = document.getElementById('calendarDayBreakdownBox');
-      const label = document.getElementById('calendarSelectedDateLabel');
-      const totalEl = document.getElementById('calendarSelectedDateTotal');
-      const list = document.getElementById('calendarDayItemsList');
-
-      const d = new Date(dateKey);
-      label.innerText = d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
-      totalEl.innerText = `Total Outflow: ${formatINR(total)}`;
-
-      list.innerHTML = '';
-      if (items.length === 0) {
-        list.innerHTML = '<div class="text-xs text-slate-500 text-center py-2">No expenses logged on this date.</div>';
-      } else {
-        items.forEach(it => {
-          const itemEl = document.createElement('div');
-          itemEl.className = "flex justify-between items-center text-xs p-2 bg-slate-900/90 rounded-xl border border-slate-800";
-          itemEl.innerHTML = `
-            <div>
-              <span class="font-bold text-white block">${it.category}</span>
-              <span class="text-[10px] text-slate-400">${it.account} • ${it.note || 'No note'}</span>
-            </div>
-            <span class="font-extrabold text-rose-400">${formatINR(it.amount)}</span>
-          `;
-          list.appendChild(itemEl);
-        });
-      }
-
-      box.classList.remove('hidden');
-      box.scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function closeCalendarDayDetails() {
-      document.getElementById('calendarDayBreakdownBox').classList.add('hidden');
-    }
-
-    // ================= STRICT "STARTS-WITH" AUTOCOMPLETE (FIXED) =================
-    function handleNotePrefixInput(query) {
-      const box = document.getElementById('noteSuggestionBox');
-      const q = query.trim().toLowerCase();
-
-      if (!q) {
-        box.classList.add('hidden');
-        box.innerHTML = '';
-        return;
-      }
-
-      const uniqueNotes = [...new Set(expenseRecords.map(r => r.note).filter(Boolean))];
-      // STRICT FILTER: STARTS WITH ONLY (IGNORING MIDDLE WORDS)
-      const matchingNotes = uniqueNotes.filter(n => n.toLowerCase().startsWith(q));
-
-      if (matchingNotes.length === 0) {
-        box.classList.add('hidden');
-        box.innerHTML = '';
-        return;
-      }
-
-      box.innerHTML = '';
-      matchingNotes.slice(0, 6).forEach(note => {
-        const item = document.createElement('div');
-        item.className = "px-3.5 py-2.5 text-xs text-slate-200 hover:bg-indigo-600/30 hover:text-white cursor-pointer transition flex items-center justify-between";
-        
-        const prefix = note.slice(0, q.length);
-        const rest = note.slice(q.length);
-        item.innerHTML = `<span class="truncate"><b class="text-indigo-400 font-bold">${prefix}</b>${rest}</span><i class="fa-solid fa-arrow-turn-down text-[9px] text-slate-500"></i>`;
-        
-        item.onclick = () => {
-          document.getElementById('expNote').value = note;
-          box.classList.add('hidden');
-          box.innerHTML = '';
-        };
-        box.appendChild(item);
-      });
-
-      box.classList.remove('hidden');
-    }
-
-    document.addEventListener('click', (e) => {
-      const box = document.getElementById('noteSuggestionBox');
-      const input = document.getElementById('expNote');
-      if (box && !box.contains(e.target) && e.target !== input) {
-        box.classList.add('hidden');
-      }
-    });
-
-    // ================= REORDERING CATEGORIES & ACCOUNTS =================
-    function switchCategoryModalType(type) {
-      currentCatModalType = type;
-      const bExp = document.getElementById('tabModalCatExpense');
-      const bInc = document.getElementById('tabModalCatIncome');
-      if (type === 'Income') {
-        bInc.className = "flex-1 py-1.5 text-xs font-bold rounded-xl text-white bg-emerald-600 shadow cursor-pointer";
-        bExp.className = "flex-1 py-1.5 text-xs font-bold rounded-xl text-slate-400 hover:text-white cursor-pointer";
-        document.getElementById('lblCatModalCount').innerText = `Income Categories (${incomeCategories.length})`;
-      } else {
-        bExp.className = "flex-1 py-1.5 text-xs font-bold rounded-xl text-white bg-rose-600 shadow cursor-pointer";
-        bInc.className = "flex-1 py-1.5 text-xs font-bold rounded-xl text-slate-400 hover:text-white cursor-pointer";
-        document.getElementById('lblCatModalCount').innerText = `Expense Categories (${expenseCategories.length})`;
-      }
-      renderExpenseCategoryBadges();
-    }
-
-    function moveExpenseCategory(index, direction) {
-      const arr = currentCatModalType === 'Income' ? incomeCategories : expenseCategories;
-      if (direction === 'top') {
-        const item = arr.splice(index, 1)[0];
-        arr.unshift(item);
-      } else {
-        const newIndex = index + direction;
-        if (newIndex < 0 || newIndex >= arr.length) return;
-        const item = arr.splice(index, 1)[0];
-        arr.splice(newIndex, 0, item);
-      }
-      saveExpenseStorage();
-      populateExpenseElements();
-      renderExpenseCategoryBadges();
-      notify(`Reordered priority`);
-    }
-
-    function moveDebtCategory(index, direction) {
-      if (direction === 'top') {
-        const item = categories.splice(index, 1)[0];
-        categories.unshift(item);
-      } else {
-        const newIndex = index + direction;
-        if (newIndex < 0 || newIndex >= categories.length) return;
-        const item = categories.splice(index, 1)[0];
-        categories.splice(newIndex, 0, item);
-      }
-      saveDebtStorage();
-      populateCategoryElements();
-      renderCategoryBadges();
-      notify(`Reordered priority`);
-    }
-
-    function moveAccount(index, direction) {
-      if (direction === 'top') {
-        const item = accountsList.splice(index, 1)[0];
-        accountsList.unshift(item);
-      } else {
-        const newIndex = index + direction;
-        if (newIndex < 0 || newIndex >= accountsList.length) return;
-        const item = accountsList.splice(index, 1)[0];
-        accountsList.splice(newIndex, 0, item);
-      }
-      saveExpenseStorage();
-      populateExpenseElements();
-      renderAccountBadges();
-      notify(`Reordered accounts`);
-    }
-
-    function openExpenseCategoryModal() {
-      document.getElementById('expenseCatModal').classList.remove('hidden');
-      switchCategoryModalType(currentCatModalType);
-      document.getElementById('newExpenseCatInput').focus();
-    }
-    function closeExpenseCategoryModal() {
-      document.getElementById('expenseCatModal').classList.add('hidden');
-    }
-    function handleNewExpenseCategory(e) {
-      e.preventDefault();
-      const input = document.getElementById('newExpenseCatInput');
-      const val = input.value.trim();
-      if (!val) return;
-
-      const arr = currentCatModalType === 'Income' ? incomeCategories : expenseCategories;
-      if (arr.some(c => c.toLowerCase() === val.toLowerCase())) {
-        notify("Category already exists in this list!");
-        return;
-      }
-      arr.push(val);
-      saveExpenseStorage();
-      populateExpenseElements();
-      renderDailySummary();
-      renderBudgetPlanner();
-      input.value = '';
-      notify(`Added "${val}" to ${currentCatModalType}`);
-    }
-    function deleteExpenseCategory(name) {
-      if (confirm(`Remove category "${name}"?`)) {
-        if (currentCatModalType === 'Income') {
-          incomeCategories = incomeCategories.filter(c => c !== name);
-        } else {
-          expenseCategories = expenseCategories.filter(c => c !== name);
-        }
-        saveExpenseStorage();
-        populateExpenseElements();
-        renderDailySummary();
-        renderBudgetPlanner();
-        notify(`Removed "${name}"`);
-      }
-    }
-    function renderExpenseCategoryBadges() {
-      const container = document.getElementById('expenseCategoryBadgeContainer');
-      container.innerHTML = '';
-      const arr = currentCatModalType === 'Income' ? incomeCategories : expenseCategories;
-      document.getElementById('lblCatModalCount').innerText = `${currentCatModalType} Categories (${arr.length})`;
-
-      arr.forEach((cat, idx) => {
-        const row = document.createElement('div');
-        row.className = "flex items-center justify-between bg-slate-900 border border-slate-700 px-3 py-2 rounded-xl text-xs text-slate-300 font-medium";
-        row.innerHTML = `
-          <div class="flex items-center gap-2">
-            <span class="text-slate-500 font-mono text-[10px] w-4">${idx + 1}.</span>
-            <span class="font-bold text-white">${cat}</span>
-          </div>
-          <div class="flex items-center gap-1">
-            <button type="button" onclick="moveExpenseCategory(${idx}, 'top')" title="Move to Top" class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-300 hover:text-white cursor-pointer text-[10px]">
-              ⏫
-            </button>
-            <button type="button" onclick="moveExpenseCategory(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} title="Move Up" class="w-6 h-6 rounded bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white disabled:opacity-30 cursor-pointer">
-              ▲
-            </button>
-            <button type="button" onclick="moveExpenseCategory(${idx}, 1)" ${idx === arr.length - 1 ? 'disabled' : ''} title="Move Down" class="w-6 h-6 rounded bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white disabled:opacity-30 cursor-pointer">
-              ▼
-            </button>
-            <button type="button" onclick="deleteExpenseCategory('${cat}')" class="text-rose-400 hover:text-rose-300 ml-1.5 cursor-pointer">
-              <i class="fa-solid fa-trash-can text-xs"></i>
-            </button>
-          </div>
-        `;
-        container.appendChild(row);
-      });
-    }
-
-    function openAccountModal() {
-      document.getElementById('accountModal').classList.remove('hidden');
-      renderAccountBadges();
-      document.getElementById('newAccountName').focus();
-    }
-    function closeAccountModal() {
-      document.getElementById('accountModal').classList.add('hidden');
-    }
-    function handleNewAccount(e) {
-      e.preventDefault();
-      const name = document.getElementById('newAccountName').value.trim();
-      const initial = parseFloat(document.getElementById('newAccountInitial').value) || 0;
-      if (!name) return;
-
-      if (accountsList.some(a => a.name.toLowerCase() === name.toLowerCase())) {
-        notify("Account already exists!");
-        return;
-      }
-
-      accountsList.push({ name, initialBalance: initial });
-      saveExpenseStorage();
-      populateExpenseElements();
-      renderDailySummary();
-      document.getElementById('newAccountName').value = '';
-      document.getElementById('newAccountInitial').value = '';
-      notify(`Added account "${name}"`);
-    }
-    function updateAccountInitial(name, newInitial) {
-      const acc = accountsList.find(a => a.name === name);
-      if (acc) {
-        acc.initialBalance = parseFloat(newInitial) || 0;
-        saveExpenseStorage();
-        renderDailySummary();
-        notify(`Updated ${name} starting balance`);
-      }
-    }
-    function deleteAccount(name) {
-      if (confirm(`Remove account "${name}"?`)) {
-        accountsList = accountsList.filter(a => a.name !== name);
-        saveExpenseStorage();
-        populateExpenseElements();
-        renderDailySummary();
-        notify(`Removed "${name}"`);
-      }
-    }
-    function renderAccountBadges() {
-      const container = document.getElementById('accountDetailedListContainer');
-      container.innerHTML = '';
-
-      accountsList.forEach((acc, idx) => {
-        const row = document.createElement('div');
-        row.className = "p-2.5 rounded-xl bg-slate-900 border border-slate-700 flex justify-between items-center text-xs";
-        row.innerHTML = `
-          <div>
-            <div class="flex items-center gap-1.5">
-              <span class="text-slate-500 font-mono text-[10px]">${idx + 1}.</span>
-              <span class="font-bold text-white">${acc.name}</span>
-            </div>
-            <span class="text-[10px] text-slate-400">Starting: ${formatINR(acc.initialBalance)}</span>
-          </div>
-          <div class="flex items-center gap-1">
-            <button type="button" onclick="moveAccount(${idx}, 'top')" title="Move to Top" class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-300 hover:text-white cursor-pointer text-[10px]">
-              ⏫
-            </button>
-            <button type="button" onclick="moveAccount(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} title="Move Up" class="w-6 h-6 rounded bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white disabled:opacity-30 cursor-pointer">
-              ▲
-            </button>
-            <button type="button" onclick="moveAccount(${idx}, 1)" ${idx === accountsList.length - 1 ? 'disabled' : ''} title="Move Down" class="w-6 h-6 rounded bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white disabled:opacity-30 cursor-pointer">
-              ▼
-            </button>
-            <input type="number" step="any" placeholder="Balance" value="${acc.initialBalance}" onchange="updateAccountInitial('${acc.name}', this.value)" class="w-16 bg-slate-800 border border-slate-600 rounded-lg px-1.5 py-1 text-xs text-white">
-            <button type="button" onclick="deleteAccount('${acc.name}')" class="text-rose-400 hover:text-rose-300 ml-1 cursor-pointer"><i class="fa-solid fa-trash-can text-xs"></i></button>
-          </div>
-        `;
-        container.appendChild(row);
-      });
-    }
-
-    // -------------------------------------------------------------
-    // PART 1 CONTROLLER: DEBT & EMI (PRESERVED)
-    // -------------------------------------------------------------
-    function openDebtPopupModal() {
-      resetDebtFormToNew();
-      document.getElementById('debtModalTitle').innerText = 'Log Commitment';
-      document.getElementById('debtPopupModal').classList.remove('hidden');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      document.getElementById('fMetric').focus();
-    }
-
-    function closeDebtPopupModal() {
-      document.getElementById('debtPopupModal').classList.add('hidden');
-    }
-
-    function onDebtDashMonthChanged() {
-      renderDashboard();
-    }
-
-    function computeMonthsFromAmortization() {
-      const P = parseFloat(document.getElementById('fBalance').value);
-      const E = parseFloat(document.getElementById('fEmi').value);
-      const ratePct = parseFloat(document.getElementById('fRate').value) || 0;
-      const feedback = document.getElementById('amortizationFeedback');
-
-      if (isNaN(P) || P <= 0 || isNaN(E) || E <= 0) {
-        notify("Please enter valid Balance and EMI first!");
-        return;
-      }
-
-      const r = (ratePct / 100) / 12;
-
-      if (r === 0) {
-        const n = Math.ceil(P / E);
-        document.getElementById('fMonthsLeft').value = n;
-        feedback.innerText = `At 0% interest, remaining duration is ${n} months.`;
-        feedback.className = "text-[10px] text-emerald-400 px-1 font-medium";
-        notify(`Calculated: ${n} months left`);
-        return;
-      }
-
-      const monthlyInterestCharge = P * r;
-      if (E <= monthlyInterestCharge) {
-        feedback.innerText = `Warning: Monthly interest (₹${Math.round(monthlyInterestCharge)}) ≥ EMI (₹${E}). Loan will never amortize at this EMI!`;
-        feedback.className = "text-[10px] text-rose-400 px-1 font-semibold";
-        notify("EMI is less than monthly interest!");
-        return;
-      }
-
-      const ratio = 1 - (P * r / E);
-      const n = Math.ceil(-Math.log(ratio) / Math.log(1 + r));
-
-      document.getElementById('fMonthsLeft').value = n;
-      feedback.innerText = `Reducing balance tenure: exactly ${n} months (${(n/12).toFixed(1)} years).`;
-      feedback.className = "text-[10px] text-emerald-400 px-1 font-medium";
-      notify(`Calculated: ${n} months left`);
-    }
-
-    function computeBalanceFromAmortization() {
-      const E = parseFloat(document.getElementById('fEmi').value);
-      const n = parseInt(document.getElementById('fMonthsLeft').value);
-      const ratePct = parseFloat(document.getElementById('fRate').value) || 0;
-      const feedback = document.getElementById('amortizationFeedback');
-
-      if (isNaN(E) || E <= 0 || isNaN(n) || n <= 0) {
-        notify("Please enter valid EMI and Months Left first!");
-        return;
-      }
-
-      const r = (ratePct / 100) / 12;
-      let P = 0;
-
-      if (r === 0) {
-        P = Math.round(E * n);
-      } else {
-        P = Math.round(E * (1 - Math.pow(1 + r, -n)) / r);
-      }
-
-      document.getElementById('fBalance').value = P;
-      feedback.innerText = `At ${ratePct}% APR over ${n} months, principal balance is ${formatINR(P)}.`;
-      feedback.className = "text-[10px] text-cyan-300 px-1 font-medium";
-      notify(`Calculated Balance: ${formatINR(P)}`);
-    }
-
-    function saveDebtStorage() {
-      localStorage.setItem('debt_categories', JSON.stringify(categories));
-      localStorage.setItem('debt_records', JSON.stringify(debtRecords));
-    }
-
-    function switchDebtScreen(screenId) {
-      document.querySelectorAll('.debt-screen').forEach(el => el.classList.add('hidden'));
-      const target = document.getElementById(screenId);
-      if (target) target.classList.remove('hidden');
-
-      document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active-nav'));
-      const activeNavBtn = document.getElementById('nav-' + screenId);
-      if (activeNavBtn) activeNavBtn.classList.add('active-nav');
-
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-
-      if (screenId === 'entryScreen') renderHistoryTable();
-      if (screenId === 'dashboardScreen') renderDashboard();
-      if (screenId === 'trendsScreen') renderCharts();
-      if (screenId === 'plannerScreen') renderPredictionsView();
-    }
-
-    function openQuickNewEntry() {
-      openDebtPopupModal();
-    }
-
-    function populateCategoryElements() {
-      const fCat = document.getElementById('fCategory');
-      const cur = fCat.value;
-      fCat.innerHTML = '';
-      categories.forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c;
-        opt.textContent = c;
-        fCat.appendChild(opt);
-      });
-      if (cur && categories.includes(cur)) fCat.value = cur;
-
-      ['logCategoryFilter', 'trendsCategorySelect'].forEach(id => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        const val = el.value;
-        el.innerHTML = '<option value="ALL">All Categories</option>';
-        categories.forEach(c => {
-          const opt = document.createElement('option');
-          opt.value = c;
-          opt.textContent = c;
-          el.appendChild(opt);
-        });
-        if (val && (val === 'ALL' || categories.includes(val))) el.value = val;
-      });
-
-      renderCategoryPills();
-      renderCategoryBadges();
-      document.getElementById('settingsCatCount').innerText = categories.length;
-    }
-
-    function renderCategoryPills() {
-      const container = document.getElementById('categoryPillBar');
-      container.innerHTML = '';
-
-      const allBtn = document.createElement('button');
-      allBtn.type = "button";
-      allBtn.className = `px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition cursor-pointer active:scale-95 ${
-        activeDashboardCategory === 'ALL' 
-          ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30' 
-          : 'bg-slate-800 text-slate-400 hover:text-white border border-slate-700/60'
-      }`;
-      allBtn.innerText = 'All';
-      allBtn.onclick = () => {
-        activeDashboardCategory = 'ALL';
-        renderCategoryPills();
-        renderDashboard();
-      };
-      container.appendChild(allBtn);
-
-      categories.forEach(cat => {
-        const btn = document.createElement('button');
-        btn.type = "button";
-        const isActive = activeDashboardCategory === cat;
-        btn.className = `px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition cursor-pointer active:scale-95 ${
-          isActive 
-            ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30' 
-            : 'bg-slate-800 text-slate-400 hover:text-white border border-slate-700/60'
-        }`;
-        btn.innerText = cat;
-        btn.onclick = () => {
-          activeDashboardCategory = cat;
-          renderCategoryPills();
-          renderDashboard();
-        };
-        container.appendChild(btn);
-      });
-    }
-
-    function renderCategoryBadges() {
-      const container = document.getElementById('categoryBadgeContainer');
-      container.innerHTML = '';
-      document.getElementById('catModalCount').innerText = categories.length;
-
-      categories.forEach((cat, idx) => {
-        const isCore = DEFAULT_DEBT_CATEGORIES.includes(cat);
-        const row = document.createElement('div');
-        row.className = "flex items-center justify-between bg-slate-900 border border-slate-700 px-3 py-2 rounded-xl text-xs text-slate-300 font-medium";
-        row.innerHTML = `
-          <div class="flex items-center gap-2">
-            <span class="text-slate-500 font-mono text-[10px] w-4">${idx + 1}.</span>
-            <span class="font-bold text-white">${cat}</span>
-          </div>
-          <div class="flex items-center gap-1">
-            <button type="button" onclick="moveDebtCategory(${idx}, 'top')" title="Move to Top" class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-300 hover:text-white cursor-pointer text-[10px]">
-              ⏫
-            </button>
-            <button type="button" onclick="moveDebtCategory(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} title="Move Up" class="w-6 h-6 rounded bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white disabled:opacity-30 cursor-pointer">
-              ▲
-            </button>
-            <button type="button" onclick="moveDebtCategory(${idx}, 1)" ${idx === categories.length - 1 ? 'disabled' : ''} title="Move Down" class="w-6 h-6 rounded bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white disabled:opacity-30 cursor-pointer">
-              ▼
-            </button>
-            ${!isCore ? `<button type="button" onclick="deleteCustomCategory('${cat}')" class="text-rose-400 hover:text-rose-300 ml-1.5 cursor-pointer"><i class="fa-solid fa-trash-can text-xs"></i></button>` : ''}
-          </div>
-        `;
-        container.appendChild(row);
-      });
-    }
-
-    function openCategoryModal() {
-      document.getElementById('categoryModal').classList.remove('hidden');
-      renderCategoryBadges();
-      document.getElementById('newCatInput').focus();
-    }
-    function closeCategoryModal() {
-      document.getElementById('categoryModal').classList.add('hidden');
-    }
-    function handleNewDebtCategory(e) {
-      e.preventDefault();
-      const input = document.getElementById('newCatInput');
-      const val = input.value.trim();
-      if (!val) return;
-      if (categories.some(c => c.toLowerCase() === val.toLowerCase())) {
-        notify("Category already exists!");
-        return;
-      }
-      categories.push(val);
-      saveDebtStorage();
-      populateCategoryElements();
-      input.value = '';
-      notify(`Added "${val}"`);
-    }
-    function deleteCustomCategory(name) {
-      if (confirm(`Remove custom category "${name}"?`)) {
-        categories = categories.filter(c => c !== name);
-        if (activeDashboardCategory === name) activeDashboardCategory = 'ALL';
-        saveDebtStorage();
-        populateCategoryElements();
-        renderDashboard();
-        notify(`Removed "${name}"`);
-      }
-    }
-
-    function getLatestDataset(cat = 'ALL') {
-      const selectedMonth = document.getElementById('debtDashMonthSelector').value || null;
-      const source = (cat === 'ALL') ? debtRecords : debtRecords.filter(d => d.category === cat);
-      if (source.length === 0) return { latestMonth: 'N/A', latestItems: [], prevItems: [] };
-
-      const months = [...new Set(source.map(d => d.month))].sort();
-      const latestMonth = selectedMonth && months.includes(selectedMonth) ? selectedMonth : months[months.length - 1];
-      const curIndex = months.indexOf(latestMonth);
-      const prevMonth = curIndex > 0 ? months[curIndex - 1] : null;
-
-      const latestItems = source.filter(d => d.month === latestMonth);
-      const prevItems = prevMonth ? source.filter(d => d.month === prevMonth) : [];
-      return { latestMonth, latestItems, prevItems };
-    }
-
-    function renderDashboard() {
-      const { latestMonth, latestItems, prevItems } = getLatestDataset(activeDashboardCategory);
-      document.getElementById('dashMonthBadge').innerText = latestMonth !== 'N/A' ? latestMonth : '--';
-
-      if (latestItems.length === 0) {
-        document.getElementById('kpiTotalDebt').innerText = '₹0';
-        document.getElementById('kpiTotalEmi').innerText = '₹0';
-        document.getElementById('kpiActiveCount').innerText = '0 Loans';
-        document.getElementById('kpiReductionText').innerText = 'No records for this month';
-        document.getElementById('activeListCount').innerText = '0 Items';
-        document.getElementById('liabilitiesListContainer').innerHTML = `
-          <div class="glass-card rounded-2xl p-6 text-center text-slate-500 text-xs">
-            No commitments recorded for this month.
-          </div>
-        `;
-        return;
-      }
-
-      const totalBalance = latestItems.reduce((acc, c) => acc + c.balance, 0);
-      const totalEmi = latestItems.reduce((acc, c) => acc + c.emi, 0);
-      const prevTotal = prevItems.reduce((acc, c) => acc + c.balance, 0);
-
-      document.getElementById('kpiTotalDebt').innerText = formatINR(totalBalance);
-      document.getElementById('kpiTotalEmi').innerText = formatINR(totalEmi);
-      document.getElementById('kpiActiveCount').innerText = `${latestItems.length} Loans`;
-      document.getElementById('activeListCount').innerText = `${latestItems.length} Active`;
-
-      if (prevTotal > 0) {
-        const diff = prevTotal - totalBalance;
-        const pct = ((diff / prevTotal) * 100).toFixed(1);
-        if (diff >= 0) {
-          document.getElementById('kpiReductionRow').className = "flex items-center gap-1.5 mt-2 text-xs font-semibold text-emerald-400";
-          document.getElementById('kpiReductionRow').innerHTML = `<i class="fa-solid fa-circle-arrow-down text-xs"></i> <span>${formatINR(diff)} reduced vs last month (${pct}%)</span>`;
-        } else {
-          document.getElementById('kpiReductionRow').className = "flex items-center gap-1.5 mt-2 text-xs font-semibold text-rose-400";
-          document.getElementById('kpiReductionRow').innerHTML = `<i class="fa-solid fa-circle-arrow-up text-xs"></i> <span>${formatINR(Math.abs(diff))} balance increase</span>`;
-        }
-      } else {
-        document.getElementById('kpiReductionRow').className = "flex items-center gap-1.5 mt-2 text-xs font-medium text-slate-400";
-        document.getElementById('kpiReductionRow').innerHTML = `<i class="fa-solid fa-clock text-xs"></i> <span>Initial benchmark month</span>`;
-      }
-
-      const avgRate = latestItems.reduce((acc, c) => acc + (c.rate || 0), 0) / latestItems.length;
-      document.getElementById('kpiAvgRate').innerText = `Avg ${avgRate.toFixed(1)}% APR`;
-
-      const container = document.getElementById('liabilitiesListContainer');
-      container.innerHTML = '';
-
-      const sorted = [...latestItems].sort((a, b) => b.balance - a.balance);
-      sorted.forEach(item => {
-        const prev = prevItems.find(p => p.metric.toLowerCase() === item.metric.toLowerCase());
-        let deltaHtml = '';
-        if (prev) {
-          const delta = prev.balance - item.balance;
-          if (delta > 0) deltaHtml = `<span class="text-[10px] text-emerald-400 font-semibold bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">↓ ${formatINR(delta)}</span>`;
-          else if (delta < 0) deltaHtml = `<span class="text-[10px] text-rose-400 font-semibold bg-rose-500/10 px-1.5 py-0.5 rounded border border-rose-500/20">↑ ${formatINR(Math.abs(delta))}</span>`;
-        }
-
-        const mLeft = item.monthsLeft || 'N/A';
-
-        const card = document.createElement('div');
-        card.className = "glass-card rounded-2xl p-4 border border-slate-800 hover:border-slate-700 transition";
-        card.innerHTML = `
-          <div class="flex justify-between items-start">
-            <div>
-              <div class="flex items-center gap-1.5">
-                <span class="text-xs font-bold text-white tracking-tight">${item.metric}</span>
-                <span class="text-[9px] uppercase font-semibold px-1.5 py-0.5 rounded border ${item.priority === 'High' ? 'bg-rose-500/15 text-rose-300 border-rose-500/30' : 'bg-slate-800 text-slate-400 border-slate-700'}">${item.priority}</span>
-              </div>
-              <span class="text-[11px] text-slate-400 font-medium">${item.category} • ${item.rate ? item.rate + '% APR' : '0%'} • <b class="text-indigo-300">${mLeft} mos left</b></span>
-            </div>
-            <div class="text-right">
-              <span class="text-sm font-extrabold text-white block">${formatINR(item.balance)}</span>
-              ${deltaHtml}
-            </div>
-          </div>
-
-          <div class="mt-3 pt-2.5 border-t border-slate-800/80 flex justify-between items-center text-[11px]">
-            <span class="text-slate-400">Monthly EMI: <b class="text-slate-200 font-semibold">${formatINR(item.emi)}</b></span>
-            <div class="flex items-center gap-2">
-              <button type="button" onclick="editDebtItem(${item.id})" class="text-indigo-400 hover:text-indigo-300 p-1 font-semibold flex items-center gap-1 text-[11px] cursor-pointer">
-                <i class="fa-solid fa-pen-to-square"></i> Edit
-              </button>
-              <button type="button" onclick="deleteDebtEntry(${item.id})" class="text-slate-500 hover:text-rose-400 p-1 cursor-pointer">
-                <i class="fa-solid fa-trash-can"></i>
-              </button>
-            </div>
-          </div>
-        `;
-        container.appendChild(card);
-      });
-    }
-
-    function handleDebtSubmission(e) {
-      e.preventDefault();
-      const editId = document.getElementById('editEntryId').value;
-      const m = document.getElementById('fMonth').value;
-      const metric = document.getElementById('fMetric').value.trim();
-      const cat = document.getElementById('fCategory').value;
-      const bal = parseFloat(document.getElementById('fBalance').value) || 0;
-      const emi = parseFloat(document.getElementById('fEmi').value) || 0;
-      const rate = parseFloat(document.getElementById('fRate').value) || 0;
-      let monthsLeft = parseInt(document.getElementById('fMonthsLeft').value);
-
-      if (isNaN(monthsLeft) || monthsLeft <= 0) {
-        const r = (rate / 100) / 12;
-        if (r === 0) {
-          monthsLeft = emi > 0 ? Math.ceil(bal / emi) : 1;
-        } else if (emi > bal * r) {
-          monthsLeft = Math.ceil(-Math.log(1 - (bal * r / emi)) / Math.log(1 + r));
-        } else {
-          monthsLeft = 120;
-        }
-      }
-
-      const priority = document.getElementById('fPriority').value;
-      const notes = document.getElementById('fNotes').value.trim();
-
-      if (editId) {
-        const idx = debtRecords.findIndex(r => r.id == editId);
-        if (idx !== -1) {
-          debtRecords[idx] = { ...debtRecords[idx], month: m, metric, category: cat, balance: bal, emi, rate, monthsLeft, priority, notes };
-          notify(`Updated "${metric}"`);
-        }
-      } else {
-        const newRecord = { id: Date.now(), month: m, metric, category: cat, balance: bal, emi, rate, monthsLeft, priority, notes };
-        debtRecords.push(newRecord);
-        notify(`Added "${metric}"`);
-      }
-
-      saveDebtStorage();
-      closeDebtPopupModal();
-      renderHistoryTable();
-      renderDashboard();
-    }
-
-    function editDebtItem(id) {
-      const item = debtRecords.find(r => r.id == id);
-      if (!item) return;
-
-      openDebtPopupModal();
-      document.getElementById('debtModalTitle').innerText = `Edit: ${item.metric}`;
-      document.getElementById('editEntryId').value = item.id;
-      document.getElementById('fMonth').value = item.month;
-      document.getElementById('fMetric').value = item.metric;
-      document.getElementById('fCategory').value = item.category;
-      document.getElementById('fBalance').value = item.balance;
-      document.getElementById('fEmi').value = item.emi;
-      document.getElementById('fRate').value = item.rate || '';
-      document.getElementById('fMonthsLeft').value = item.monthsLeft || '';
-      document.getElementById('fPriority').value = item.priority || 'Normal';
-      document.getElementById('fNotes').value = item.notes || '';
-    }
-
-    function resetDebtFormToNew() {
-      document.getElementById('editEntryId').value = '';
-      document.getElementById('debtForm').reset();
-      document.getElementById('fMonth').value = new Date().toISOString().slice(0, 7);
-      document.getElementById('amortizationFeedback').innerText = `Formula: n = -ln(1 - P·r/E) / ln(1+r)`;
-      document.getElementById('amortizationFeedback').className = "text-[10px] text-slate-500 px-1 italic";
-    }
-
-    function deleteDebtEntry(id) {
-      if (confirm("Delete this loan commitment?")) {
-        debtRecords = debtRecords.filter(r => r.id != id);
-        saveDebtStorage();
-        renderHistoryTable();
-        renderDashboard();
-        notify("Entry deleted.");
-      }
-    }
-
-    function renderHistoryTable() {
-      const container = document.getElementById('historyTableContainer');
-      container.innerHTML = '';
-
-      const search = document.getElementById('logSearch').value.toLowerCase();
-      const filterCat = document.getElementById('logCategoryFilter').value;
-
-      let filtered = debtRecords.filter(r => {
-        const matchesCat = (filterCat === 'ALL' || r.category === filterCat);
-        const matchesSearch = !search || r.metric.toLowerCase().includes(search) || r.category.toLowerCase().includes(search) || r.month.includes(search);
-        return matchesCat && matchesSearch;
-      });
-
-      filtered.sort((a, b) => b.month.localeCompare(a.month) || b.id - a.id);
-
-      if (filtered.length === 0) {
-        container.innerHTML = '<div class="glass-card rounded-2xl p-6 text-center text-slate-500 text-xs">No records found. Tap Log Loan to add.</div>';
-        return;
-      }
-
-      filtered.forEach(row => {
-        const mLeft = row.monthsLeft || 'N/A';
-        const itemEl = document.createElement('div');
-        itemEl.className = "glass-card rounded-2xl p-3.5 border border-slate-800 flex justify-between items-center text-xs";
-        itemEl.innerHTML = `
-          <div>
-            <div class="flex items-center gap-1.5">
-              <span class="font-bold text-white text-xs">${row.metric}</span>
-              <span class="text-[10px] text-slate-400 font-mono">(${row.month})</span>
-            </div>
-            <span class="text-[10px] text-slate-400">${row.category} • EMI: ${formatINR(row.emi)} • <b class="text-indigo-300">${mLeft} mos left</b></span>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="font-black text-slate-100 text-sm mr-1">${formatINR(row.balance)}</span>
-            <button type="button" onclick="editDebtItem(${row.id})" class="text-indigo-400 hover:text-indigo-300 p-1.5 cursor-pointer" title="Edit">
-              <i class="fa-solid fa-pen-to-square"></i>
-            </button>
-            <button type="button" onclick="deleteDebtEntry(${row.id})" class="text-slate-500 hover:text-rose-400 p-1.5 cursor-pointer" title="Delete">
-              <i class="fa-solid fa-trash-can"></i>
-            </button>
-          </div>
-        `;
-        container.appendChild(itemEl);
-      });
-    }
-
-    function renderCharts() {
-      const cat = document.getElementById('trendsCategorySelect').value;
-      const source = (cat === 'ALL') ? debtRecords : debtRecords.filter(d => d.category === cat);
-      const months = [...new Set(source.map(d => d.month))].sort();
-      const balances = [], emis = [];
-
-      months.forEach(m => {
-        const mItems = source.filter(d => d.month === m);
-        balances.push(mItems.reduce((acc, c) => acc + c.balance, 0));
-        emis.push(mItems.reduce((acc, c) => acc + c.emi, 0));
-      });
-
-      if (debtChart) debtChart.destroy();
-      const ctx1 = document.getElementById('debtTrendChart').getContext('2d');
-      debtChart = new Chart(ctx1, {
-        type: 'line',
-        data: {
-          labels: months,
-          datasets: [{
-            data: balances,
-            borderColor: '#f43f5e',
-            backgroundColor: 'rgba(244, 63, 94, 0.1)',
-            fill: true,
-            tension: 0.35,
-            borderWidth: 2,
-            pointRadius: 3
-          }]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 } } },
-            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 }, callback: (v) => '₹' + (v >= 100000 ? (v/100000).toFixed(1) + 'L' : (v/1000).toFixed(0) + 'k') } }
-          }
-        }
-      });
-
-      if (emiChart) emiChart.destroy();
-      const ctx2 = document.getElementById('emiTrendChart').getContext('2d');
-      emiChart = new Chart(ctx2, {
-        type: 'bar',
-        data: {
-          labels: months,
-          datasets: [{ data: emis, backgroundColor: '#f59e0b', borderRadius: 6 }]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } },
-            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 }, callback: (v) => '₹' + (v/1000).toFixed(0) + 'k' } }
-          }
-        }
-      });
-
-      const { latestItems } = getLatestDataset('ALL');
-      const catMap = {};
-      latestItems.forEach(i => catMap[i.category] = (catMap[i.category] || 0) + i.balance);
-
-      if (doughnutChart) doughnutChart.destroy();
-      const ctx3 = document.getElementById('categoryDoughnutChart').getContext('2d');
-      doughnutChart = new Chart(ctx3, {
-        type: 'doughnut',
-        data: {
-          labels: Object.keys(catMap),
-          datasets: [{
-            data: Object.values(catMap),
-            backgroundColor: ['#f59e0b', '#06b6d4', '#10b981', '#6366f1', '#ec4899', '#8b5cf6', '#3b82f6'],
-            borderWidth: 2, borderColor: '#070a12'
-          }]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, color: '#94a3b8', font: { size: 10 } } } }
-        }
-      });
-    }
-
-    function simulateTrajectory(monthsCount) {
-      const { latestMonth, latestItems } = getLatestDataset('ALL');
-      if (latestItems.length === 0) return [];
-
-      let simulatedItems = latestItems.map(item => ({
-        metric: item.metric,
-        category: item.category,
-        balance: item.balance,
-        emi: item.emi,
-        rate: item.rate || 0,
-        monthsLeft: item.monthsLeft || 1
-      }));
-
-      const baseDate = new Date((latestMonth !== 'N/A' ? latestMonth : new Date().toISOString().slice(0,7)) + '-01');
-      const results = [];
-
-      for (let m = 1; m <= monthsCount; m++) {
-        const forecastDate = new Date(baseDate);
-        forecastDate.setMonth(forecastDate.getMonth() + m);
-        const monthLabel = forecastDate.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
-
-        let monthTotalBalance = 0;
-        let monthTotalEmi = 0;
-        let activeCount = 0;
-
-        simulatedItems.forEach(loan => {
-          if (loan.balance > 0 && loan.monthsLeft > 0) {
-            const monthlyInterest = (loan.balance * (loan.rate / 100)) / 12;
-            const principalPayment = Math.min(loan.balance, Math.max(0, loan.emi - monthlyInterest));
-            loan.balance = Math.max(0, loan.balance - principalPayment);
-            loan.monthsLeft--;
-
-            if (loan.balance > 0 && loan.monthsLeft > 0) {
-              monthTotalBalance += loan.balance;
-              monthTotalEmi += loan.emi;
-              activeCount++;
-            }
-          }
-        });
-
-        results.push({
-          month: monthLabel,
-          totalOutstanding: monthTotalBalance,
-          totalEmi: monthTotalEmi,
-          activeLoans: activeCount
-        });
-      }
-
-      return results;
-    }
-
-    function renderPredictionsView() {
-      const { latestItems } = getLatestDataset('ALL');
-      const currentBalance = latestItems.reduce((sum, item) => sum + item.balance, 0);
-
-      const fiveMonthTrajectory = simulateTrajectory(5);
-      const tbody = document.getElementById('forecast5MonthsTbody');
-      tbody.innerHTML = '';
-
-      if (fiveMonthTrajectory.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" class="py-4 text-center text-slate-500">No active loans found.</td></tr>';
-      } else {
-        fiveMonthTrajectory.forEach((row, index) => {
-          const tr = document.createElement('tr');
-          tr.className = index % 2 === 0 ? "bg-slate-900/30" : "bg-transparent";
-          tr.innerHTML = `
-            <td class="py-2.5 px-2.5 font-bold text-white">${row.month}</td>
-            <td class="py-2.5 px-2.5 text-right font-extrabold text-slate-100">${formatINR(row.totalOutstanding)}</td>
-            <td class="py-2.5 px-2.5 text-right text-indigo-300 font-semibold">${formatINR(row.totalEmi)}</td>
-            <td class="py-2.5 px-2.5 text-center">
-              <span class="text-[10px] bg-slate-800 px-2 py-0.5 rounded-full text-slate-300 border border-slate-700">${row.activeLoans}</span>
-            </td>
-          `;
-          tbody.appendChild(tr);
-        });
-      }
-
-      const twelveMonthTrajectory = simulateTrajectory(12);
-      if (twelveMonthTrajectory.length >= 6) {
-        const m6 = twelveMonthTrajectory[5];
-        document.getElementById('forecastDate6M').innerText = m6.month;
-        document.getElementById('forecastDebt6M').innerText = formatINR(m6.totalOutstanding);
-        document.getElementById('forecastEmi6M').innerText = formatINR(m6.totalEmi);
-        const drop6 = currentBalance > 0 ? (((currentBalance - m6.totalOutstanding) / currentBalance) * 100).toFixed(1) : 0;
-        document.getElementById('forecastDrop6M').innerText = `↓ ${drop6}% drop from today`;
-      }
-      if (twelveMonthTrajectory.length >= 12) {
-        const m12 = twelveMonthTrajectory[11];
-        document.getElementById('forecastDate1Y').innerText = m12.month;
-        document.getElementById('forecastDebt1Y').innerText = formatINR(m12.totalOutstanding);
-        document.getElementById('forecastEmi1Y').innerText = formatINR(m12.totalEmi);
-        const drop12 = currentBalance > 0 ? (((currentBalance - m12.totalOutstanding) / currentBalance) * 100).toFixed(1) : 0;
-        document.getElementById('forecastDrop1Y').innerText = `↓ ${drop12}% drop from today`;
-      }
-
-      if (latestItems.length > 0) {
-        const totalBal = latestItems.reduce((acc, c) => acc + c.balance, 0);
-        const totalNormalEmi = latestItems.reduce((acc, c) => acc + c.emi, 0);
-        if (totalNormalEmi > 0) {
-          const baseMonths = Math.ceil(totalBal / totalNormalEmi);
-          const accMonths = Math.ceil(totalBal / (totalNormalEmi + 5000));
-          const saved = Math.max(0, baseMonths - accMonths);
-          document.getElementById('simMonthsSaved').innerText = `${saved} Months Faster`;
-          const finish = new Date();
-          finish.setMonth(finish.getMonth() + accMonths);
-          document.getElementById('simNewFinishDate').innerText = finish.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
-        }
-      }
-
-      renderPayoffList();
-    }
-
-    function renderPayoffList() {
-      const { latestItems, prevItems } = getLatestDataset('ALL');
-      const container = document.getElementById('plannerListContainer');
-      container.innerHTML = '';
-
-      if (latestItems.length === 0) {
-        container.innerHTML = '<div class="text-xs text-slate-500 text-center py-4">No active loans found.</div>';
-        return;
-      }
-
-      const sorted = [...latestItems].sort((a,b) => (b.rate || 0) - (a.rate || 0));
-      sorted.forEach(item => {
-        const monthsLeft = item.monthsLeft || 1;
-        let targetDate = 'N/A';
-        if (typeof monthsLeft === 'number' && monthsLeft < 600) {
-          const d = new Date();
-          d.setMonth(d.getMonth() + monthsLeft);
-          targetDate = d.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
-        }
-
-        let strategyTag = item.rate >= 11
-          ? `<span class="text-[10px] text-rose-300 font-bold bg-rose-500/15 border border-rose-500/30 px-2 py-0.5 rounded-full">🔥 Top Avalanche (${item.rate}% APR)</span>`
-          : `<span class="text-[10px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded-full border border-slate-700">${item.rate}% APR</span>`;
-
-        const card = document.createElement('div');
-        card.className = "glass-card rounded-2xl p-4 border border-slate-800 space-y-2";
-        card.innerHTML = `
-          <div class="flex justify-between items-start">
-            <div>
-              <span class="text-xs font-bold text-white block">${item.metric}</span>
-              <span class="text-[11px] text-slate-400">${item.category} • Balance: <b class="text-slate-200">${formatINR(item.balance)}</b></span>
-            </div>
-            ${strategyTag}
-          </div>
-          <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800 text-[11px]">
-            <div>
-              <span class="text-[10px] text-slate-500 block uppercase">Monthly EMI</span>
-              <span class="font-bold text-emerald-400">${formatINR(item.emi)}</span>
-            </div>
-            <div>
-              <span class="text-[10px] text-slate-500 block uppercase">Tenor Left</span>
-              <span class="font-bold text-slate-200">${monthsLeft} mos</span>
-            </div>
-            <div class="text-right">
-              <span class="text-[10px] text-slate-500 block uppercase">Debt-Free Date</span>
-              <span class="font-bold text-indigo-400">${targetDate}</span>
-            </div>
-          </div>
-        `;
-        container.appendChild(card);
-      });
-    }
-
-    // Export & Backups
-    function exportToCSV() {
-      if (debtRecords.length === 0 && expenseRecords.length === 0) return notify("No data to export!");
-      let csv = 'Module,DateOrMonth,Title,Category,Amount,Account,Rate,TenorLeft,Notes\r\n';
-      debtRecords.forEach(r => {
-        csv += `"Debt","${r.month}","${r.metric}","${r.category}",${r.balance},"",${r.rate || 0},${r.monthsLeft || ''},"${r.notes || ''}"\r\n`;
-      });
-      expenseRecords.forEach(r => {
-        csv += `"Daily","${r.date}","${r.type}","${r.category}",${r.amount},"${r.account}","","","${r.note || ''}"\r\n`;
-      });
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `Finance_Portfolio_${new Date().toISOString().slice(0,10)}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      notify("CSV exported!");
-    }
-
-    function exportJSONBackup() {
-      const backup = {
-        debtCategories: categories,
-        debtRecords,
-        expenseCategories,
-        incomeCategories,
-        accountsList,
-        expenseRecords,
-        monthlyBudgets,
-        exportedAt: new Date().toISOString()
-      };
-      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `Finance_Backup_${new Date().toISOString().slice(0,10)}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      notify("All data backed up successfully!");
-    }
-
-    // -------------------------------------------------------------
-    // INITIALIZATION (BOOTS DIRECTLY TO SPENDS)
+    // INITIALIZATION (BOOTS TO SPENDS AS REQUESTED)
     // -------------------------------------------------------------
     window.addEventListener('DOMContentLoaded', () => {
       const currentMonth = new Date().toISOString().slice(0, 7);
@@ -3560,9 +1279,7 @@
       populateExpenseElements();
 
       initSecurityPin();
-
-      const defaultLand = localStorage.getItem('app_default_landing') || 'daily';
-      toggleAppMode(defaultLand);
+      toggleAppMode(activeModule);
     });
   </script>
 </body>
