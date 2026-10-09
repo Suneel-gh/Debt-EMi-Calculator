@@ -76,7 +76,7 @@
 </head>
 <body class="bg-app-bg text-slate-100 min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white pb-28">
 
-  <!-- ================= TOP APP BAR WITH FLOW: SPENDS -> PLANNER -> DEBT ================= -->
+  <!-- ================= TOP APP BAR WITH TRI-MODE TOGGLE ================= -->
   <header class="sticky top-0 z-30 bg-app-bg/90 backdrop-blur-md border-b border-app-border/80 px-4 py-3 safe-top">
     <div class="max-w-md mx-auto space-y-2.5">
       <div class="flex items-center justify-between">
@@ -158,7 +158,7 @@
               </div>
             </div>
 
-            <!-- DATE & AMOUNT (DATE PICKER UNLOCKED FOR HISTORICAL LOGGING) -->
+            <!-- DATE & AMOUNT -->
             <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="block text-[11px] font-semibold text-slate-400 mb-1">Date *</label>
@@ -170,7 +170,7 @@
               </div>
             </div>
 
-            <!-- DYNAMIC ROW: EXPENSE & INCOME (CATEGORIES ISOLATED) -->
+            <!-- DYNAMIC ROW: EXPENSE & INCOME -->
             <div id="rowCategoryAndAccount" class="grid grid-cols-2 gap-3">
               <div>
                 <div class="flex justify-between items-center mb-1">
@@ -189,7 +189,7 @@
               </div>
             </div>
 
-            <!-- DYNAMIC ROW: FOR TRANSFERS (FIXED: NO HIDDEN REQUIRED CONFLICTS) -->
+            <!-- DYNAMIC ROW: FOR TRANSFERS -->
             <div id="rowTransferAccounts" class="hidden grid grid-cols-2 gap-3">
               <div>
                 <label class="block text-[11px] font-semibold text-rose-400 mb-1">From Account (Sender) *</label>
@@ -201,11 +201,15 @@
               </div>
             </div>
 
-            <!-- NOTE WITH AUTO-SUGGESTIONS FROM HISTORICAL ENTRIES -->
-            <div>
-              <label class="block text-[11px] font-semibold text-slate-400 mb-1">Note / Description (with suggestions)</label>
-              <input type="text" id="expNote" list="expNoteDatalist" placeholder="e.g. mobile, grocery, fuel, lunch" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
-              <datalist id="expNoteDatalist"></datalist>
+            <!-- NOTE WITH STRICT PREFIX MATCHING AUTOCOMPLETE -->
+            <div class="relative">
+              <label class="block text-[11px] font-semibold text-slate-400 mb-1">Note / Description (auto-suggests prefix match)</label>
+              <input type="text" id="expNote" autocomplete="off" oninput="handleNotePrefixInput(this.value)" placeholder="e.g. mobile recharge, grocery, fuel" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+              
+              <!-- Strict "Starts-With" Popup Menu -->
+              <div id="noteSuggestionBox" class="absolute left-0 right-0 top-full mt-1 bg-slate-900/98 backdrop-blur-md border border-slate-700 rounded-xl shadow-2xl z-50 max-h-40 overflow-y-auto hidden divide-y divide-slate-800">
+                <!-- Injected via JS -->
+              </div>
             </div>
 
             <button type="submit" id="btnExpenseSubmit" class="w-full bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-600 text-white font-semibold py-3 rounded-2xl text-xs tracking-wide transition shadow-lg shadow-rose-600/30 flex items-center justify-center gap-2 active:scale-98 cursor-pointer">
@@ -1023,20 +1027,20 @@
   <!-- ================= APP CONTROLLER SCRIPT ================= -->
   <script>
     // -------------------------------------------------------------
-    // DEFAULT CONFIGURATION & SEED DATA (STRICT SEPARATION: REQUIREMENT 3)
+    // DEFAULT CONFIGURATION & SEED DATA
     // -------------------------------------------------------------
     const DEFAULT_DEBT_CATEGORIES = [
       "Gold loan", "Vehicle loan", "Personal loan", "Home loan",
       "Electronics", "Furniture", "Gadgets", "Credit card", "Others"
     ];
 
-    // PURE EXPENSE CATEGORIES ONLY
+    // PURE EXPENSE CATEGORIES ONLY (NO SALARY/BONUS HERE)
     const DEFAULT_EXPENSE_CATEGORIES = [
       "Groceries", "Food & Dining", "Fuel & Transport", "Utilities & Bills",
       "Shopping", "Health & Medical", "Entertainment", "Apparel & Styling", "Education", "EMI", "Miscellaneous"
     ];
 
-    // PURE INCOME CATEGORIES ONLY
+    // PURE INCOME CATEGORIES ONLY (NO EXPENSES HERE)
     const DEFAULT_INCOME_CATEGORIES = [
       "Salary", "Bonus", "Allowance", "Investment Inflow", "Freelance", "Rental Income", "Cashback"
     ];
@@ -1085,7 +1089,7 @@
     // -------------------------------------------------------------
     // STATE STORAGE
     // -------------------------------------------------------------
-    let activeModule = 'daily'; // Landing Page: Daily Spends (Requirement 1)
+    let activeModule = 'daily'; // Default Landing: Spends (Requirement 1)
     let currentTransactionType = 'Expense';
     let currentCatModalType = 'Expense';
 
@@ -1585,771 +1589,60 @@
     }
 
     // -------------------------------------------------------------
-    // PART 3: DAILY SPENDS CONTROLLER (INDEPENDENT CATEGORIES & TRANSFER FIX)
+    // PART 3: DAILY SPENDS CONTROLLER & PREFIX AUTOCOMPLETE
     // -------------------------------------------------------------
-    function setTransactionType(type) {
-      currentTransactionType = type;
-      const bExp = document.getElementById('tabTypeExpense');
-      const bInc = document.getElementById('tabTypeIncome');
-      const bTrf = document.getElementById('tabTypeTransfer');
-      const rowNormal = document.getElementById('rowCategoryAndAccount');
-      const rowTransfer = document.getElementById('rowTransferAccounts');
-      const submitBtn = document.getElementById('btnExpenseSubmit');
+    // STRICT "STARTS-WITH" PREFIX MATCHING FOR NOTES
+    function handleNotePrefixInput(query) {
+      const box = document.getElementById('noteSuggestionBox');
+      const q = query.trim().toLowerCase();
 
-      const expCatSelect = document.getElementById('expCategory');
-      const expAccSelect = document.getElementById('expAccount');
-      const trfFromSelect = document.getElementById('expTransferFrom');
-      const trfToSelect = document.getElementById('expTransferTo');
-
-      [bExp, bInc, bTrf].forEach(btn => {
-        btn.className = "flex-1 py-2 text-xs font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer";
-      });
-
-      expCatSelect.innerHTML = '';
-
-      if (type === 'Transfer') {
-        bTrf.className = "flex-1 py-2 text-xs font-bold rounded-xl transition text-white bg-cyan-600 shadow cursor-pointer";
-        rowNormal.classList.add('hidden');
-        rowTransfer.classList.remove('hidden');
-
-        // CRITICAL FIX: Disable required on hidden selects so browser doesn't block submission!
-        expCatSelect.removeAttribute('required');
-        expAccSelect.removeAttribute('required');
-        trfFromSelect.setAttribute('required', 'required');
-        trfToSelect.setAttribute('required', 'required');
-
-        submitBtn.className = "w-full bg-gradient-to-r from-cyan-600 to-blue-500 hover:from-cyan-500 hover:to-blue-600 text-white font-semibold py-3 rounded-2xl text-xs tracking-wide transition shadow-lg shadow-cyan-600/30 flex items-center justify-center gap-2 active:scale-98 cursor-pointer";
-        submitBtn.innerHTML = '<i class="fa-solid fa-arrow-right-arrow-left text-xs"></i> Record Account Transfer';
-      } else {
-        rowNormal.classList.remove('hidden');
-        rowTransfer.classList.add('hidden');
-
-        // Restore required attributes to visible selects
-        expCatSelect.setAttribute('required', 'required');
-        expAccSelect.setAttribute('required', 'required');
-        trfFromSelect.removeAttribute('required');
-        trfToSelect.removeAttribute('required');
-
-        if (type === 'Income') {
-          bInc.className = "flex-1 py-2 text-xs font-bold rounded-xl transition text-white bg-emerald-600 shadow cursor-pointer";
-          document.getElementById('lblCategory').innerText = 'Income Category *';
-          document.getElementById('lblAccount').innerText = 'Deposit Account *';
-          submitBtn.className = "w-full bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-600 text-white font-semibold py-3 rounded-2xl text-xs tracking-wide transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 active:scale-98 cursor-pointer";
-          submitBtn.innerHTML = '<i class="fa-solid fa-plus text-xs"></i> Record Income';
-
-          // STRICT INCOME CATEGORIES (Requirement 3)
-          incomeCategories.forEach(c => {
-            const opt = document.createElement('option');
-            opt.value = c;
-            opt.textContent = c;
-            expCatSelect.appendChild(opt);
-          });
-        } else {
-          bExp.className = "flex-1 py-2 text-xs font-bold rounded-xl transition text-white bg-rose-600 shadow cursor-pointer";
-          document.getElementById('lblCategory').innerText = 'Expense Category *';
-          document.getElementById('lblAccount').innerText = 'Payment Account *';
-          submitBtn.className = "w-full bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-600 text-white font-semibold py-3 rounded-2xl text-xs tracking-wide transition shadow-lg shadow-rose-600/30 flex items-center justify-center gap-2 active:scale-98 cursor-pointer";
-          submitBtn.innerHTML = '<i class="fa-solid fa-plus text-xs"></i> Record Expense';
-
-          // STRICT EXPENSE CATEGORIES ONLY (Requirement 3)
-          expenseCategories.forEach(c => {
-            const opt = document.createElement('option');
-            opt.value = c;
-            opt.textContent = c;
-            expCatSelect.appendChild(opt);
-          });
-        }
+      if (!q) {
+        box.classList.add('hidden');
+        box.innerHTML = '';
+        return;
       }
-    }
 
-    function switchDailyScreen(screenId) {
-      document.querySelectorAll('.daily-screen').forEach(el => el.classList.add('hidden'));
-      const target = document.getElementById(screenId);
-      if (target) target.classList.remove('hidden');
-
-      document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active-nav'));
-      const activeNavBtn = document.getElementById('nav-' + screenId);
-      if (activeNavBtn) activeNavBtn.classList.add('active-nav');
-
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-
-      if (screenId === 'dailyEntryScreen') renderExpenseHistoryTable();
-      if (screenId === 'dailySummaryScreen') renderDailySummary();
-      if (screenId === 'dailyTrendsScreen') renderDailyTrendsCharts();
-    }
-
-    function onDailyDashMonthChanged() {
-      renderDailySummary();
-    }
-
-    function saveExpenseStorage() {
-      localStorage.setItem('expense_categories', JSON.stringify(expenseCategories));
-      localStorage.setItem('income_categories', JSON.stringify(incomeCategories));
-      localStorage.setItem('expense_accounts', JSON.stringify(accountsList));
-      localStorage.setItem('expense_records', JSON.stringify(expenseRecords));
-    }
-
-    // Refresh historical note autocomplete suggestions
-    function refreshNoteSuggestions() {
-      const datalist = document.getElementById('expNoteDatalist');
-      if (!datalist) return;
-      datalist.innerHTML = '';
+      // Collect historical unique notes
       const uniqueNotes = [...new Set(expenseRecords.map(r => r.note).filter(Boolean))];
-      uniqueNotes.forEach(note => {
-        const opt = document.createElement('option');
-        opt.value = note;
-        datalist.appendChild(opt);
-      });
-    }
+      
+      // STRICT FILTER: MUST START WITH THE QUERY (NOT CONTAINED IN MIDDLE)
+      const matchingNotes = uniqueNotes.filter(n => n.toLowerCase().startsWith(q));
 
-    function populateExpenseElements() {
-      setTransactionType(currentTransactionType);
-
-      ['expAccount', 'expTransferFrom', 'expTransferTo', 'expenseAccountFilter'].forEach(id => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        const curVal = el.value;
-        el.innerHTML = id === 'expenseAccountFilter' ? '<option value="ALL">All Accounts</option>' : '';
-        accountsList.forEach(a => {
-          const opt = document.createElement('option');
-          opt.value = a.name;
-          opt.textContent = a.name;
-          el.appendChild(opt);
-        });
-        if (curVal) el.value = curVal;
-      });
-
-      renderExpenseCategoryBadges();
-      renderAccountBadges();
-      refreshNoteSuggestions();
-    }
-
-    function calculateAccountBalances() {
-      const balanceMap = {};
-      accountsList.forEach(acc => {
-        balanceMap[acc.name] = parseFloat(acc.initialBalance) || 0;
-      });
-
-      expenseRecords.forEach(r => {
-        const amt = parseFloat(r.amount) || 0;
-        if (r.type === 'Income') {
-          if (balanceMap[r.account] !== undefined) balanceMap[r.account] += amt;
-        } else if (r.type === 'Expense') {
-          if (balanceMap[r.account] !== undefined) balanceMap[r.account] -= amt;
-        } else if (r.type === 'Transfer') {
-          if (balanceMap[r.account] !== undefined) balanceMap[r.account] -= amt;
-          if (balanceMap[r.toAccount] !== undefined) balanceMap[r.toAccount] += amt;
-        }
-      });
-
-      return balanceMap;
-    }
-
-    function handleExpenseSubmission(e) {
-      e.preventDefault();
-      const editId = document.getElementById('editExpenseId').value;
-      const date = document.getElementById('expDate').value;
-      const amount = parseFloat(document.getElementById('expAmount').value) || 0;
-      const note = document.getElementById('expNote').value.trim();
-
-      let category = '';
-      let account = '';
-      let toAccount = '';
-
-      if (currentTransactionType === 'Transfer') {
-        category = 'Transfer';
-        account = document.getElementById('expTransferFrom').value;
-        toAccount = document.getElementById('expTransferTo').value;
-        if (!account || !toAccount) {
-          notify("Please select both accounts!");
-          return;
-        }
-        if (account === toAccount) {
-          notify("Sender and receiver accounts cannot be the same!");
-          return;
-        }
-      } else {
-        category = document.getElementById('expCategory').value;
-        account = document.getElementById('expAccount').value;
-        toAccount = '';
-      }
-
-      if (editId) {
-        const idx = expenseRecords.findIndex(r => r.id == editId);
-        if (idx !== -1) {
-          expenseRecords[idx] = { ...expenseRecords[idx], type: currentTransactionType, date, amount, category, account, toAccount, note };
-          notify("Updated transaction");
-        }
-      } else {
-        const newRecord = { id: Date.now(), type: currentTransactionType, date, amount, category, account, toAccount, note };
-        expenseRecords.push(newRecord);
-        notify(`Recorded ${currentTransactionType}: ${formatINR(amount)}`);
-
-        // AUTOMATIC PLANNER CREATION FOR NEW CATEGORIES IN SPENDS (REQUIREMENT)
-        if (currentTransactionType === 'Expense' && category) {
-          const monthKey = date ? date.slice(0, 7) : new Date().toISOString().slice(0, 7);
-          if (!monthlyBudgets[monthKey]) {
-            monthlyBudgets[monthKey] = JSON.parse(JSON.stringify(DEFAULT_BUDGET_TEMPLATES));
-          }
-          const existsInPlanner = monthlyBudgets[monthKey].some(b => b.category.toLowerCase() === category.toLowerCase());
-          if (!existsInPlanner) {
-            monthlyBudgets[monthKey].push({ category: category, plannedAmount: amount });
-            saveMonthlyBudgetStorage();
-            notify(`Auto-added "${category}" to ${monthKey} Planner with budget ₹${amount}`);
-          }
-        }
-      }
-
-      saveExpenseStorage();
-      resetExpenseFormToNew();
-      renderExpenseHistoryTable();
-      renderDailySummary();
-      renderBudgetPlanner();
-      refreshNoteSuggestions();
-    }
-
-    function editExpense(id) {
-      const item = expenseRecords.find(r => r.id == id);
-      if (!item) return;
-
-      switchDailyScreen('dailyEntryScreen');
-      document.getElementById('editExpenseId').value = item.id;
-      setTransactionType(item.type || 'Expense');
-
-      document.getElementById('expDate').value = item.date;
-      document.getElementById('expAmount').value = item.amount;
-      document.getElementById('expNote').value = item.note || '';
-
-      if (item.type === 'Transfer') {
-        document.getElementById('expTransferFrom').value = item.account;
-        document.getElementById('expTransferTo').value = item.toAccount;
-      } else {
-        document.getElementById('expCategory').value = item.category;
-        document.getElementById('expAccount').value = item.account;
-      }
-
-      document.getElementById('expenseFormTitle').innerText = `Edit ${item.type}: ${formatINR(item.amount)}`;
-      document.getElementById('btnExpenseSubmit').innerHTML = `<i class="fa-solid fa-check text-xs"></i> Update Transaction`;
-      document.getElementById('cancelExpenseEditBtn').classList.remove('hidden');
-
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function resetExpenseFormToNew() {
-      document.getElementById('editExpenseId').value = '';
-      document.getElementById('expenseForm').reset();
-      document.getElementById('expDate').value = new Date().toISOString().slice(0, 10);
-      setTransactionType('Expense');
-      document.getElementById('expenseFormTitle').innerText = 'Log Transaction';
-      document.getElementById('cancelExpenseEditBtn').classList.add('hidden');
-    }
-
-    function deleteExpense(id) {
-      if (confirm("Delete this transaction entry?")) {
-        expenseRecords = expenseRecords.filter(r => r.id != id);
-        saveExpenseStorage();
-        renderExpenseHistoryTable();
-        renderDailySummary();
-        renderBudgetPlanner();
-        refreshNoteSuggestions();
-        notify("Transaction deleted.");
-      }
-    }
-
-    function renderExpenseHistoryTable() {
-      const container = document.getElementById('expenseHistoryContainer');
-      container.innerHTML = '';
-
-      const search = document.getElementById('expenseLogSearch').value.toLowerCase();
-      const filterType = document.getElementById('expenseTypeFilter').value;
-      const filterAcc = document.getElementById('expenseAccountFilter').value;
-
-      let filtered = expenseRecords.filter(r => {
-        const matchesType = (filterType === 'ALL' || r.type === filterType);
-        const matchesAcc = (filterAcc === 'ALL' || r.account === filterAcc || r.toAccount === filterAcc);
-        const matchesSearch = !search || 
-          r.category.toLowerCase().includes(search) || 
-          r.account.toLowerCase().includes(search) || 
-          (r.toAccount && r.toAccount.toLowerCase().includes(search)) ||
-          (r.note && r.note.toLowerCase().includes(search)) ||
-          r.date.includes(search);
-        return matchesType && matchesAcc && matchesSearch;
-      });
-
-      filtered.sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id);
-      document.getElementById('expenseLogCounter').innerText = `${filtered.length} entries`;
-
-      if (filtered.length === 0) {
-        container.innerHTML = '<div class="text-xs text-slate-500 text-center py-4">No transactions found.</div>';
+      if (matchingNotes.length === 0) {
+        box.classList.add('hidden');
+        box.innerHTML = '';
         return;
       }
 
-      filtered.forEach(row => {
-        let typeBadge = '';
-        let amountDisplay = '';
-
-        if (row.type === 'Income') {
-          typeBadge = '<span class="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">Income</span>';
-          amountDisplay = `<span class="font-extrabold text-emerald-400 mr-1">+${formatINR(row.amount)}</span>`;
-        } else if (row.type === 'Transfer') {
-          typeBadge = '<span class="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">Transfer</span>';
-          amountDisplay = `<span class="font-extrabold text-cyan-300 mr-1">⇄ ${formatINR(row.amount)}</span>`;
-        } else {
-          typeBadge = '<span class="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-rose-500/15 text-rose-300 border border-rose-500/30">Expense</span>';
-          amountDisplay = `<span class="font-extrabold text-rose-400 mr-1">-${formatINR(row.amount)}</span>`;
-        }
-
-        const itemEl = document.createElement('div');
-        itemEl.className = "p-3 rounded-2xl bg-slate-900/80 border border-slate-800 flex justify-between items-center text-xs";
+      box.innerHTML = '';
+      matchingNotes.slice(0, 6).forEach(note => {
+        const item = document.createElement('div');
+        item.className = "px-3 py-2 text-xs text-slate-200 hover:bg-indigo-600/30 hover:text-white cursor-pointer transition flex items-center justify-between";
         
-        let accountText = `<b class="text-slate-300">${row.account}</b>`;
-        if (row.type === 'Transfer') {
-          accountText = `<b class="text-rose-400">${row.account}</b> ➔ <b class="text-emerald-400">${row.toAccount}</b>`;
-        }
-
-        itemEl.innerHTML = `
-          <div>
-            <div class="flex items-center gap-1.5">
-              ${typeBadge}
-              <span class="font-bold text-white">${row.category}</span>
-              <span class="text-[10px] text-slate-400">(${row.date})</span>
-            </div>
-            <span class="text-[10px] text-slate-400">${accountText} • ${row.note || 'No note'}</span>
-          </div>
-          <div class="flex items-center gap-2">
-            ${amountDisplay}
-            <button type="button" onclick="editExpense(${row.id})" class="text-indigo-400 hover:text-indigo-300 p-1.5 cursor-pointer" title="Edit">
-              <i class="fa-solid fa-pen-to-square"></i>
-            </button>
-            <button type="button" onclick="deleteExpense(${row.id})" class="text-slate-500 hover:text-rose-400 p-1.5 cursor-pointer" title="Delete">
-              <i class="fa-solid fa-trash-can"></i>
-            </button>
-          </div>
-        `;
-        container.appendChild(itemEl);
-      });
-    }
-
-    function renderDailySummary() {
-      const selectedMonthKey = document.getElementById('dailyDashMonthSelector').value || new Date().toISOString().slice(0, 7);
-      const now = new Date();
-      const todayStr = now.toISOString().slice(0, 10);
-
-      const monthRecords = expenseRecords.filter(r => r.date.startsWith(selectedMonthKey));
-      const monthIncome = monthRecords.filter(r => r.type === 'Income').reduce((s, it) => s + it.amount, 0);
-      const monthExpense = monthRecords.filter(r => r.type === 'Expense').reduce((s, it) => s + it.amount, 0);
-      const monthSavings = monthIncome - monthExpense;
-
-      const todayRecords = expenseRecords.filter(r => r.date === todayStr && r.type === 'Expense');
-      const todaySpent = todayRecords.reduce((s, it) => s + it.amount, 0);
-
-      const sevenDaysAgo = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)).toISOString().slice(0, 10);
-      const weekRecords = expenseRecords.filter(r => r.date >= sevenDaysAgo && r.date <= todayStr && r.type === 'Expense');
-      const weekSpent = weekRecords.reduce((s, it) => s + it.amount, 0);
-
-      const dayCount = 30;
-      const dailyAvg = (monthExpense / dayCount);
-
-      const balanceMap = calculateAccountBalances();
-      let totalLiquidWealth = 0;
-      Object.values(balanceMap).forEach(b => totalLiquidWealth += b);
-
-      const dObj = new Date(selectedMonthKey + '-01');
-      document.getElementById('dailyMonthBadge').innerText = dObj.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
-      document.getElementById('kpiNetLiquidWealth').innerText = formatINR(totalLiquidWealth);
-      document.getElementById('kpiDailyMonthIncome').innerText = formatINR(monthIncome);
-      document.getElementById('kpiDailyMonthExpense').innerText = formatINR(monthExpense);
-      document.getElementById('kpiDailyMonthSavings').innerText = (monthSavings >= 0 ? '+' : '') + formatINR(monthSavings);
-      document.getElementById('kpiDailyMonthSavings').className = `text-sm font-bold mt-0.5 block ${monthSavings >= 0 ? 'text-cyan-300' : 'text-rose-400'}`;
-
-      document.getElementById('kpiSummaryTodaySpent').innerText = formatINR(todaySpent);
-      document.getElementById('kpiSummaryTodayCount').innerText = `${todayRecords.length} spend${todayRecords.length === 1 ? '' : 's'}`;
-
-      document.getElementById('kpiSummaryWeekSpent').innerText = formatINR(weekSpent);
-      document.getElementById('kpiSummaryWeekCount').innerText = `${weekRecords.length} spend${weekRecords.length === 1 ? '' : 's'}`;
-
-      document.getElementById('kpiSummaryMonthSpent').innerText = formatINR(monthExpense);
-      document.getElementById('kpiSummaryMonthAvg').innerText = `Avg ${formatINR(dailyAvg)}/d`;
-
-      const balancesContainer = document.getElementById('liveAccountBalancesContainer');
-      balancesContainer.innerHTML = '';
-      accountsList.forEach(acc => {
-        const bal = balanceMap[acc.name] || 0;
-        const card = document.createElement('div');
-        card.className = "bg-slate-900/70 p-3 rounded-2xl border border-slate-800 flex flex-col justify-between";
-        card.innerHTML = `
-          <div class="flex items-center justify-between text-[11px] text-slate-400 font-semibold">
-            <span class="truncate">${acc.name}</span>
-            <i class="fa-solid fa-wallet text-cyan-400/60 text-xs"></i>
-          </div>
-          <span class="text-sm font-extrabold ${bal >= 0 ? 'text-white' : 'text-rose-400'} mt-1.5 block">${formatINR(bal)}</span>
-        `;
-        balancesContainer.appendChild(card);
+        // Highlight prefix
+        const prefix = note.slice(0, q.length);
+        const rest = note.slice(q.length);
+        item.innerHTML = `<span class="truncate"><b class="text-indigo-400 font-bold">${prefix}</b>${rest}</span><i class="fa-solid fa-arrow-turn-down text-[9px] text-slate-500"></i>`;
+        
+        item.onclick = () => {
+          document.getElementById('expNote').value = note;
+          box.classList.add('hidden');
+          box.innerHTML = '';
+        };
+        box.appendChild(item);
       });
 
-      const catMap = {};
-      monthRecords.filter(r => r.type === 'Expense').forEach(i => catMap[i.category] = (catMap[i.category] || 0) + i.amount);
-      const catContainer = document.getElementById('dailyCategoryBreakdownContainer');
-      catContainer.innerHTML = '';
+      box.classList.remove('hidden');
+    }
 
-      const sortedCats = Object.entries(catMap).sort((a, b) => b[1] - a[1]);
-      if (sortedCats.length === 0) {
-        catContainer.innerHTML = '<div class="text-xs text-slate-500 text-center py-2">No expenses logged for this month yet.</div>';
-      } else {
-        sortedCats.forEach(([cat, val]) => {
-          const pct = monthExpense > 0 ? ((val / monthExpense) * 100).toFixed(1) : 0;
-          const rowEl = document.createElement('div');
-          rowEl.className = "flex justify-between items-center text-xs p-2 bg-slate-900/60 rounded-xl border border-slate-800";
-          rowEl.innerHTML = `
-            <div class="flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-rose-400"></span>
-              <span class="font-bold text-white">${cat}</span>
-              <span class="text-[10px] text-slate-400">(${pct}%)</span>
-            </div>
-            <span class="font-extrabold text-slate-100">${formatINR(val)}</span>
-          `;
-          catContainer.appendChild(rowEl);
-        });
+    // Close autocomplete on click outside
+    document.addEventListener('click', (e) => {
+      const box = document.getElementById('noteSuggestionBox');
+      const input = document.getElementById('expNote');
+      if (box && !box.contains(e.target) && e.target !== input) {
+        box.classList.add('hidden');
       }
-    }
-
-    function renderDailyTrendsCharts() {
-      const now = new Date();
-
-      const weekLabels = [];
-      const weeklyTotals = [];
-      for (let w = 5; w >= 0; w--) {
-        const start = new Date(now.getTime() - ((w * 7 + 6) * 24 * 60 * 60 * 1000)).toISOString().slice(0, 10);
-        const end = new Date(now.getTime() - (w * 7 * 24 * 60 * 60 * 1000)).toISOString().slice(0, 10);
-        weekLabels.push(`W-${w === 0 ? 'Curr' : w}`);
-        const sum = expenseRecords.filter(r => r.date >= start && r.date <= end && r.type === 'Expense')
-                                  .reduce((s, it) => s + it.amount, 0);
-        weeklyTotals.push(sum);
-      }
-
-      if (dailyWeeklyBarChart) dailyWeeklyBarChart.destroy();
-      const ctxWeekly = document.getElementById('dailyWeeklyBarChart').getContext('2d');
-      dailyWeeklyBarChart = new Chart(ctxWeekly, {
-        type: 'bar',
-        data: {
-          labels: weekLabels,
-          datasets: [{
-            label: 'Weekly Expense (₹)',
-            data: weeklyTotals,
-            backgroundColor: '#f43f5e',
-            borderRadius: 6
-          }]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } },
-            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 }, callback: v => '₹' + v } }
-          }
-        }
-      });
-
-      const monthLabels = [];
-      const monthIncomes = [];
-      const monthExpenses = [];
-      for (let m = 5; m >= 0; m--) {
-        const d = new Date(now.getFullYear(), now.getMonth() - m, 1);
-        const key = d.toISOString().slice(0, 7);
-        monthLabels.push(d.toLocaleDateString('en-IN', { month: 'short' }));
-
-        const inc = expenseRecords.filter(r => r.date.startsWith(key) && r.type === 'Income').reduce((s, it) => s + it.amount, 0);
-        const exp = expenseRecords.filter(r => r.date.startsWith(key) && r.type === 'Expense').reduce((s, it) => s + it.amount, 0);
-        monthIncomes.push(inc);
-        monthExpenses.push(exp);
-      }
-
-      if (dailyMonthlyCompareChart) dailyMonthlyCompareChart.destroy();
-      const ctxCompare = document.getElementById('dailyMonthlyCompareChart').getContext('2d');
-      dailyMonthlyCompareChart = new Chart(ctxCompare, {
-        type: 'bar',
-        data: {
-          labels: monthLabels,
-          datasets: [
-            { label: 'Income', data: monthIncomes, backgroundColor: '#10b981', borderRadius: 4 },
-            { label: 'Expense', data: monthExpenses, backgroundColor: '#f43f5e', borderRadius: 4 }
-          ]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: {
-            legend: { position: 'top', labels: { boxWidth: 10, color: '#94a3b8', font: { size: 10 } } }
-          },
-          scales: {
-            x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } },
-            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 }, callback: v => '₹' + v } }
-          }
-        }
-      });
-
-      const currentYearMonth = document.getElementById('dailyDashMonthSelector').value || now.toISOString().slice(0, 7);
-      const catMap = {};
-      expenseRecords.filter(r => r.type === 'Expense' && r.date.startsWith(currentYearMonth))
-                    .forEach(i => catMap[i.category] = (catMap[i.category] || 0) + i.amount);
-
-      if (dailyCategoryDoughnutChart) dailyCategoryDoughnutChart.destroy();
-      const ctxCat = document.getElementById('dailyCategoryDoughnutChart').getContext('2d');
-      dailyCategoryDoughnutChart = new Chart(ctxCat, {
-        type: 'doughnut',
-        data: {
-          labels: Object.keys(catMap).length ? Object.keys(catMap) : ['No Expenses'],
-          datasets: [{
-            data: Object.values(catMap).length ? Object.values(catMap) : [1],
-            backgroundColor: ['#f43f5e', '#6366f1', '#06b6d4', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#3b82f6'],
-            borderWidth: 2, borderColor: '#090d16'
-          }]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, color: '#94a3b8', font: { size: 10 } } } }
-        }
-      });
-
-      const accOutMap = {};
-      expenseRecords.filter(r => r.type === 'Expense' && r.date.startsWith(currentYearMonth))
-                    .forEach(i => accOutMap[i.account] = (accOutMap[i.account] || 0) + i.amount);
-
-      if (dailyAccountDoughnutChart) dailyAccountDoughnutChart.destroy();
-      const ctxAcc = document.getElementById('dailyAccountDoughnutChart').getContext('2d');
-      dailyAccountDoughnutChart = new Chart(ctxAcc, {
-        type: 'doughnut',
-        data: {
-          labels: Object.keys(accOutMap).length ? Object.keys(accOutMap) : ['No Outflows'],
-          datasets: [{
-            data: Object.values(accOutMap).length ? Object.values(accOutMap) : [1],
-            backgroundColor: ['#06b6d4', '#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'],
-            borderWidth: 2, borderColor: '#090d16'
-          }]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, color: '#94a3b8', font: { size: 10 } } } }
-        }
-      });
-    }
-
-    // ================= REORDERING CATEGORIES & ACCOUNTS =================
-    function switchCategoryModalType(type) {
-      currentCatModalType = type;
-      const bExp = document.getElementById('tabModalCatExpense');
-      const bInc = document.getElementById('tabModalCatIncome');
-      if (type === 'Income') {
-        bInc.className = "flex-1 py-1.5 text-xs font-bold rounded-xl text-white bg-emerald-600 shadow cursor-pointer";
-        bExp.className = "flex-1 py-1.5 text-xs font-bold rounded-xl text-slate-400 hover:text-white cursor-pointer";
-        document.getElementById('lblCatModalCount').innerText = `Income Categories (${incomeCategories.length})`;
-      } else {
-        bExp.className = "flex-1 py-1.5 text-xs font-bold rounded-xl text-white bg-rose-600 shadow cursor-pointer";
-        bInc.className = "flex-1 py-1.5 text-xs font-bold rounded-xl text-slate-400 hover:text-white cursor-pointer";
-        document.getElementById('lblCatModalCount').innerText = `Expense Categories (${expenseCategories.length})`;
-      }
-      renderExpenseCategoryBadges();
-    }
-
-    function moveExpenseCategory(index, direction) {
-      const arr = currentCatModalType === 'Income' ? incomeCategories : expenseCategories;
-      if (direction === 'top') {
-        const item = arr.splice(index, 1)[0];
-        arr.unshift(item);
-      } else {
-        const newIndex = index + direction;
-        if (newIndex < 0 || newIndex >= arr.length) return;
-        const item = arr.splice(index, 1)[0];
-        arr.splice(newIndex, 0, item);
-      }
-      saveExpenseStorage();
-      populateExpenseElements();
-      renderExpenseCategoryBadges();
-      notify(`Reordered priority`);
-    }
-
-    function moveDebtCategory(index, direction) {
-      if (direction === 'top') {
-        const item = categories.splice(index, 1)[0];
-        categories.unshift(item);
-      } else {
-        const newIndex = index + direction;
-        if (newIndex < 0 || newIndex >= categories.length) return;
-        const item = categories.splice(index, 1)[0];
-        categories.splice(newIndex, 0, item);
-      }
-      saveDebtStorage();
-      populateCategoryElements();
-      renderCategoryBadges();
-      notify(`Reordered priority`);
-    }
-
-    function moveAccount(index, direction) {
-      if (direction === 'top') {
-        const item = accountsList.splice(index, 1)[0];
-        accountsList.unshift(item);
-      } else {
-        const newIndex = index + direction;
-        if (newIndex < 0 || newIndex >= accountsList.length) return;
-        const item = accountsList.splice(index, 1)[0];
-        accountsList.splice(newIndex, 0, item);
-      }
-      saveExpenseStorage();
-      populateExpenseElements();
-      renderAccountBadges();
-      notify(`Reordered accounts`);
-    }
-
-    function openExpenseCategoryModal() {
-      document.getElementById('expenseCatModal').classList.remove('hidden');
-      switchCategoryModalType(currentCatModalType);
-      document.getElementById('newExpenseCatInput').focus();
-    }
-    function closeExpenseCategoryModal() {
-      document.getElementById('expenseCatModal').classList.add('hidden');
-    }
-    function handleNewExpenseCategory(e) {
-      e.preventDefault();
-      const input = document.getElementById('newExpenseCatInput');
-      const val = input.value.trim();
-      if (!val) return;
-
-      const arr = currentCatModalType === 'Income' ? incomeCategories : expenseCategories;
-      if (arr.some(c => c.toLowerCase() === val.toLowerCase())) {
-        notify("Category already exists in this list!");
-        return;
-      }
-      arr.push(val);
-      saveExpenseStorage();
-      populateExpenseElements();
-      renderDailySummary();
-      renderBudgetPlanner();
-      input.value = '';
-      notify(`Added "${val}" to ${currentCatModalType}`);
-    }
-    function deleteExpenseCategory(name) {
-      if (confirm(`Remove category "${name}"?`)) {
-        if (currentCatModalType === 'Income') {
-          incomeCategories = incomeCategories.filter(c => c !== name);
-        } else {
-          expenseCategories = expenseCategories.filter(c => c !== name);
-        }
-        saveExpenseStorage();
-        populateExpenseElements();
-        renderDailySummary();
-        renderBudgetPlanner();
-        notify(`Removed "${name}"`);
-      }
-    }
-    function renderExpenseCategoryBadges() {
-      const container = document.getElementById('expenseCategoryBadgeContainer');
-      container.innerHTML = '';
-      const arr = currentCatModalType === 'Income' ? incomeCategories : expenseCategories;
-      document.getElementById('lblCatModalCount').innerText = `${currentCatModalType} Categories (${arr.length})`;
-
-      arr.forEach((cat, idx) => {
-        const row = document.createElement('div');
-        row.className = "flex items-center justify-between bg-slate-900 border border-slate-700 px-3 py-2 rounded-xl text-xs text-slate-300 font-medium";
-        row.innerHTML = `
-          <div class="flex items-center gap-2">
-            <span class="text-slate-500 font-mono text-[10px] w-4">${idx + 1}.</span>
-            <span class="font-bold text-white">${cat}</span>
-          </div>
-          <div class="flex items-center gap-1">
-            <button type="button" onclick="moveExpenseCategory(${idx}, 'top')" title="Move to Top" class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-300 hover:text-white cursor-pointer text-[10px]">
-              ⏫
-            </button>
-            <button type="button" onclick="moveExpenseCategory(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} title="Move Up" class="w-6 h-6 rounded bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white disabled:opacity-30 cursor-pointer">
-              ▲
-            </button>
-            <button type="button" onclick="moveExpenseCategory(${idx}, 1)" ${idx === arr.length - 1 ? 'disabled' : ''} title="Move Down" class="w-6 h-6 rounded bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white disabled:opacity-30 cursor-pointer">
-              ▼
-            </button>
-            <button type="button" onclick="deleteExpenseCategory('${cat}')" class="text-rose-400 hover:text-rose-300 ml-1.5 cursor-pointer">
-              <i class="fa-solid fa-trash-can text-xs"></i>
-            </button>
-          </div>
-        `;
-        container.appendChild(row);
-      });
-    }
-
-    function openAccountModal() {
-      document.getElementById('accountModal').classList.remove('hidden');
-      renderAccountBadges();
-      document.getElementById('newAccountName').focus();
-    }
-    function closeAccountModal() {
-      document.getElementById('accountModal').classList.add('hidden');
-    }
-    function handleNewAccount(e) {
-      e.preventDefault();
-      const name = document.getElementById('newAccountName').value.trim();
-      const initial = parseFloat(document.getElementById('newAccountInitial').value) || 0;
-      if (!name) return;
-
-      if (accountsList.some(a => a.name.toLowerCase() === name.toLowerCase())) {
-        notify("Account already exists!");
-        return;
-      }
-
-      accountsList.push({ name, initialBalance: initial });
-      saveExpenseStorage();
-      populateExpenseElements();
-      renderDailySummary();
-      document.getElementById('newAccountName').value = '';
-      document.getElementById('newAccountInitial').value = '';
-      notify(`Added account "${name}"`);
-    }
-    function updateAccountInitial(name, newInitial) {
-      const acc = accountsList.find(a => a.name === name);
-      if (acc) {
-        acc.initialBalance = parseFloat(newInitial) || 0;
-        saveExpenseStorage();
-        renderDailySummary();
-        notify(`Updated ${name} starting balance`);
-      }
-    }
-    function deleteAccount(name) {
-      if (confirm(`Remove account "${name}"?`)) {
-        accountsList = accountsList.filter(a => a.name !== name);
-        saveExpenseStorage();
-        populateExpenseElements();
-        renderDailySummary();
-        notify(`Removed "${name}"`);
-      }
-    }
-    function renderAccountBadges() {
-      const container = document.getElementById('accountDetailedListContainer');
-      container.innerHTML = '';
-
-      accountsList.forEach((acc, idx) => {
-        const row = document.createElement('div');
-        row.className = "p-2.5 rounded-xl bg-slate-900 border border-slate-700 flex justify-between items-center text-xs";
-        row.innerHTML = `
-          <div>
-            <div class="flex items-center gap-1.5">
-              <span class="text-slate-500 font-mono text-[10px]">${idx + 1}.</span>
-              <span class="font-bold text-white">${acc.name}</span>
-            </div>
-            <span class="text-[10px] text-slate-400">Starting: ${formatINR(acc.initialBalance)}</span>
-          </div>
-          <div class="flex items-center gap-1">
-            <button type="button" onclick="moveAccount(${idx}, 'top')" title="Move to Top" class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-300 hover:text-white cursor-pointer text-[10px]">
-              ⏫
-            </button>
-            <button type="button" onclick="moveAccount(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} title="Move Up" class="w-6 h-6 rounded bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white disabled:opacity-30 cursor-pointer">
-              ▲
-            </button>
-            <button type="button" onclick="moveAccount(${idx}, 1)" ${idx === accountsList.length - 1 ? 'disabled' : ''} title="Move Down" class="w-6 h-6 rounded bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white disabled:opacity-30 cursor-pointer">
-              ▼
-            </button>
-            <input type="number" step="any" placeholder="Balance" value="${acc.initialBalance}" onchange="updateAccountInitial('${acc.name}', this.value)" class="w-16 bg-slate-800 border border-slate-600 rounded-lg px-1.5 py-1 text-xs text-white">
-            <button type="button" onclick="deleteAccount('${acc.name}')" class="text-rose-400 hover:text-rose-300 ml-1 cursor-pointer"><i class="fa-solid fa-trash-can text-xs"></i></button>
-          </div>
-        `;
-        container.appendChild(row);
-      });
-    }
+    });
 
     // -------------------------------------------------------------
     // PART 1 CONTROLLER: DEBT & EMI (PRESERVED)
@@ -2923,7 +2216,7 @@
           labels: Object.keys(catMap),
           datasets: [{
             data: Object.values(catMap),
-            backgroundColor: ['#6366f1', '#06b6d4', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#f43f5e', '#3b82f6'],
+            backgroundColor: ['#6366f1', '#06b6d4', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#f43f5e', '#3b82f6', '#64748b'],
             borderWidth: 2, borderColor: '#090d16'
           }]
         },
@@ -3179,7 +2472,7 @@
     }
 
     // -------------------------------------------------------------
-    // INITIALIZATION (LANDING PAGE: SPENDS)
+    // INITIALIZATION (LANDING PAGE: SPENDS MODULE)
     // -------------------------------------------------------------
     window.addEventListener('DOMContentLoaded', () => {
       const currentMonth = new Date().toISOString().slice(0, 7);
