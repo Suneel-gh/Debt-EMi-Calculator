@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#090d16">
+  <meta name="theme-color" content="#070a12">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -22,15 +22,15 @@
         extend: {
           colors: {
             app: {
-              bg: '#090d16',
-              card: '#121827',
-              border: '#1e293b',
+              bg: '#070a12',
+              card: '#111726',
+              border: '#1f293d',
+              surface: '#151d30',
               accent: '#6366f1',
-              accentDark: '#4f46e5',
-              success: '#10b981',
-              danger: '#f43f5e',
-              warning: '#f59e0b',
-              surface: '#182234'
+              emerald: '#10b981',
+              rose: '#f43f5e',
+              amber: '#f59e0b',
+              cyan: '#06b6d4'
             }
           },
           fontFamily: {
@@ -50,24 +50,24 @@
     * { -webkit-tap-highlight-color: transparent; }
     body {
       font-family: 'Inter', sans-serif;
-      background-color: #090d16;
+      background-color: #070a12;
       color: #f1f5f9;
       overscroll-behavior-y: contain;
     }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .glass-card {
-      background: linear-gradient(145deg, rgba(24, 34, 52, 0.85) 0%, rgba(18, 24, 39, 0.95) 100%);
-      backdrop-filter: blur(12px);
+      background: linear-gradient(145deg, rgba(20, 27, 45, 0.9) 0%, rgba(13, 18, 30, 0.95) 100%);
+      backdrop-filter: blur(14px);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
     }
     .glass-modal {
-      background: rgba(14, 20, 33, 0.98);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(11, 16, 28, 0.98);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
     }
-    .active-nav { color: #818cf8 !important; }
     .safe-bottom { padding-bottom: max(1.2rem, env(safe-area-inset-bottom)); }
     .safe-top { padding-top: max(0.8rem, env(safe-area-inset-top)); }
   </style>
@@ -82,43 +82,43 @@
 </head>
 <body class="bg-app-bg text-slate-100 min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white pb-24">
 
-  <!-- ================= TOP APP BAR WITH PRIMARY FLOW: SPENDS -> PLANNER -> DEBT ================= -->
-  <header class="sticky top-0 z-30 bg-app-bg/95 backdrop-blur-md border-b border-app-border/80 px-4 py-3 safe-top">
+  <!-- ================= TOP APP BAR WITH HIGH-CONTRAST DUAL-TONE KEY TOGGLE ================= -->
+  <header class="sticky top-0 z-30 bg-app-bg/95 backdrop-blur-md border-b border-slate-800/80 px-4 py-3 safe-top">
     <div class="max-w-md mx-auto space-y-2.5">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2.5">
-          <div id="modeIcon" class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-cyan-400 flex items-center justify-center text-white font-bold text-base shadow-lg shadow-emerald-500/20">
+          <div id="modeIcon" class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 via-teal-500 to-cyan-400 flex items-center justify-center text-white font-bold text-base shadow-lg shadow-emerald-500/25">
             <i class="fa-solid fa-wallet"></i>
           </div>
           <div>
             <h1 id="appTitleText" class="text-sm font-bold tracking-tight text-white flex items-center gap-1.5">
               Daily Spends
-              <span id="appBadgeText" class="text-[10px] font-semibold bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30">Live Feed</span>
+              <span id="appBadgeText" class="text-[10px] font-semibold bg-emerald-500/15 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30">Live Feed</span>
             </h1>
             <p id="appSubtitleText" class="text-[11px] text-slate-400 font-medium">Income, expenses, transfers & trends</p>
           </div>
         </div>
         
         <div class="flex items-center gap-2">
-          <button type="button" onclick="openContextModal()" class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/80 flex items-center justify-center text-slate-300 hover:text-white transition active:scale-95" title="Settings & Categories">
+          <button type="button" onclick="openContextModal()" class="w-8 h-8 rounded-full bg-slate-800/90 border border-slate-700/80 flex items-center justify-center text-slate-300 hover:text-white transition active:scale-95" title="Settings & Categories">
             <i class="fa-solid fa-sliders text-xs"></i>
           </button>
-          <button type="button" onclick="switchDebtScreen('settingsScreen')" class="w-8 h-8 rounded-full bg-slate-800/80 border border-slate-700/80 flex items-center justify-center text-slate-300 hover:text-white transition active:scale-95" title="Settings">
+          <button type="button" onclick="switchDebtScreen('settingsScreen')" class="w-8 h-8 rounded-full bg-slate-800/90 border border-slate-700/80 flex items-center justify-center text-slate-300 hover:text-white transition active:scale-95" title="Settings">
             <i class="fa-solid fa-gear text-xs"></i>
           </button>
         </div>
       </div>
 
-      <!-- MASTER TRI-MODE SWITCHER (ORDER: SPENDS -> PLANNER -> DEBT) -->
-      <div class="bg-slate-900/90 p-1 rounded-2xl flex border border-slate-800 shadow-inner gap-1">
-        <button type="button" id="btnModeDaily" onclick="toggleAppMode('daily')" class="flex-1 py-2 text-[11px] font-bold rounded-xl transition text-white bg-emerald-600 shadow cursor-pointer flex items-center justify-center gap-1.5">
-          <i class="fa-solid fa-wallet"></i> Spends
+      <!-- MASTER HARDWARE-STYLE TRI-MODE SWITCHER KEY -->
+      <div class="bg-slate-900/95 p-1 rounded-2xl flex border border-slate-800 shadow-inner gap-1">
+        <button type="button" id="btnModeDaily" onclick="toggleAppMode('daily')" class="flex-1 py-2 text-[11px] font-extrabold rounded-xl transition text-white bg-gradient-to-r from-emerald-500 to-teal-500 shadow-md shadow-emerald-500/25 cursor-pointer flex items-center justify-center gap-1.5 active:scale-95">
+          <i class="fa-solid fa-wallet text-xs"></i> Spends
         </button>
-        <button type="button" id="btnModePlanner" onclick="toggleAppMode('planner')" class="flex-1 py-2 text-[11px] font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer flex items-center justify-center gap-1.5">
-          <i class="fa-solid fa-bullseye"></i> Planner
+        <button type="button" id="btnModePlanner" onclick="toggleAppMode('planner')" class="flex-1 py-2 text-[11px] font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer flex items-center justify-center gap-1.5 active:scale-95">
+          <i class="fa-solid fa-bullseye text-xs"></i> Planner
         </button>
-        <button type="button" id="btnModeDebt" onclick="toggleAppMode('debt')" class="flex-1 py-2 text-[11px] font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer flex items-center justify-center gap-1.5">
-          <i class="fa-solid fa-receipt"></i> Debt / EMI
+        <button type="button" id="btnModeDebt" onclick="toggleAppMode('debt')" class="flex-1 py-2 text-[11px] font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer flex items-center justify-center gap-1.5 active:scale-95">
+          <i class="fa-solid fa-receipt text-xs"></i> Debt / EMI
         </button>
       </div>
     </div>
@@ -128,38 +128,36 @@
   <main class="max-w-md mx-auto w-full px-4 pt-3 flex-1">
 
     <!-- ************************************************************* -->
-    <!-- MODULE 1: DAILY SPENDS (DEFAULT LANDING VIEW)                 -->
+    <!-- MODULE 1: DAILY SPENDS (LANDING VIEW)                         -->
     <!-- ************************************************************* -->
     <div id="dailyModuleContainer" class="space-y-4">
 
-      <!-- SPENDS VIEW 1: DEDICATED FULL-PAGE TRANSACTION FEED (NEWEST FIRST) -->
+      <!-- SPENDS VIEW 1: DEDICATED FULL-PAGE TRANSACTION FEED -->
       <section id="dailyEntryScreen" class="daily-screen space-y-3.5">
         <!-- Month Filter & Quick Search Header -->
-        <div class="glass-card rounded-2xl p-3.5 border border-slate-800 flex items-center justify-between gap-2">
+        <div class="glass-card rounded-2xl p-3 border border-slate-800 flex items-center justify-between gap-2">
           <div class="flex items-center gap-2 flex-1">
-            <i class="fa-solid fa-magnifying-glass text-slate-500 text-xs"></i>
+            <i class="fa-solid fa-magnifying-glass text-slate-400 text-xs"></i>
             <input type="text" id="expenseLogSearch" oninput="renderExpenseHistoryTable()" placeholder="Search description, tag..." class="bg-transparent w-full text-xs text-white placeholder-slate-500 focus:outline-none">
           </div>
-          <input type="month" id="dailyFeedMonthSelector" onchange="onDailyFeedMonthChanged()" class="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1 text-xs text-white outline-none cursor-pointer">
+          <input type="month" id="dailyFeedMonthSelector" onchange="onDailyFeedMonthChanged()" class="bg-slate-900 border border-slate-700 text-indigo-300 font-semibold rounded-xl px-2.5 py-1 text-xs outline-none cursor-pointer">
         </div>
 
         <!-- Filter Pills for Type -->
         <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
-          <button type="button" onclick="setSpendFeedFilter('ALL')" id="feedFilter-ALL" class="px-3 py-1 rounded-xl text-xs font-semibold bg-indigo-600 text-white shadow cursor-pointer">All Types</button>
-          <button type="button" onclick="setSpendFeedFilter('Expense')" id="feedFilter-Expense" class="px-3 py-1 rounded-xl text-xs font-semibold bg-slate-800 text-slate-400 hover:text-white cursor-pointer border border-slate-700/60">Expenses</button>
-          <button type="button" onclick="setSpendFeedFilter('Income')" id="feedFilter-Income" class="px-3 py-1 rounded-xl text-xs font-semibold bg-slate-800 text-slate-400 hover:text-white cursor-pointer border border-slate-700/60">Incomes</button>
-          <button type="button" onclick="setSpendFeedFilter('Transfer')" id="feedFilter-Transfer" class="px-3 py-1 rounded-xl text-xs font-semibold bg-slate-800 text-slate-400 hover:text-white cursor-pointer border border-slate-700/60">Transfers</button>
+          <button type="button" onclick="setSpendFeedFilter('ALL')" id="feedFilter-ALL" class="px-3 py-1 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-md shadow-indigo-600/30 cursor-pointer">All Types</button>
+          <button type="button" onclick="setSpendFeedFilter('Expense')" id="feedFilter-Expense" class="px-3 py-1 rounded-xl text-xs font-semibold bg-slate-800/80 text-rose-300 hover:text-white cursor-pointer border border-rose-500/30">Expenses</button>
+          <button type="button" onclick="setSpendFeedFilter('Income')" id="feedFilter-Income" class="px-3 py-1 rounded-xl text-xs font-semibold bg-slate-800/80 text-emerald-300 hover:text-white cursor-pointer border border-emerald-500/30">Incomes</button>
+          <button type="button" onclick="setSpendFeedFilter('Transfer')" id="feedFilter-Transfer" class="px-3 py-1 rounded-xl text-xs font-semibold bg-slate-800/80 text-cyan-300 hover:text-white cursor-pointer border border-cyan-500/30">Transfers</button>
         </div>
 
         <div class="flex justify-between items-center px-1 text-xs text-slate-400 font-semibold">
           <span>Transactions Feed</span>
-          <span id="expenseLogCounter" class="text-slate-500 font-mono">0 items</span>
+          <span id="expenseLogCounter" class="text-indigo-300 font-mono">0 items</span>
         </div>
 
-        <!-- Full-Page Interactive Feed Container -->
-        <div id="expenseHistoryContainer" class="space-y-2.5 pb-6">
-          <!-- Injected via JS (Newest First) -->
-        </div>
+        <!-- Full-Page Interactive Feed Container (Newest First) -->
+        <div id="expenseHistoryContainer" class="space-y-2.5 pb-6"></div>
       </section>
 
       <!-- SPENDS VIEW 2: SUMMARY DASHBOARD WITH MONTH SELECTOR & LIVE BALANCES -->
@@ -170,7 +168,7 @@
             <p class="text-xs text-slate-400">Cashflow, spending & balances</p>
           </div>
           <div>
-            <input type="month" id="dailyDashMonthSelector" onchange="onDailyDashMonthChanged()" class="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1 text-xs text-white outline-none cursor-pointer">
+            <input type="month" id="dailyDashMonthSelector" onchange="onDailyDashMonthChanged()" class="bg-slate-900 border border-slate-700 text-emerald-400 font-semibold rounded-xl px-2.5 py-1 text-xs outline-none cursor-pointer">
           </div>
         </div>
 
@@ -182,24 +180,24 @@
           </div>
 
           <div class="flex items-baseline gap-2 mt-1">
-            <span id="kpiNetLiquidWealth" class="text-3xl font-extrabold text-white tracking-tight">₹0</span>
-            <span class="text-xs text-slate-400 font-medium">(Total across accounts)</span>
+            <span id="kpiNetLiquidWealth" class="text-3xl font-black text-white tracking-tight">₹0</span>
+            <span class="text-xs text-slate-400 font-medium">(Across all accounts)</span>
           </div>
 
           <div class="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-slate-700/60">
-            <div class="bg-slate-900/60 p-2.5 rounded-2xl border border-slate-800">
+            <div class="bg-slate-900/70 p-2.5 rounded-2xl border border-slate-800">
               <span class="text-[10px] text-slate-400 uppercase font-semibold block">Income</span>
-              <span id="kpiDailyMonthIncome" class="text-sm font-bold text-emerald-400 mt-0.5 block">₹0</span>
+              <span id="kpiDailyMonthIncome" class="text-sm font-extrabold text-emerald-400 mt-0.5 block">₹0</span>
               <span class="text-[9px] text-slate-500">Inflows</span>
             </div>
-            <div class="bg-slate-900/60 p-2.5 rounded-2xl border border-slate-800">
+            <div class="bg-slate-900/70 p-2.5 rounded-2xl border border-slate-800">
               <span class="text-[10px] text-slate-400 uppercase font-semibold block">Expense</span>
-              <span id="kpiDailyMonthExpense" class="text-sm font-bold text-rose-400 mt-0.5 block">₹0</span>
+              <span id="kpiDailyMonthExpense" class="text-sm font-extrabold text-rose-400 mt-0.5 block">₹0</span>
               <span class="text-[9px] text-slate-500">Outflows</span>
             </div>
-            <div class="bg-slate-900/60 p-2.5 rounded-2xl border border-slate-800">
+            <div class="bg-slate-900/70 p-2.5 rounded-2xl border border-slate-800">
               <span class="text-[10px] text-slate-400 uppercase font-semibold block">Savings</span>
-              <span id="kpiDailyMonthSavings" class="text-sm font-bold text-cyan-300 mt-0.5 block">₹0</span>
+              <span id="kpiDailyMonthSavings" class="text-sm font-extrabold text-cyan-300 mt-0.5 block">₹0</span>
               <span class="text-[9px] text-slate-500">Net Surplus</span>
             </div>
           </div>
@@ -211,23 +209,25 @@
             <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
               <i class="fa-solid fa-receipt text-rose-400"></i> Spending Summary
             </h3>
-            <span class="text-[10px] text-slate-500">Actual Outflows</span>
+            <span class="text-[10px] text-slate-500 font-semibold">Actual Outflows</span>
           </div>
 
           <div class="grid grid-cols-3 gap-2.5">
             <div class="glass-card rounded-2xl p-3 border border-slate-800">
               <span class="text-[10px] font-semibold text-slate-400 uppercase block">Today Spent</span>
-              <span id="kpiSummaryTodaySpent" class="text-base font-extrabold text-white mt-0.5 block">₹0</span>
+              <span id="kpiSummaryTodaySpent" class="text-base font-black text-white mt-0.5 block">₹0</span>
               <span id="kpiSummaryTodayCount" class="text-[9px] text-slate-500 block">0 spends</span>
             </div>
+
             <div class="glass-card rounded-2xl p-3 border border-slate-800">
               <span class="text-[10px] font-semibold text-slate-400 uppercase block">Week Spent</span>
-              <span id="kpiSummaryWeekSpent" class="text-base font-extrabold text-rose-400 mt-0.5 block">₹0</span>
+              <span id="kpiSummaryWeekSpent" class="text-base font-black text-rose-400 mt-0.5 block">₹0</span>
               <span id="kpiSummaryWeekCount" class="text-[9px] text-slate-500 block">Last 7 days</span>
             </div>
+
             <div class="glass-card rounded-2xl p-3 border border-slate-800">
               <span class="text-[10px] font-semibold text-slate-400 uppercase block">Month Spent</span>
-              <span id="kpiSummaryMonthSpent" class="text-base font-extrabold text-slate-100 mt-0.5 block">₹0</span>
+              <span id="kpiSummaryMonthSpent" class="text-base font-black text-slate-100 mt-0.5 block">₹0</span>
               <span id="kpiSummaryMonthAvg" class="text-[9px] text-slate-500 block">Avg ₹0/d</span>
             </div>
           </div>
@@ -242,7 +242,7 @@
               </h3>
               <p class="text-[11px] text-slate-400">Reconciled with transfers & starting balances</p>
             </div>
-            <button type="button" onclick="openAccountModal()" class="text-xs text-cyan-400 hover:underline flex items-center gap-1 font-semibold">
+            <button type="button" onclick="openAccountModal()" class="text-xs text-cyan-400 hover:underline flex items-center gap-1 font-semibold cursor-pointer">
               <i class="fa-solid fa-pen-to-square text-[10px]"></i> Edit Balances
             </button>
           </div>
@@ -253,18 +253,18 @@
         <div class="glass-card rounded-3xl p-4 border border-slate-800">
           <div class="flex justify-between items-center mb-3">
             <span class="text-xs font-bold text-white uppercase tracking-wider">Top Spending Categories</span>
-            <button type="button" onclick="openExpenseCategoryModal()" class="text-xs text-indigo-400 hover:underline">Manage / Reorder</button>
+            <button type="button" onclick="openExpenseCategoryModal()" class="text-xs text-indigo-400 hover:underline cursor-pointer">Manage / Reorder</button>
           </div>
           <div id="dailyCategoryBreakdownContainer" class="space-y-2"></div>
         </div>
       </section>
 
-      <!-- SPENDS VIEW 3: DEDICATED TRENDS & DEEP-DIVE INTERACTIVE CHARTS -->
+      <!-- SPENDS VIEW 3: DEDICATED TRENDS & DEEP-DIVE CHARTS -->
       <section id="dailyTrendsScreen" class="daily-screen hidden space-y-4">
         <div class="flex items-center justify-between px-1">
           <div>
             <h2 class="text-base font-bold text-white">Daily Spending Analytics</h2>
-            <p class="text-xs text-slate-400">Tap any category/account below to view MoM trends</p>
+            <p class="text-xs text-slate-400">Weekly, monthly & drilldown trajectory</p>
           </div>
           <span class="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full font-semibold border border-emerald-500/20">Interactive</span>
         </div>
@@ -299,7 +299,7 @@
           <div class="h-56 relative flex items-center justify-center"><canvas id="dailyCategoryDoughnutChart"></canvas></div>
         </div>
 
-        <!-- Deep-Dive Interactive MoM Drilldown Card (Requirement 4) -->
+        <!-- MoM Drilldown Card -->
         <div class="glass-card rounded-3xl p-4 border border-indigo-500/40 space-y-3">
           <div class="flex justify-between items-center">
             <div>
@@ -315,16 +315,14 @@
               <option value="Category">Drilldown by Category</option>
               <option value="Account">Drilldown by Account</option>
             </select>
-            <select id="trendDrillTarget" onchange="renderMoMDrillChart()" class="bg-slate-900 border border-slate-700 rounded-xl px-2 py-1.5 text-xs text-white outline-none">
-              <!-- Dynamically populated -->
-            </select>
+            <select id="trendDrillTarget" onchange="renderMoMDrillChart()" class="bg-slate-900 border border-slate-700 rounded-xl px-2 py-1.5 text-xs text-white outline-none"></select>
           </div>
 
           <div class="h-48 relative mt-2"><canvas id="dailyMoMDrillChart"></canvas></div>
         </div>
       </section>
 
-      <!-- SPENDS VIEW 4: INTERACTIVE CALENDAR SPEND MATRIX (NEW REQUIREMENT 5) -->
+      <!-- SPENDS VIEW 4: INTERACTIVE CALENDAR SPEND MATRIX -->
       <section id="dailyCalendarScreen" class="daily-screen hidden space-y-4">
         <div class="flex items-center justify-between px-1">
           <div>
@@ -332,23 +330,19 @@
             <p class="text-xs text-slate-400">Tap any day to see category-wise breakdown</p>
           </div>
           <div>
-            <input type="month" id="calendarMonthSelector" onchange="renderSpendCalendarMatrix()" class="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1 text-xs text-white outline-none cursor-pointer">
+            <input type="month" id="calendarMonthSelector" onchange="renderSpendCalendarMatrix()" class="bg-slate-900 border border-slate-700 text-indigo-300 font-semibold rounded-xl px-2.5 py-1 text-xs outline-none cursor-pointer">
           </div>
         </div>
 
-        <!-- Interactive Calendar Grid Card -->
+        <!-- Calendar Matrix Card -->
         <div class="glass-card rounded-3xl p-4 border border-slate-800 space-y-3">
-          <!-- Days of Week Header -->
           <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-slate-400 uppercase">
             <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
           </div>
-          <!-- Days Container -->
-          <div id="calendarDaysGrid" class="grid grid-cols-7 gap-1.5 pt-1">
-            <!-- Dynamically populated -->
-          </div>
+          <div id="calendarDaysGrid" class="grid grid-cols-7 gap-1.5 pt-1"></div>
         </div>
 
-        <!-- Selected Day Breakdown Drawer/Box -->
+        <!-- Day Breakdown Drawer -->
         <div id="calendarDayBreakdownBox" class="glass-card rounded-3xl p-4 border border-indigo-500/40 hidden space-y-3">
           <div class="flex justify-between items-center border-b border-slate-800 pb-2">
             <div>
@@ -359,9 +353,7 @@
               <i class="fa-solid fa-xmark"></i>
             </button>
           </div>
-          <div id="calendarDayItemsList" class="space-y-2 max-h-48 overflow-y-auto no-scrollbar">
-            <!-- Items injected -->
-          </div>
+          <div id="calendarDayItemsList" class="space-y-2 max-h-48 overflow-y-auto no-scrollbar"></div>
         </div>
       </section>
 
@@ -372,7 +364,7 @@
     <!-- ************************************************************* -->
     <div id="plannerModuleContainer" class="hidden space-y-4">
 
-      <!-- PLANNER VIEW 1: TARGETS SETUP & INPUT (INPUT FIRST) -->
+      <!-- PLANNER VIEW 1: TARGETS SETUP & INPUT -->
       <section id="plannerInputScreen" class="planner-screen space-y-4">
         <div class="flex items-center justify-between px-1">
           <div>
@@ -380,31 +372,30 @@
             <p class="text-xs text-slate-400">Configure planned spending targets</p>
           </div>
           <div>
-            <input type="month" id="plannerMonthSelector" onchange="onPlannerMonthChanged()" class="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1 text-xs text-white outline-none cursor-pointer">
+            <input type="month" id="plannerMonthSelector" onchange="onPlannerMonthChanged()" class="bg-slate-900 border border-slate-700 text-purple-400 font-semibold rounded-xl px-2.5 py-1 text-xs outline-none cursor-pointer">
           </div>
         </div>
 
-        <!-- Add Category Form -->
         <div class="glass-card rounded-3xl p-4 border border-slate-800 space-y-3">
           <div class="flex justify-between items-center">
             <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-              <i class="fa-solid fa-pen-ruler text-indigo-400"></i> Set Category Target
+              <i class="fa-solid fa-pen-ruler text-purple-400"></i> Set Category Target
             </h3>
-            <button type="button" onclick="seedDefaultPlannedBudget()" class="text-[11px] text-indigo-400 hover:underline">
+            <button type="button" onclick="seedDefaultPlannedBudget()" class="text-[11px] text-purple-400 hover:underline cursor-pointer">
               Load Quick Template
             </button>
           </div>
 
           <form id="budgetAddForm" onsubmit="handleSaveBudgetItem(event)" class="grid grid-cols-3 gap-2">
             <div class="col-span-2">
-              <input type="text" id="budgetCatNameInput" list="budgetCatDatalist" placeholder="Category (e.g. Groceries, Fuel)" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+              <input type="text" id="budgetCatNameInput" list="budgetCatDatalist" placeholder="Category (e.g. Groceries, Fuel)" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500">
               <datalist id="budgetCatDatalist"></datalist>
             </div>
             <div>
-              <input type="number" id="budgetCatAmountInput" min="0" step="any" placeholder="Target ₹" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 font-bold">
+              <input type="number" id="budgetCatAmountInput" min="0" step="any" placeholder="Target ₹" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 font-bold">
             </div>
             <div class="col-span-3">
-              <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl text-xs transition active:scale-98 cursor-pointer flex items-center justify-center gap-1">
+              <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-2.5 rounded-xl text-xs transition active:scale-98 cursor-pointer flex items-center justify-center gap-1">
                 <i class="fa-solid fa-plus text-[10px]"></i> Save Budget Target
               </button>
             </div>
@@ -414,7 +405,7 @@
         <div class="space-y-2.5">
           <div class="flex justify-between items-center px-1">
             <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Planned Allocations</h3>
-            <span id="plannerAllocationsCount" class="text-[11px] text-slate-500 font-semibold">0 Categories</span>
+            <span id="plannerAllocationsCount" class="text-[11px] text-purple-400 font-semibold font-mono">0 Categories</span>
           </div>
           <div id="plannerCategoryCardsContainer" class="space-y-2.5"></div>
         </div>
@@ -428,35 +419,36 @@
             <p class="text-xs text-slate-400">Track variance & remaining buffer</p>
           </div>
           <div>
-            <input type="month" id="plannerDashMonthSelector" onchange="onPlannerDashMonthChanged()" class="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1 text-xs text-white outline-none cursor-pointer">
+            <input type="month" id="plannerDashMonthSelector" onchange="onPlannerDashMonthChanged()" class="bg-slate-900 border border-slate-700 text-purple-400 font-semibold rounded-xl px-2.5 py-1 text-xs outline-none cursor-pointer">
           </div>
         </div>
 
         <!-- Scorecard -->
-        <div class="glass-card rounded-3xl p-5 shadow-xl relative overflow-hidden border border-indigo-500/30">
+        <div class="glass-card rounded-3xl p-5 shadow-xl relative overflow-hidden border border-purple-500/30">
           <div class="flex justify-between items-center mb-1">
             <span class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Total Planned Budget</span>
-            <span id="plannerOverviewMonthBadge" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/25">Oct 2026</span>
+            <span id="plannerOverviewMonthBadge" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-300 border border-purple-500/25">Oct 2026</span>
           </div>
 
           <div class="flex items-baseline justify-between mt-1">
-            <span id="kpiTotalPlannedBudget" class="text-3xl font-extrabold text-white tracking-tight">₹0</span>
+            <span id="kpiTotalPlannedBudget" class="text-3xl font-black text-white tracking-tight">₹0</span>
             <span id="kpiBudgetOverallBurnBadge" class="text-xs font-bold px-2 py-0.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700">0% Used</span>
           </div>
 
+          <!-- Overall Progress Bar -->
           <div class="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden mt-3 border border-slate-800">
-            <div id="plannerTotalProgressBar" class="bg-indigo-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+            <div id="plannerTotalProgressBar" class="bg-purple-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
           </div>
 
           <div class="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-slate-700/60">
             <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
               <span class="text-[10px] text-slate-400 uppercase font-semibold block">Actual Spent So Far</span>
-              <span id="kpiPlannerTotalActualSpent" class="text-lg font-bold text-rose-400 mt-0.5 block">₹0</span>
+              <span id="kpiPlannerTotalActualSpent" class="text-lg font-extrabold text-rose-400 mt-0.5 block">₹0</span>
               <span class="text-[10px] text-slate-500">Auto-mapped from spends</span>
             </div>
             <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
               <span class="text-[10px] text-slate-400 uppercase font-semibold block">Remaining Unspent Buffer</span>
-              <span id="kpiPlannerTotalRemainingBuffer" class="text-lg font-bold text-emerald-400 mt-0.5 block">₹0</span>
+              <span id="kpiPlannerTotalRemainingBuffer" class="text-lg font-extrabold text-emerald-400 mt-0.5 block">₹0</span>
               <span id="kpiPlannerSurplusStatus" class="text-[10px] text-slate-500">In budget</span>
             </div>
           </div>
@@ -506,22 +498,21 @@
     <!-- ************************************************************* -->
     <div id="debtModuleContainer" class="hidden space-y-4">
       
-      <!-- DEBT VIEW 1: COMMITMENTS FEED / HISTORY (INPUT FIRST) -->
+      <!-- DEBT VIEW 1: COMMITMENTS FEED / HISTORY -->
       <section id="entryScreen" class="debt-screen space-y-4">
         <div class="flex items-center justify-between px-1">
           <div>
             <h2 class="text-base font-bold text-white">Commitments & Loans</h2>
             <p class="text-xs text-slate-400">Active liabilities & reduction logs</p>
           </div>
-          <button type="button" onclick="openDebtPopupModal()" class="text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl transition flex items-center gap-1 active:scale-95 cursor-pointer">
+          <button type="button" onclick="openDebtPopupModal()" class="text-xs font-semibold bg-gradient-to-r from-amber-500 to-rose-500 text-white px-3 py-1.5 rounded-xl transition flex items-center gap-1 active:scale-95 cursor-pointer shadow-md shadow-rose-500/20">
             <i class="fa-solid fa-plus text-[10px]"></i> Log Loan
           </button>
         </div>
 
-        <!-- History Search & Filter -->
         <div class="glass-card rounded-2xl p-3 border border-slate-800 flex gap-2">
           <div class="relative flex-1">
-            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
             <input type="text" id="logSearch" oninput="renderHistoryTable()" placeholder="Search loans..." class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white focus:outline-none">
           </div>
           <select id="logCategoryFilter" onchange="renderHistoryTable()" class="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none">
@@ -540,18 +531,18 @@
             <p class="text-xs text-slate-400">Total liabilities & burn rate</p>
           </div>
           <div>
-            <input type="month" id="debtDashMonthSelector" onchange="onDebtDashMonthChanged()" class="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1 text-xs text-white outline-none cursor-pointer">
+            <input type="month" id="debtDashMonthSelector" onchange="onDebtDashMonthChanged()" class="bg-slate-900 border border-slate-700 text-amber-400 font-semibold rounded-xl px-2.5 py-1 text-xs outline-none cursor-pointer">
           </div>
         </div>
 
-        <div class="glass-card rounded-3xl p-5 shadow-xl relative overflow-hidden">
+        <div class="glass-card rounded-3xl p-5 shadow-xl relative overflow-hidden border border-amber-500/30">
           <div class="flex justify-between items-center mb-1">
             <span class="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Total Outstanding Debt</span>
-            <span id="dashMonthBadge" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/25">Oct 2026</span>
+            <span id="dashMonthBadge" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/25">Oct 2026</span>
           </div>
           
           <div class="flex items-baseline gap-2 mt-1">
-            <span id="kpiTotalDebt" class="text-3xl font-extrabold text-white tracking-tight">₹0</span>
+            <span id="kpiTotalDebt" class="text-3xl font-black text-white tracking-tight">₹0</span>
           </div>
           
           <div id="kpiReductionRow" class="flex items-center gap-1.5 mt-2 text-xs font-medium text-emerald-400">
@@ -562,12 +553,12 @@
           <div class="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-slate-700/60">
             <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
               <span class="text-[10px] text-slate-400 uppercase font-semibold block">Monthly EMI Outflow</span>
-              <span id="kpiTotalEmi" class="text-lg font-bold text-slate-100 mt-0.5 block">₹0</span>
+              <span id="kpiTotalEmi" class="text-lg font-black text-slate-100 mt-0.5 block">₹0</span>
               <span class="text-[10px] text-slate-500">Committed cash / mo</span>
             </div>
             <div class="bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
               <span class="text-[10px] text-slate-400 uppercase font-semibold block">Active Loans</span>
-              <span id="kpiActiveCount" class="text-lg font-bold text-indigo-400 mt-0.5 block">0 Loans</span>
+              <span id="kpiActiveCount" class="text-lg font-black text-amber-400 mt-0.5 block">0 Loans</span>
               <span id="kpiAvgRate" class="text-[10px] text-slate-500">Avg 0% APR</span>
             </div>
           </div>
@@ -638,7 +629,7 @@
               </div>
               <div class="mt-2">
                 <span class="text-[10px] uppercase text-slate-400 block font-medium">Est. Outstanding</span>
-                <span id="forecastDebt6M" class="text-lg font-extrabold text-white block mt-0.5">₹0</span>
+                <span id="forecastDebt6M" class="text-lg font-black text-white block mt-0.5">₹0</span>
                 <span id="forecastDrop6M" class="text-[10px] text-emerald-400 font-semibold block mt-0.5">↓ 0% drop</span>
               </div>
               <div class="mt-3 pt-2 border-t border-slate-800/80 flex justify-between items-center text-[10px]">
@@ -654,7 +645,7 @@
               </div>
               <div class="mt-2">
                 <span class="text-[10px] uppercase text-slate-400 block font-medium">Est. Outstanding</span>
-                <span id="forecastDebt1Y" class="text-lg font-extrabold text-white block mt-0.5">₹0</span>
+                <span id="forecastDebt1Y" class="text-lg font-black text-white block mt-0.5">₹0</span>
                 <span id="forecastDrop1Y" class="text-[10px] text-emerald-400 font-semibold block mt-0.5">↓ 0% drop</span>
               </div>
               <div class="mt-3 pt-2 border-t border-slate-800/80 flex justify-between items-center text-[10px]">
@@ -690,28 +681,14 @@
           </div>
         </div>
 
-        <div class="glass-card rounded-3xl p-5 border border-slate-800 space-y-3">
-          <div class="flex justify-between items-center">
-            <div>
-              <span class="text-xs font-bold text-white flex items-center gap-1.5">
-                <i class="fa-solid fa-sliders text-indigo-400"></i> Prepayment Simulator
-              </span>
-              <p class="text-[11px] text-slate-400">Impact of paying extra every month</p>
-            </div>
-            <span id="simulatorExtraBadge" class="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-lg">+₹5,000 /mo</span>
+        <div class="grid grid-cols-2 gap-3 pt-2">
+          <div class="bg-slate-900/80 p-3 rounded-2xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 font-semibold uppercase">Months Saved</span>
+            <span id="simMonthsSaved" class="text-base font-black text-emerald-400 mt-0.5 block">--</span>
           </div>
-
-          <input type="range" id="simulatorSlider" min="0" max="50000" step="1000" value="5000" oninput="updateSimulator(this.value)" class="w-full accent-indigo-500 cursor-pointer">
-
-          <div class="grid grid-cols-2 gap-3 pt-2">
-            <div class="bg-slate-900/80 p-3 rounded-2xl border border-slate-800">
-              <span class="text-[10px] text-slate-400 font-semibold uppercase">Months Saved</span>
-              <span id="simMonthsSaved" class="text-base font-extrabold text-emerald-400 mt-0.5 block">--</span>
-            </div>
-            <div class="bg-slate-900/80 p-3 rounded-2xl border border-slate-800">
-              <span class="text-[10px] text-slate-400 font-semibold uppercase">Debt-Free Date</span>
-              <span id="simNewFinishDate" class="text-base font-extrabold text-indigo-300 mt-0.5 block">--</span>
-            </div>
+          <div class="bg-slate-900/80 p-3 rounded-2xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 font-semibold uppercase">Debt-Free Date</span>
+            <span id="simNewFinishDate" class="text-base font-black text-indigo-300 mt-0.5 block">--</span>
           </div>
         </div>
 
@@ -759,16 +736,6 @@
             </button>
           </div>
         </div>
-
-        <div class="p-4 rounded-3xl border border-rose-500/20 bg-rose-500/5 space-y-2">
-          <h3 class="text-xs font-bold text-rose-400">Reset Application</h3>
-          <p class="text-[11px] text-slate-400 leading-relaxed">
-            Restore sample demo data for loans and commitments.
-          </p>
-          <button type="button" onclick="resetDataPrompt()" class="w-full text-xs font-semibold bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 py-2.5 rounded-xl transition active:scale-98 cursor-pointer">
-            Reset to Demo Dataset
-          </button>
-        </div>
       </section>
 
     </div>
@@ -777,18 +744,107 @@
 
   <!-- ================= FLOATING ACTION BUTTON (+ ADD ENTRY) ================= -->
   <div class="fixed bottom-20 right-4 z-40 max-w-md mx-auto">
-    <button type="button" onclick="triggerFloatingAdd()" class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 to-emerald-500 hover:from-indigo-500 hover:to-emerald-400 text-white shadow-2xl shadow-indigo-600/50 border border-white/20 flex items-center justify-center text-2xl transition-transform active:scale-90 cursor-pointer" title="Add Entry">
+    <button type="button" onclick="triggerFloatingAdd()" class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-500 via-teal-500 to-indigo-600 hover:from-emerald-400 hover:to-indigo-500 text-white shadow-2xl shadow-emerald-500/40 border border-white/20 flex items-center justify-center text-2xl transition-transform active:scale-90 cursor-pointer" title="Add Entry">
       <i class="fa-solid fa-plus"></i>
     </button>
   </div>
 
   <!-- ================= DYNAMIC BOTTOM NAVIGATION BAR ================= -->
-  <nav class="fixed bottom-0 left-0 right-0 z-40 bg-app-card/95 backdrop-blur-lg border-t border-app-border safe-bottom">
+  <nav class="fixed bottom-0 left-0 right-0 z-40 bg-app-card/95 backdrop-blur-lg border-t border-slate-800/80 safe-bottom">
     <div id="bottomNavRow" class="max-w-md mx-auto flex items-center justify-around py-2 px-1"></div>
   </nav>
 
+  <!-- ================= POPOUT MODAL: LOG DAILY TRANSACTION (BOTTOM SHEET) ================= -->
+  <div id="spendPopupModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="glass-modal w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 border border-slate-700/80 space-y-3.5 max-h-[92vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-2.5">
+        <div>
+          <h3 id="spendModalTitle" class="text-sm font-bold text-white">Log Transaction</h3>
+          <p class="text-[11px] text-slate-400">Capture Income, Expense, or Account Transfer</p>
+        </div>
+        <button type="button" onclick="closeSpendPopupModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center hover:text-white cursor-pointer">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="expenseForm" onsubmit="handleExpenseSubmission(event)" class="space-y-3.5">
+        <input type="hidden" id="editExpenseId" value="">
+
+        <!-- Transaction Type Switcher -->
+        <div>
+          <div class="bg-slate-900 p-1 rounded-2xl flex border border-slate-800 gap-1">
+            <button type="button" id="tabTypeExpense" onclick="setTransactionType('Expense')" class="flex-1 py-2 text-xs font-bold rounded-xl transition text-white bg-rose-600 shadow cursor-pointer">
+              💸 Expense
+            </button>
+            <button type="button" id="tabTypeIncome" onclick="setTransactionType('Income')" class="flex-1 py-2 text-xs font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer">
+              💰 Income
+            </button>
+            <button type="button" id="tabTypeTransfer" onclick="setTransactionType('Transfer')" class="flex-1 py-2 text-xs font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer">
+              🔄 Transfer
+            </button>
+          </div>
+        </div>
+
+        <!-- Date & Amount (Date is fully flexible) -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-400 mb-1">Date *</label>
+            <input type="date" id="expDate" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:border-indigo-500 focus:outline-none cursor-pointer">
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-400 mb-1">Amount (₹) *</label>
+            <input type="number" id="expAmount" step="any" min="0.01" placeholder="₹2,500" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white font-bold placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+          </div>
+        </div>
+
+        <!-- Dynamic Row: Expense & Income -->
+        <div id="rowCategoryAndAccount" class="grid grid-cols-2 gap-3">
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <label id="lblCategory" class="block text-[11px] font-semibold text-slate-400">Expense Category *</label>
+              <button type="button" onclick="openExpenseCategoryModal()" class="text-[10px] text-indigo-400 font-semibold cursor-pointer">+ Reorder</button>
+            </div>
+            <select id="expCategory" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:border-indigo-500 focus:outline-none"></select>
+          </div>
+
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <label id="lblAccount" class="block text-[11px] font-semibold text-slate-400">Payment Account *</label>
+              <button type="button" onclick="openAccountModal()" class="text-[10px] text-cyan-400 font-semibold cursor-pointer">+ Reorder</button>
+            </div>
+            <select id="expAccount" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:border-indigo-500 focus:outline-none"></select>
+          </div>
+        </div>
+
+        <!-- Dynamic Row: For Transfers (Fixed Required Trap) -->
+        <div id="rowTransferAccounts" class="hidden grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-semibold text-rose-400 mb-1">From Account (Sender) *</label>
+            <select id="expTransferFrom" class="w-full bg-slate-900 border border-rose-500/40 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none"></select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-emerald-400 mb-1">To Account (Receiver) *</label>
+            <select id="expTransferTo" class="w-full bg-slate-900 border border-emerald-500/40 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none"></select>
+          </div>
+        </div>
+
+        <!-- Note with Strict Starts-With Autocomplete -->
+        <div class="relative">
+          <label class="block text-[11px] font-semibold text-slate-400 mb-1">Note / Description (strict prefix autocomplete)</label>
+          <input type="text" id="expNote" autocomplete="off" oninput="handleNotePrefixInput(this.value)" placeholder="e.g. mobile recharge, grocery, fuel" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+          
+          <div id="noteSuggestionBox" class="absolute left-0 right-0 top-full mt-1 bg-slate-900/98 backdrop-blur-md border border-slate-700 rounded-xl shadow-2xl z-50 max-h-40 overflow-y-auto hidden divide-y divide-slate-800"></div>
+        </div>
+
+        <button type="submit" id="btnExpenseSubmit" class="w-full bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-600 text-white font-semibold py-3 rounded-2xl text-xs tracking-wide transition shadow-lg shadow-rose-600/30 flex items-center justify-center gap-2 active:scale-98 cursor-pointer">
+          <i class="fa-solid fa-plus text-xs"></i> Record Expense
+        </button>
+      </form>
+    </div>
+  </div>
+
   <!-- ================= POPOUT MODAL: LOG DEBT / EMI COMMITMENT ================= -->
-  <div id="debtPopupModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+  <div id="debtPopupModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="glass-modal w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 border border-slate-700/80 space-y-3.5 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-slate-800 pb-2.5">
         <div>
@@ -800,7 +856,7 @@
         </button>
       </div>
 
-      <form id="entryForm" onsubmit="handleFormSubmission(event)" class="space-y-3">
+      <form id="debtForm" onsubmit="handleDebtSubmission(event)" class="space-y-3">
         <input type="hidden" id="editEntryId" value="">
 
         <div class="grid grid-cols-2 gap-2.5">
@@ -876,7 +932,7 @@
           <input type="text" id="fNotes" placeholder="e.g. Tenor ends 2030, reducing balance" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
         </div>
 
-        <button type="submit" id="formSubmitBtn" class="w-full bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-600 text-white font-semibold py-3 rounded-2xl text-xs tracking-wide transition shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 active:scale-98 cursor-pointer">
+        <button type="submit" id="formSubmitBtn" class="w-full bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-400 hover:to-rose-400 text-white font-semibold py-3 rounded-2xl text-xs tracking-wide transition shadow-lg shadow-rose-600/30 flex items-center justify-center gap-2 active:scale-98 cursor-pointer">
           <i class="fa-solid fa-floppy-disk text-xs"></i> Save Commitment
         </button>
       </form>
@@ -884,7 +940,7 @@
   </div>
 
   <!-- ================= MODAL: DEBT CATEGORIES ================= -->
-  <div id="categoryModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+  <div id="categoryModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="glass-modal w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 border border-slate-700/80 space-y-4 max-h-[85vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <div>
@@ -917,7 +973,7 @@
   </div>
 
   <!-- ================= MODAL: EXPENSE & INCOME CATEGORY MANAGER (SEPARATE TABS) ================= -->
-  <div id="expenseCatModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+  <div id="expenseCatModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="glass-modal w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 border border-slate-700/80 space-y-4 max-h-[85vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <div>
@@ -959,7 +1015,7 @@
   </div>
 
   <!-- ================= MODAL: ACCOUNTS & STARTING BALANCES ================= -->
-  <div id="accountModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+  <div id="accountModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="glass-modal w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 border border-slate-700/80 space-y-4 max-h-[85vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <div>
@@ -1058,7 +1114,7 @@
     ];
 
     // State Storage (100% Intact Keys)
-    let activeModule = 'daily'; // Default Landing: Spends (Requirement 1)
+    let activeModule = 'daily';
     let currentTransactionType = 'Expense';
     let currentCatModalType = 'Expense';
     let currentSpendFeedFilter = 'ALL';
@@ -1080,7 +1136,7 @@
     // Chart Handles
     let debtChart = null, emiChart = null, doughnutChart = null;
     let dailyWeeklyBarChart = null, dailyMonthlyCompareChart = null;
-    let dailyCategoryDoughnutChart = null, dailyAccountDoughnutChart = null;
+    let dailyCategoryDoughnutChart = null;
     let dailyMoMDrillChart = null;
     let plannerMultiMonthChart = null;
 
@@ -1101,7 +1157,7 @@
     }
 
     // -------------------------------------------------------------
-    // TRI-MODE CONTROLLER (ORDER: SPENDS -> PLANNER -> DEBT)
+    // TRI-MODE SWITCHER (ORDER: SPENDS -> PLANNER -> DEBT)
     // -------------------------------------------------------------
     function toggleAppMode(mode) {
       activeModule = mode;
@@ -1113,8 +1169,9 @@
       const plannerContainer = document.getElementById('plannerModuleContainer');
       const dailyContainer = document.getElementById('dailyModuleContainer');
 
+      // Reset styles
       [btnDebt, btnPlanner, btnDaily].forEach(btn => {
-        btn.className = "flex-1 py-2 text-[11px] font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer flex items-center justify-center gap-1";
+        btn.className = "flex-1 py-2 text-[11px] font-bold rounded-xl transition text-slate-400 hover:text-white cursor-pointer flex items-center justify-center gap-1.5 active:scale-95";
       });
 
       debtContainer.classList.add('hidden');
@@ -1122,30 +1179,30 @@
       dailyContainer.classList.add('hidden');
 
       if (mode === 'daily') {
-        btnDaily.className = "flex-1 py-2 text-[11px] font-bold rounded-xl transition text-white bg-emerald-600 shadow cursor-pointer flex items-center justify-center gap-1";
-        document.getElementById('modeIcon').className = "w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-cyan-400 flex items-center justify-center text-white font-bold text-base shadow-lg shadow-emerald-500/20";
+        btnDaily.className = "flex-1 py-2 text-[11px] font-extrabold rounded-xl transition text-white bg-gradient-to-r from-emerald-500 to-teal-500 shadow-md shadow-emerald-500/25 cursor-pointer flex items-center justify-center gap-1.5 active:scale-95";
+        document.getElementById('modeIcon').className = "w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 via-teal-500 to-cyan-400 flex items-center justify-center text-white font-bold text-base shadow-lg shadow-emerald-500/25";
         document.getElementById('modeIcon').innerHTML = '<i class="fa-solid fa-wallet"></i>';
-        document.getElementById('appTitleText').innerHTML = 'Daily Spends <span class="text-[10px] font-semibold bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30">Live Feed</span>';
+        document.getElementById('appTitleText').innerHTML = 'Daily Spends <span class="text-[10px] font-semibold bg-emerald-500/15 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30">Live Feed</span>';
         document.getElementById('appSubtitleText').innerText = 'Income, expenses, transfers & trends';
 
         dailyContainer.classList.remove('hidden');
         renderBottomNav('daily');
-        switchDailyScreen('dailyEntryScreen'); // Feed first
+        switchDailyScreen('dailyEntryScreen');
       } else if (mode === 'planner') {
-        btnPlanner.className = "flex-1 py-2 text-[11px] font-bold rounded-xl transition text-white bg-indigo-600 shadow cursor-pointer flex items-center justify-center gap-1";
-        document.getElementById('modeIcon').className = "w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center text-white font-bold text-base shadow-lg shadow-indigo-500/20";
+        btnPlanner.className = "flex-1 py-2 text-[11px] font-extrabold rounded-xl transition text-white bg-gradient-to-r from-purple-600 to-indigo-600 shadow-md shadow-indigo-600/30 cursor-pointer flex items-center justify-center gap-1.5 active:scale-95";
+        document.getElementById('modeIcon').className = "w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-400 flex items-center justify-center text-white font-bold text-base shadow-lg shadow-indigo-500/30";
         document.getElementById('modeIcon').innerHTML = '<i class="fa-solid fa-bullseye"></i>';
-        document.getElementById('appTitleText').innerHTML = 'Monthly Budget Planner <span class="text-[10px] font-semibold bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-full border border-indigo-500/30">Targets</span>';
+        document.getElementById('appTitleText').innerHTML = 'Monthly Budget Planner <span class="text-[10px] font-semibold bg-purple-500/15 text-purple-300 px-2 py-0.5 rounded-full border border-purple-500/30">Targets</span>';
         document.getElementById('appSubtitleText').innerText = 'Plan budget & track actual spend balance';
 
         plannerContainer.classList.remove('hidden');
         renderBottomNav('planner');
         switchPlannerScreen('plannerInputScreen');
       } else {
-        btnDebt.className = "flex-1 py-2 text-[11px] font-bold rounded-xl transition text-white bg-indigo-600 shadow cursor-pointer flex items-center justify-center gap-1";
-        document.getElementById('modeIcon').className = "w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center text-white font-bold text-base shadow-lg shadow-indigo-500/20";
+        btnDebt.className = "flex-1 py-2 text-[11px] font-extrabold rounded-xl transition text-white bg-gradient-to-r from-amber-500 to-rose-500 shadow-md shadow-rose-500/20 cursor-pointer flex items-center justify-center gap-1.5 active:scale-95";
+        document.getElementById('modeIcon').className = "w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 flex items-center justify-center text-white font-bold text-base shadow-lg shadow-rose-500/25";
         document.getElementById('modeIcon').innerHTML = '<i class="fa-solid fa-scale-balanced"></i>';
-        document.getElementById('appTitleText').innerHTML = 'Debt & EMI Manager <span class="text-[10px] font-semibold bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-full border border-indigo-500/30">Commitments</span>';
+        document.getElementById('appTitleText').innerHTML = 'Debt & EMI Manager <span class="text-[10px] font-semibold bg-amber-500/15 text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/30">Commitments</span>';
         document.getElementById('appSubtitleText').innerText = 'Long-term liabilities & predictions';
 
         debtContainer.classList.remove('hidden');
@@ -1226,11 +1283,7 @@
 
     function triggerFloatingAdd() {
       if (activeModule === 'daily') {
-        resetExpenseFormToNew();
-        switchDailyScreen('dailyEntryScreen');
-        // Scroll to top and highlight form
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        document.getElementById('expAmount').focus();
+        openSpendPopupModal();
       } else if (activeModule === 'planner') {
         switchPlannerScreen('plannerInputScreen');
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1376,7 +1429,7 @@
         card.innerHTML = `
           <div>
             <span class="text-xs font-bold text-white block">${item.category}</span>
-            <span class="text-[11px] text-slate-400">Target: <b class="text-indigo-300 font-extrabold">${formatINR(item.plannedAmount)}</b></span>
+            <span class="text-[11px] text-slate-400">Target: <b class="text-purple-300 font-extrabold">${formatINR(item.plannedAmount)}</b></span>
           </div>
           <div class="flex items-center gap-2">
             <button type="button" onclick="editBudgetItemPrompt('${item.category}', ${item.plannedAmount})" class="text-indigo-400 hover:text-indigo-300 font-semibold p-1 cursor-pointer text-xs">
@@ -1470,7 +1523,7 @@
 
       document.getElementById('kpiBudgetOverallBurnBadge').innerText = `${totalBurnPct.toFixed(0)}% Used`;
       document.getElementById('plannerTotalProgressBar').style.width = `${Math.min(100, totalBurnPct)}%`;
-      document.getElementById('plannerTotalProgressBar').className = `${totalBurnPct > 100 ? 'bg-rose-500' : (totalBurnPct > 75 ? 'bg-amber-500' : 'bg-indigo-500')} h-full rounded-full transition-all duration-500`;
+      document.getElementById('plannerTotalProgressBar').className = `${totalBurnPct > 100 ? 'bg-rose-500' : (totalBurnPct > 75 ? 'bg-amber-500' : 'bg-purple-500')} h-full rounded-full transition-all duration-500`;
       document.getElementById('kpiPlannerSurplusStatus').innerText = totalRemaining >= 0 ? `${formatINR(totalRemaining)} unspent surplus` : 'Over budget limit';
     }
 
@@ -1526,7 +1579,7 @@
         data: {
           labels,
           datasets: [
-            { label: 'Planned Target', data: plannedSeries, backgroundColor: '#6366f1', borderRadius: 4 },
+            { label: 'Planned Target', data: plannedSeries, backgroundColor: '#8b5cf6', borderRadius: 4 },
             { label: 'Actual Outflow', data: actualSeries, backgroundColor: '#f43f5e', borderRadius: 4 }
           ]
         },
@@ -1559,15 +1612,27 @@
     }
 
     // -------------------------------------------------------------
-    // PART 3: DAILY SPENDS CONTROLLER & PREFIX AUTOCOMPLETE
+    // PART 3: DAILY SPENDS CONTROLLER & POPOUT MODAL
     // -------------------------------------------------------------
+    function openSpendPopupModal() {
+      resetExpenseFormToNew();
+      document.getElementById('spendModalTitle').innerText = 'Log Transaction';
+      document.getElementById('spendPopupModal').classList.remove('hidden');
+      document.getElementById('expAmount').focus();
+    }
+
+    function closeSpendPopupModal() {
+      document.getElementById('spendPopupModal').classList.add('hidden');
+      document.getElementById('noteSuggestionBox').classList.add('hidden');
+    }
+
     function setSpendFeedFilter(type) {
       currentSpendFeedFilter = type;
       ['ALL', 'Expense', 'Income', 'Transfer'].forEach(t => {
         const btn = document.getElementById('feedFilter-' + t);
         if (btn) {
           if (t === type) {
-            btn.className = "px-3 py-1 rounded-xl text-xs font-semibold bg-indigo-600 text-white shadow cursor-pointer";
+            btn.className = "px-3 py-1 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow cursor-pointer";
           } else {
             btn.className = "px-3 py-1 rounded-xl text-xs font-semibold bg-slate-800 text-slate-400 hover:text-white cursor-pointer border border-slate-700/60";
           }
@@ -1605,6 +1670,7 @@
         rowNormal.classList.add('hidden');
         rowTransfer.classList.remove('hidden');
 
+        // Prevent HTML5 hidden validation lockup
         expCatSelect.removeAttribute('required');
         expAccSelect.removeAttribute('required');
         trfFromSelect.setAttribute('required', 'required');
@@ -1685,11 +1751,11 @@
     function populateExpenseElements() {
       setTransactionType(currentTransactionType);
 
-      ['expAccount', 'expTransferFrom', 'expTransferTo', 'expenseAccountFilter'].forEach(id => {
+      ['expAccount', 'expTransferFrom', 'expTransferTo'].forEach(id => {
         const el = document.getElementById(id);
         if (!el) return;
         const curVal = el.value;
-        el.innerHTML = id === 'expenseAccountFilter' ? '<option value="ALL">All Accounts</option>' : '';
+        el.innerHTML = '';
         accountsList.forEach(a => {
           const opt = document.createElement('option');
           opt.value = a.name;
@@ -1740,7 +1806,7 @@
         account = document.getElementById('expTransferFrom').value;
         toAccount = document.getElementById('expTransferTo').value;
         if (!account || !toAccount) {
-          notify("Please select both accounts!");
+          notify("Please pick both accounts!");
           return;
         }
         if (account === toAccount) {
@@ -1764,7 +1830,7 @@
         expenseRecords.push(newRecord);
         notify(`Recorded ${currentTransactionType}: ${formatINR(amount)}`);
 
-        // Automatic Planner Creation
+        // Auto-add new category in spends to Planner
         if (currentTransactionType === 'Expense' && category) {
           const monthKey = date ? date.slice(0, 7) : new Date().toISOString().slice(0, 7);
           if (!monthlyBudgets[monthKey]) {
@@ -1774,13 +1840,13 @@
           if (!existsInPlanner) {
             monthlyBudgets[monthKey].push({ category: category, plannedAmount: amount });
             saveMonthlyBudgetStorage();
-            notify(`Auto-added "${category}" to Planner with budget ₹${amount}`);
+            notify(`Auto-added "${category}" to Planner (₹${amount})`);
           }
         }
       }
 
       saveExpenseStorage();
-      resetExpenseFormToNew();
+      closeSpendPopupModal();
       renderExpenseHistoryTable();
       renderDailySummary();
       renderBudgetPlanner();
@@ -1790,7 +1856,8 @@
       const item = expenseRecords.find(r => r.id == id);
       if (!item) return;
 
-      switchDailyScreen('dailyEntryScreen');
+      openSpendPopupModal();
+      document.getElementById('spendModalTitle').innerText = `Edit ${item.type}: ${formatINR(item.amount)}`;
       document.getElementById('editExpenseId').value = item.id;
       setTransactionType(item.type || 'Expense');
 
@@ -1805,12 +1872,6 @@
         document.getElementById('expCategory').value = item.category;
         document.getElementById('expAccount').value = item.account;
       }
-
-      document.getElementById('expenseFormTitle').innerText = `Edit ${item.type}: ${formatINR(item.amount)}`;
-      document.getElementById('btnExpenseSubmit').innerHTML = `<i class="fa-solid fa-check text-xs"></i> Update Transaction`;
-      document.getElementById('cancelExpenseEditBtn').classList.remove('hidden');
-
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function resetExpenseFormToNew() {
@@ -1818,8 +1879,6 @@
       document.getElementById('expenseForm').reset();
       document.getElementById('expDate').value = new Date().toISOString().slice(0, 10);
       setTransactionType('Expense');
-      document.getElementById('expenseFormTitle').innerText = 'Log Transaction';
-      document.getElementById('cancelExpenseEditBtn').classList.add('hidden');
     }
 
     function deleteExpense(id) {
@@ -1853,7 +1912,7 @@
         return matchesMonth && matchesType && matchesSearch;
       });
 
-      // ALWAYS NEWEST AT THE TOP
+      // ALWAYS NEWEST AT TOP
       filtered.sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id);
       document.getElementById('expenseLogCounter').innerText = `${filtered.length} entries`;
 
@@ -1894,7 +1953,7 @@
             </div>
             <div class="text-[11px] text-slate-300 flex items-center gap-2">
               ${accountText}
-              ${row.note ? `<span class="text-slate-500">• ${row.note}</span>` : ''}
+              ${row.note ? `<span class="text-slate-400 font-medium">• ${row.note}</span>` : ''}
             </div>
           </div>
           <div class="flex items-center gap-2 text-right">
@@ -2080,7 +2139,7 @@
         data: {
           labels: Object.keys(catMap).length ? Object.keys(catMap) : ['No Expenses'],
           datasets: [{
-            data: Object.values(catMap).length ? Object.values(catMap) : [1],
+            data: Object.values(catMap),
             backgroundColor: ['#f43f5e', '#6366f1', '#06b6d4', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#3b82f6'],
             borderWidth: 2, borderColor: '#090d16'
           }]
@@ -2092,7 +2151,7 @@
       });
     }
 
-    // ================= DEEP DIVE INTERACTIVE MOM CHARTS (REQUIREMENT 4) =================
+    // ================= DEEP DIVE INTERACTIVE MOM CHARTS =================
     function onDrillFilterChanged() {
       const type = document.getElementById('trendDrillType').value;
       const select = document.getElementById('trendDrillTarget');
@@ -2169,7 +2228,7 @@
       });
     }
 
-    // ================= INTERACTIVE SPENDS CALENDAR MATRIX (REQUIREMENT 5) =================
+    // ================= INTERACTIVE SPENDS CALENDAR MATRIX =================
     function renderSpendCalendarMatrix() {
       const selectedMonthKey = document.getElementById('calendarMonthSelector').value || new Date().toISOString().slice(0, 7);
       const grid = document.getElementById('calendarDaysGrid');
@@ -2182,7 +2241,6 @@
       const firstDayIndex = new Date(year, month, 1).getDay();
       const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-      // Pad previous month days
       for (let i = 0; i < firstDayIndex; i++) {
         const pad = document.createElement('div');
         pad.className = "h-12 rounded-xl bg-slate-900/20 border border-transparent opacity-20";
@@ -2191,7 +2249,6 @@
 
       const todayStr = new Date().toISOString().slice(0, 10);
 
-      // Render Day Cells
       for (let day = 1; day <= daysInMonth; day++) {
         const dayStr = day < 10 ? `0${day}` : `${day}`;
         const dateKey = `${selectedMonthKey}-${dayStr}`;
@@ -2526,7 +2583,7 @@
     // PART 1 CONTROLLER: DEBT & EMI (PRESERVED)
     // -------------------------------------------------------------
     function openDebtPopupModal() {
-      resetFormToNew();
+      resetDebtFormToNew();
       document.getElementById('debtModalTitle').innerText = 'Log Commitment';
       document.getElementById('debtPopupModal').classList.remove('hidden');
       document.getElementById('fMetric').focus();
@@ -2860,11 +2917,11 @@
           <div class="mt-3 pt-2.5 border-t border-slate-800/80 flex justify-between items-center text-[11px]">
             <span class="text-slate-400">Monthly EMI: <b class="text-slate-200 font-semibold">${formatINR(item.emi)}</b></span>
             <div class="flex items-center gap-2">
-              <button type="button" onclick="duplicateEntry(${item.id})" class="text-cyan-400 hover:text-cyan-300 p-1 font-semibold flex items-center gap-1 text-[11px] cursor-pointer" title="Duplicate this loan">
-                <i class="fa-regular fa-copy"></i> Duplicate
-              </button>
-              <button type="button" onclick="editEntry(${item.id})" class="text-indigo-400 hover:text-indigo-300 p-1 font-semibold flex items-center gap-1 text-[11px] cursor-pointer" title="Edit loan">
+              <button type="button" onclick="editDebtItem(${item.id})" class="text-indigo-400 hover:text-indigo-300 p-1 font-semibold flex items-center gap-1 text-[11px] cursor-pointer">
                 <i class="fa-solid fa-pen-to-square"></i> Edit
+              </button>
+              <button type="button" onclick="deleteDebtEntry(${item.id})" class="text-slate-500 hover:text-rose-400 p-1 cursor-pointer">
+                <i class="fa-solid fa-trash-can"></i>
               </button>
             </div>
           </div>
@@ -2873,7 +2930,7 @@
       });
     }
 
-    function handleFormSubmission(e) {
+    function handleDebtSubmission(e) {
       e.preventDefault();
       const editId = document.getElementById('editEntryId').value;
       const m = document.getElementById('fMonth').value;
@@ -2916,7 +2973,7 @@
       renderDashboard();
     }
 
-    function editEntry(id) {
+    function editDebtItem(id) {
       const item = debtRecords.find(r => r.id == id);
       if (!item) return;
 
@@ -2934,34 +2991,16 @@
       document.getElementById('fNotes').value = item.notes || '';
     }
 
-    function duplicateEntry(id) {
-      const item = debtRecords.find(r => r.id == id);
-      if (!item) return;
-
-      openDebtPopupModal();
-      document.getElementById('debtModalTitle').innerText = `Duplicate Commitment`;
+    function resetDebtFormToNew() {
       document.getElementById('editEntryId').value = '';
-      document.getElementById('fMonth').value = item.month;
-      document.getElementById('fMetric').value = `${item.metric} (Copy)`;
-      document.getElementById('fCategory').value = item.category;
-      document.getElementById('fBalance').value = item.balance;
-      document.getElementById('fEmi').value = item.emi;
-      document.getElementById('fRate').value = item.rate || '';
-      document.getElementById('fMonthsLeft').value = item.monthsLeft || '';
-      document.getElementById('fPriority').value = item.priority || 'Normal';
-      document.getElementById('fNotes').value = item.notes || '';
-    }
-
-    function resetFormToNew() {
-      document.getElementById('editEntryId').value = '';
-      document.getElementById('entryForm').reset();
+      document.getElementById('debtForm').reset();
       document.getElementById('fMonth').value = new Date().toISOString().slice(0, 7);
       document.getElementById('amortizationFeedback').innerText = `Formula: n = -ln(1 - P·r/E) / ln(1+r)`;
       document.getElementById('amortizationFeedback').className = "text-[10px] text-slate-500 px-1 italic";
     }
 
-    function deleteEntry(id) {
-      if (confirm("Are you sure you want to delete this entry?")) {
+    function deleteDebtEntry(id) {
+      if (confirm("Delete this loan commitment?")) {
         debtRecords = debtRecords.filter(r => r.id != id);
         saveDebtStorage();
         renderHistoryTable();
@@ -2983,11 +3022,11 @@
         return matchesCat && matchesSearch;
       });
 
-      // ALWAYS NEWEST AT THE TOP
+      // NEWEST AT TOP
       filtered.sort((a, b) => b.month.localeCompare(a.month) || b.id - a.id);
 
       if (filtered.length === 0) {
-        container.innerHTML = '<div class="glass-card rounded-2xl p-6 text-center text-slate-500 text-xs">No records found. Tap + to add.</div>';
+        container.innerHTML = '<div class="glass-card rounded-2xl p-6 text-center text-slate-500 text-xs">No records found. Tap Log Loan to add.</div>';
         return;
       }
 
@@ -3004,14 +3043,11 @@
             <span class="text-[10px] text-slate-400">${row.category} • EMI: ${formatINR(row.emi)} • <b class="text-indigo-300">${mLeft} mos left</b></span>
           </div>
           <div class="flex items-center gap-2">
-            <span class="font-extrabold text-slate-200 mr-1">${formatINR(row.balance)}</span>
-            <button type="button" onclick="duplicateEntry(${row.id})" class="text-cyan-400 hover:text-cyan-300 p-1.5 cursor-pointer" title="Duplicate">
-              <i class="fa-regular fa-copy"></i>
-            </button>
-            <button type="button" onclick="editEntry(${row.id})" class="text-indigo-400 hover:text-indigo-300 p-1.5 cursor-pointer" title="Edit">
+            <span class="font-black text-slate-100 text-sm mr-1">${formatINR(row.balance)}</span>
+            <button type="button" onclick="editDebtItem(${row.id})" class="text-indigo-400 hover:text-indigo-300 p-1.5 cursor-pointer" title="Edit">
               <i class="fa-solid fa-pen-to-square"></i>
             </button>
-            <button type="button" onclick="deleteEntry(${row.id})" class="text-slate-500 hover:text-rose-400 p-1.5 cursor-pointer" title="Delete">
+            <button type="button" onclick="deleteDebtEntry(${row.id})" class="text-slate-500 hover:text-rose-400 p-1.5 cursor-pointer" title="Delete">
               <i class="fa-solid fa-trash-can"></i>
             </button>
           </div>
@@ -3064,7 +3100,7 @@
         type: 'bar',
         data: {
           labels: months,
-          datasets: [{ data: emis, backgroundColor: '#6366f1', borderRadius: 6 }]
+          datasets: [{ data: emis, backgroundColor: '#f59e0b', borderRadius: 6 }]
         },
         options: {
           responsive: true, maintainAspectRatio: false,
@@ -3088,8 +3124,8 @@
           labels: Object.keys(catMap),
           datasets: [{
             data: Object.values(catMap),
-            backgroundColor: ['#6366f1', '#06b6d4', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#f43f5e', '#3b82f6'],
-            borderWidth: 2, borderColor: '#090d16'
+            backgroundColor: ['#f59e0b', '#06b6d4', '#10b981', '#6366f1', '#ec4899', '#8b5cf6', '#3b82f6'],
+            borderWidth: 2, borderColor: '#070a12'
           }]
         },
         options: {
@@ -3194,33 +3230,22 @@
         document.getElementById('forecastDrop1Y').innerText = `↓ ${drop12}% drop from today`;
       }
 
-      updateSimulator(document.getElementById('simulatorSlider').value);
-      renderPayoffList();
-    }
-
-    function updateSimulator(extraEmi) {
-      extraEmi = parseFloat(extraEmi) || 0;
-      document.getElementById('simulatorExtraBadge').innerText = `+${formatINR(extraEmi)} /mo`;
-
-      const { latestItems } = getLatestDataset('ALL');
-      if (latestItems.length === 0) {
-        document.getElementById('simMonthsSaved').innerText = '--';
-        document.getElementById('simNewFinishDate').innerText = '--';
-        return;
+      // Prepayment Simulator Defaults
+      if (latestItems.length > 0) {
+        const totalBal = latestItems.reduce((acc, c) => acc + c.balance, 0);
+        const totalNormalEmi = latestItems.reduce((acc, c) => acc + c.emi, 0);
+        if (totalNormalEmi > 0) {
+          const baseMonths = Math.ceil(totalBal / totalNormalEmi);
+          const accMonths = Math.ceil(totalBal / (totalNormalEmi + 5000));
+          const saved = Math.max(0, baseMonths - accMonths);
+          document.getElementById('simMonthsSaved').innerText = `${saved} Months Faster`;
+          const finish = new Date();
+          finish.setMonth(finish.getMonth() + accMonths);
+          document.getElementById('simNewFinishDate').innerText = finish.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
+        }
       }
 
-      const totalBalance = latestItems.reduce((acc, c) => acc + c.balance, 0);
-      const totalEmi = latestItems.reduce((acc, c) => acc + c.emi, 0);
-      if (totalEmi <= 0) return;
-
-      const baseMonths = Math.ceil(totalBalance / totalEmi);
-      const accMonths = Math.ceil(totalBalance / (totalEmi + extraEmi));
-      const saved = Math.max(0, baseMonths - accMonths);
-
-      document.getElementById('simMonthsSaved').innerText = `${saved} Months Faster`;
-      const finish = new Date();
-      finish.setMonth(finish.getMonth() + accMonths);
-      document.getElementById('simNewFinishDate').innerText = finish.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
+      renderPayoffList();
     }
 
     function renderPayoffList() {
@@ -3276,7 +3301,7 @@
       });
     }
 
-    // Export & Reset
+    // Export Data (Preserves exact schema)
     function exportToCSV() {
       if (debtRecords.length === 0 && expenseRecords.length === 0) return notify("No data to export!");
       let csv = 'Module,DateOrMonth,Title,Category,Amount,Account,Rate,TenorLeft,Notes\r\n';
@@ -3319,32 +3344,8 @@
       notify("All data backed up successfully!");
     }
 
-    function resetDataPrompt() {
-      if (confirm("Reset everything back to demo sample records?")) {
-        debtRecords = JSON.parse(JSON.stringify(DEFAULT_DEBT_DATA));
-        categories = [...DEFAULT_DEBT_CATEGORIES];
-        expenseRecords = JSON.parse(JSON.stringify(DEFAULT_EXPENSE_DATA));
-        expenseCategories = [...DEFAULT_EXPENSE_CATEGORIES];
-        incomeCategories = [...DEFAULT_INCOME_CATEGORIES];
-        accountsList = [...DEFAULT_ACCOUNTS];
-        monthlyBudgets = {};
-
-        saveDebtStorage();
-        saveExpenseStorage();
-        saveMonthlyBudgetStorage();
-
-        populateCategoryElements();
-        populateExpenseElements();
-
-        renderDashboard();
-        renderDailySummary();
-        renderBudgetPlanner();
-        notify("Reset to demo data completed.");
-      }
-    }
-
     // -------------------------------------------------------------
-    // INITIALIZATION (LANDING PAGE: SPENDS)
+    // INITIALIZATION (DEFAULTS DIRECTLY TO SPENDS MODULE)
     // -------------------------------------------------------------
     window.addEventListener('DOMContentLoaded', () => {
       const currentMonth = new Date().toISOString().slice(0, 7);
@@ -3360,7 +3361,8 @@
       populateCategoryElements();
       populateExpenseElements();
 
-      toggleAppMode('daily'); // Landing Page: Spends Feed
+      // LANDING PAGE: SPENDS MODULE
+      toggleAppMode('daily');
     });
   </script>
 </body>
